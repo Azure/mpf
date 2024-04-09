@@ -1,3 +1,25 @@
+//     MIT License
+//
+//     Copyright (c) Microsoft Corporation.
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in all
+//     copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//     SOFTWARE
+
 package domain
 
 import (
@@ -27,16 +49,6 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 		resMap, err = parseMultiAuthorizationErrors(authErrMesg)
 	}
 
-	// if strings.Count(authErrMesg, "AuthorizationFailed") >= 1 {
-	// 	resMap, err = parseMultiAuthorizationFailedErrors(authErrMesg)
-
-	// }
-
-	// // If count of "Authorization failed" in error message is 1 or more than 1, then it is a multi authorization error
-	// if strings.Count(authErrMesg, "Authorization failed") >= 1 {
-	// 	resMap, err = parseMultiAuthorizationErrors(authErrMesg)
-	// }
-
 	if err != nil {
 		return nil, err
 	}
@@ -45,17 +57,6 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 	if len(resMap) == 0 {
 		return nil, errors.New(fmt.Sprintf("Could not parse deployment error for scope/permissions: %s", authErrMesg))
 	}
-
-	// // For each /write permission add a /read permission to map
-	// // traverse resMap for each permission ending with /write add /read permission
-	// for scope, permissions := range resMap {
-	// 	for _, permission := range permissions {
-	// 		if strings.HasSuffix(permission, "/write") {
-	// 			readPermission := strings.Replace(permission, "/write", "/read", 1)
-	// 			resMap[scope] = append(resMap[scope], readPermission)
-	// 		}
-	// 	}
-	// }
 
 	return resMap, nil
 }
