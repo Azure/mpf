@@ -44,7 +44,7 @@ jobs:
       MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
     strategy:
       matrix:
-        go-version: [ '1.21.5' ]
+        go-version: [ '1.23.6' ]
 
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
       #     terraform_version: 1.5.7
       - name: Install Terraform
         run: |
-          curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.9.7/terraform_1.9.7_linux_amd64.zip
+          curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.10.4/terraform_1.10.4_linux_amd64.zip
           unzip terraform.zip
           # move to working directory
           sudo mv terraform /usr/local/bin/terraform
