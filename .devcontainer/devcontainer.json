@@ -7,10 +7,10 @@
             "installBicep": true
 		},
         "ghcr.io/devcontainers/features/terraform:1": {
-            "version": "1.9.7"
+            "version": "1.10.4"
         },
         "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.21.5"
+            "version": "1.23.6"
           },
     },
     "customizations": {

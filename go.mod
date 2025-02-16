@@ -1,6 +1,6 @@
 module github.com/manisbindra/az-mpf
 
-go 1.21.5
+go 1.23
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible
