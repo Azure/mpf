@@ -14,6 +14,8 @@
 | verbose            | MPF_VERBOSE          | Optional           | If set to true, verbose output with informational messages is displayed                                          |
 | debug              | MPF_DEBUG            | Optional           | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens |
 
+When used for Terraform, the verbose and debug flags show detailed logs from Terraform.
+
 ## ARM Flags
 
 | Flag                 | Environment Variable     | Required / Optional | Description                                                                                                      |
