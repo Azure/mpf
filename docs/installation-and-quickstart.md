@@ -1,4 +1,4 @@
-# MPF installation and quickstart
+# MPF Installation and Quickstart
 
 ## Installation
 
@@ -7,7 +7,7 @@ You can download the latest version for your platform from the [releases](https:
 For example, to download the latest version for Windows:
 
 ```shell
-# Please change version in the URL to the latest version
+# Please change the version in the URL to the latest version
 curl -LO https://github.com/maniSbindra/az-mpf/releases/download/v0.11.0/az-mpf_0.11.0_windows_amd64.tar.gz
 tar -xzf az-mpf_0.11.0_windows_amd64.tar.gz
 mv az-mpf_0.11.0_windows_amd64 az-mpf.exe
@@ -17,7 +17,7 @@ chmod +x ./az-mpf.exe
 And for Mac Arm64:
   
 ```shell
-# Please change version in the URL to the latest version
+# Please change the version in the URL to the latest version
 curl -LO https://github.com/maniSbindra/az-mpf/releases/download/v0.11.0/az-mpf_0.11.0_darwin_arm64.tar.gz
 tar -xzf az-mpf_0.11.0_darwin_arm64.tar.gz
 mv az-mpf-darwin-arm64 az-mpf
@@ -112,6 +112,6 @@ Microsoft.Resources/subscriptions/resourcegroups/write
 
 ```
 
-Is is also possible to additionally view detailed resource level permissions required as shown in the [display options](docs/display-options.MD) documents.
+It is also possible to additionally view detailed resource-level permissions required as shown in the [display options](docs/display-options.MD) document.
 
 The blog post [Figuring out the Minimum Permissions Required to Deploy an Azure ARM Template](https://medium.com/microsoftazure/figuring-out-the-minimum-permissions-required-to-deploy-an-azure-arm-template-d1c1e74092fa) provides a more contextual usage scenario for az-mpf.
