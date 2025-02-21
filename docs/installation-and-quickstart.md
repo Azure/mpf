@@ -112,6 +112,6 @@ Microsoft.Resources/subscriptions/resourcegroups/write
 
 ```
 
-It is also possible to additionally view detailed resource-level permissions required as shown in the [display options](./display-options.md) document.
+It is also possible to additionally view detailed resource-level permissions required as shown in the [display options](./display-options.MD) document.
 
 The blog post [Figuring out the Minimum Permissions Required to Deploy an Azure ARM Template](https://medium.com/microsoftazure/figuring-out-the-minimum-permissions-required-to-deploy-an-azure-arm-template-d1c1e74092fa) provides a more contextual usage scenario for az-mpf.
