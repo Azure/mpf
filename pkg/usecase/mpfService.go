@@ -1,17 +1,17 @@
 //     MIT License
-// 
+//
 //     Copyright (c) Microsoft Corporation.
-// 
+//
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
 //     in the Software without restriction, including without limitation the rights
 //     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //     copies of the Software, and to permit persons to whom the Software is
 //     furnished to do so, subject to the following conditions:
-// 
+//
 //     The above copyright notice and this permission notice shall be included in all
 //     copies or substantial portions of the Software.
-// 
+//
 //     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -124,9 +124,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 
 	// Add initial permissions to requiredPermissions map
 	log.Infoln("Adding initial permissions to requiredPermissions map")
-	for _, permission := range s.permissionsToAddToResult {
-		s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], permission)
-	}
+	s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], s.permissionsToAddToResult...)
 	// s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], s.permissionsToAddToResult...)
 
 	maxIterations := 50

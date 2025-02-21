@@ -1,2 +1,4 @@
+
+
 location = "westus"
-postfix = "7422"
+postfix  = "7422"

@@ -55,7 +55,7 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 
 	// If map is empty, return error
 	if len(resMap) == 0 {
-		return nil, errors.New(fmt.Sprintf("Could not parse deployment error for scope/permissions: %s", authErrMesg))
+		return nil, fmt.Errorf("Could not parse deployment error for scope/permissions: %s", authErrMesg)
 	}
 
 	return resMap, nil

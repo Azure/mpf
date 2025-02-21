@@ -1,3 +1,5 @@
+
+
 output "name" {
   description = "Name of the Application Insights"
   # value       = azapi_resource.appinsights.name
