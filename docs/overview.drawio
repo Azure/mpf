@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="31JLIK71XQhkJkAo9kQR" name="Page-1">
-        <mxGraphModel dx="562" dy="747" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1038" dy="947" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -50,7 +50,7 @@
                         <mxPoint x="320" y="610" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="18" style="edgeStyle=none;html=1;dashed=1;dashPattern=12 12;fontColor=#000000;endArrow=none;endFill=0;strokeColor=#CCCCCC;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="14" edge="1" target="7">
+                <mxCell id="18" style="edgeStyle=none;html=1;dashed=1;dashPattern=12 12;fontColor=#000000;endArrow=none;endFill=0;strokeColor=#CCCCCC;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="14" target="7" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="290" y="670" as="targetPoint"/>
                     </mxGeometry>
@@ -61,8 +61,328 @@
                 <mxCell id="20" value="Temporary Deployment (optionally with temporary resources created depending on deployment provider and mode)" style="rounded=1;whiteSpace=wrap;html=1;fontColor=#000000;fillColor=#7DBBB7;" parent="1" vertex="1">
                     <mxGeometry x="400" y="130" width="160" height="70" as="geometry"/>
                 </mxCell>
-                <mxCell id="21" value="&lt;h1&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;Flow&lt;/span&gt;&lt;br&gt;&lt;/h1&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Remove any existing Role Assignments for Service Principal&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- Create New Role with no actions&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Assign New Role to Service Principal (SP)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Attempt Deployment using SP creds. While deployment results in Authorization errors&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;- Parse Authorization errors to get permissions needed by SP&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;- Add permissions to custom Role. Retry till deployment succeeds&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Print Permissions&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Cleanup resources&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=#FFFEE0;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="21" value="&lt;h1&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;Flow&lt;/span&gt;&lt;br&gt;&lt;/h1&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Remove any existing Role Assignments for Service Principal&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- Create New Role with no actions&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Assign New Role to Service Principal (SP)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Attempt Deployment using SP creds. While deployment results in Authorization errors&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;- Parse Authorization errors to get permissions needed by SP&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;- Add permissions to custom Role. Retry till deployment succeeds&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Print Permissions&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;- Cleanup resources&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=#FFFEE0;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="620" y="420" width="400" height="200" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="X7Lu9BGqC_4lPgr1fsiU" name="mpf-service-and-interfaces">
+        <mxGraphModel dx="1545" dy="747" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-1" value="«interface»&lt;br&gt;&lt;b&gt;DeploymentAuthorizationCheckerCleaner&lt;/b&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b style=&quot;background-color: transparent;&quot;&gt;- GetDeploymentAuthorizationErrors(...)&lt;/b&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b style=&quot;background-color: transparent;&quot;&gt;- CleanDeployment(....)&lt;/b&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;" parent="1" vertex="1">
+                    <mxGeometry x="144" y="160" width="270" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-2" value="MPFService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="184" width="390" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="GjjTEntSDeKCxqmrbpOs-2" vertex="1">
+                    <mxGeometry y="26" width="390" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-5" value="+ NewMpfService(DeploymentAuthorizaationCheckerCleaner,....)&lt;div&gt;+ GetMinimumPermissionsRequired()&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="GjjTEntSDeKCxqmrbpOs-2" vertex="1">
+                    <mxGeometry y="34" width="390" height="96" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-10" style="edgeStyle=none;html=1;" parent="1" source="GjjTEntSDeKCxqmrbpOs-6" target="GjjTEntSDeKCxqmrbpOs-1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-6" value="TerraformAuthorizationCheckerCleaner" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-100" y="280" width="290" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="GjjTEntSDeKCxqmrbpOs-6" vertex="1">
+                    <mxGeometry y="26" width="290" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-11" value="ARMTemplateWhatIfAuthorizationCheckerCleaner" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="210" y="280" width="290" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-12" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="GjjTEntSDeKCxqmrbpOs-11" vertex="1">
+                    <mxGeometry y="26" width="290" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="GjjTEntSDeKCxqmrbpOs-13" style="edgeStyle=none;html=1;entryX=0.426;entryY=1.014;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="GjjTEntSDeKCxqmrbpOs-11" target="GjjTEntSDeKCxqmrbpOs-1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="sUIGtP-TXRktVkkNLB26" name="armCmd-Sequence-Diagram">
+        <mxGraphModel dx="718" dy="747" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-1" style="edgeStyle=elbowEdgeStyle;html=1;elbow=vertical;curved=0;rounded=0;" parent="1" target="CoSXuRYnZdbEfBq5J8_G-7" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="119.5" y="620" as="sourcePoint"/>
+                        <mxPoint x="590" y="620" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-2" value="NewMpfService(ARMWhatIfAuthCheckerCleaner, ..........)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="CoSXuRYnZdbEfBq5J8_G-1" vertex="1" connectable="0">
+                    <mxGeometry x="-0.2265" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-3" value="armCmd" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="1" vertex="1">
+                    <mxGeometry x="70" y="470" width="100" height="590" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-4" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="CoSXuRYnZdbEfBq5J8_G-3" vertex="1">
+                    <mxGeometry x="45" y="70" width="10" height="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-5" value="NewARMTemplateWhatIfAuthChekerCleaner(........)" style="html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;" parent="CoSXuRYnZdbEfBq5J8_G-3" target="CoSXuRYnZdbEfBq5J8_G-4" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="55" y="70" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="85" y="100"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-6" value="MPFService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="1" vertex="1">
+                    <mxGeometry x="560" y="470" width="100" height="540" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-7" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="CoSXuRYnZdbEfBq5J8_G-6" vertex="1">
+                    <mxGeometry x="45" y="120" width="10" height="390" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-8" style="edgeStyle=none;html=1;curved=0;rounded=0;" parent="CoSXuRYnZdbEfBq5J8_G-6" source="CoSXuRYnZdbEfBq5J8_G-6" target="CoSXuRYnZdbEfBq5J8_G-7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-9" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;1. Remove all permissions from Deployment service principal&lt;div&gt;2. Create New Custom Role with No permissions&lt;/div&gt;&lt;div&gt;3. Associate custom role with deployment service principal&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: rgb(192, 192, 192);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;font style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Till success or Non Authorization Error&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;1. Get access token for deployment service principal&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;2. Attempt Deployment (by calling GetDeploymentAuthorizationErrors)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); white-space-collapse: preserve;&quot;&gt;&#x9;&lt;/span&gt;3&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;. Parse Authorization Errors&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;4. Add missing permissions to custom role&lt;br&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;5&amp;nbsp;Add identified Missing Permissions to result&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;" parent="CoSXuRYnZdbEfBq5J8_G-6" edge="1">
+                    <mxGeometry x="0.0051" relative="1" as="geometry">
+                        <mxPoint x="52" y="235" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="82" y="235"/>
+                            <mxPoint x="82" y="375"/>
+                        </Array>
+                        <mxPoint x="57" y="375" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-10" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="CoSXuRYnZdbEfBq5J8_G-6" vertex="1">
+                    <mxGeometry x="45" y="350" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-11" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" parent="CoSXuRYnZdbEfBq5J8_G-6" vertex="1">
+                    <mxGeometry x="45" y="420" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-12" value="CleanDeployment(...)" style="html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;" parent="CoSXuRYnZdbEfBq5J8_G-6" target="CoSXuRYnZdbEfBq5J8_G-11" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="50" y="400" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="80" y="400"/>
+                            <mxPoint x="80" y="450"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-13" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="600" y="640" as="sourcePoint"/>
+                        <mxPoint x="130" y="640" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-14" style="edgeStyle=none;html=1;curved=0;rounded=0;" parent="1" source="CoSXuRYnZdbEfBq5J8_G-4" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="600" y="695" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-15" value="GetMinimumPermissionsRequired()" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="CoSXuRYnZdbEfBq5J8_G-14" vertex="1" connectable="0">
+                    <mxGeometry x="0.2513" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CoSXuRYnZdbEfBq5J8_G-16" value="Return Minimum Permissions Requred" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="610" y="970" as="sourcePoint"/>
+                        <mxPoint x="130" y="970" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="3w8YwEGEH1MMw77hT98P" name="terraformCmd">
+        <mxGraphModel dx="1250" dy="947" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-1" style="edgeStyle=elbowEdgeStyle;html=1;elbow=vertical;curved=0;rounded=0;" edge="1" parent="1" target="Y59EG7l2YcU3o2Koujko-7">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="119.5" y="370" as="sourcePoint"/>
+                        <mxPoint x="590" y="370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-2" value="NewMpfService(TerraformAuthCheckerCleaner, ..........)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Y59EG7l2YcU3o2Koujko-1">
+                    <mxGeometry x="-0.2265" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-3" value="terraformCmd" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" vertex="1" parent="1">
+                    <mxGeometry x="70" y="220" width="100" height="590" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-4" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" vertex="1" parent="Y59EG7l2YcU3o2Koujko-3">
+                    <mxGeometry x="45" y="70" width="10" height="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-5" value="NewTerraformAuthChekerCleaner(........)" style="html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;" edge="1" parent="Y59EG7l2YcU3o2Koujko-3" target="Y59EG7l2YcU3o2Koujko-4">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="55" y="70" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="85" y="100"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-6" value="MPFService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};" vertex="1" parent="1">
+                    <mxGeometry x="560" y="220" width="100" height="540" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-7" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" vertex="1" parent="Y59EG7l2YcU3o2Koujko-6">
+                    <mxGeometry x="45" y="120" width="10" height="390" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-8" style="edgeStyle=none;html=1;curved=0;rounded=0;" edge="1" parent="Y59EG7l2YcU3o2Koujko-6" source="Y59EG7l2YcU3o2Koujko-6" target="Y59EG7l2YcU3o2Koujko-7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-9" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;1. Remove all permissions from Deployment service principal&lt;div&gt;2. Create New Custom Role with No permissions&lt;/div&gt;&lt;div&gt;3. Associate custom role with deployment service principal&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: rgb(192, 192, 192);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;font style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Till success or Non Authorization Error&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;1. Get access token for deployment service principal&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;2. Attempt Deployment (by calling GetDeploymentAuthorizationErrors)&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); white-space-collapse: preserve;&quot;&gt;&#x9;&lt;/span&gt;3&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;. Parse Authorization Errors&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;4. Add missing permissions to custom role&lt;br&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;5&amp;nbsp;Add identified Missing Permissions to result&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;" edge="1" parent="Y59EG7l2YcU3o2Koujko-6">
+                    <mxGeometry x="0.0051" relative="1" as="geometry">
+                        <mxPoint x="52" y="235" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="82" y="235"/>
+                            <mxPoint x="82" y="375"/>
+                        </Array>
+                        <mxPoint x="57" y="375" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-10" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" vertex="1" parent="Y59EG7l2YcU3o2Koujko-6">
+                    <mxGeometry x="45" y="350" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-11" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" vertex="1" parent="Y59EG7l2YcU3o2Koujko-6">
+                    <mxGeometry x="45" y="420" width="10" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-12" value="CleanDeployment(...)" style="html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;" edge="1" parent="Y59EG7l2YcU3o2Koujko-6" target="Y59EG7l2YcU3o2Koujko-11">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="50" y="400" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="80" y="400"/>
+                            <mxPoint x="80" y="450"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-13" value="return" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="600" y="390" as="sourcePoint"/>
+                        <mxPoint x="130" y="390" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-14" style="edgeStyle=none;html=1;curved=0;rounded=0;" edge="1" parent="1" source="Y59EG7l2YcU3o2Koujko-4">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="600" y="445" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-15" value="GetMinimumPermissionsRequired()" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Y59EG7l2YcU3o2Koujko-14">
+                    <mxGeometry x="0.2513" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Y59EG7l2YcU3o2Koujko-16" value="Return Minimum Permissions Requred" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="610" y="720" as="sourcePoint"/>
+                        <mxPoint x="130" y="720" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="n_Yw0fnpGO79f821ajOv" name="logical-flow">
+        <mxGraphModel dx="1452" dy="474" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-38" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.911;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="o3ituPAFXDVxBlvktbKY-18" target="o3ituPAFXDVxBlvktbKY-33">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-15" value="" style="points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];shape=mxgraph.bpmn.task;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=abstract;isLoopStandard=1;" vertex="1" parent="1">
+                    <mxGeometry x="-70" y="402" width="580" height="248" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-16" value="Get Autorization Errors (ARM, Bicep or Terraform)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="330" y="14.04" width="230" height="15.6" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-27" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-15" source="o3ituPAFXDVxBlvktbKY-19" target="o3ituPAFXDVxBlvktbKY-26">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-19" value="Attempt Deployment" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="30" y="60.830188679245296" width="190" height="15.597484276729562" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-31" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-15" source="o3ituPAFXDVxBlvktbKY-26" target="o3ituPAFXDVxBlvktbKY-28">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="435" y="107.62264150943398"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-26" value="Return Authorization Errors" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="30" y="99.8238993710692" width="190" height="15.597484276729562" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-32" style="edgeStyle=none;html=1;" edge="1" parent="o3ituPAFXDVxBlvktbKY-15" source="o3ituPAFXDVxBlvktbKY-28" target="o3ituPAFXDVxBlvktbKY-29">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-28" value="Parse Authorization Errors to get missing Permissions" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="310" y="127.12" width="250" height="15.6" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-35" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-15" source="o3ituPAFXDVxBlvktbKY-29" target="o3ituPAFXDVxBlvktbKY-34">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-29" value="App Permissions to Custom Role&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="350" y="163" width="170" height="19.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-25" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-15" source="o3ituPAFXDVxBlvktbKY-16" target="o3ituPAFXDVxBlvktbKY-19">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="377.14049586776855" y="39.596638655462186" as="sourcePoint"/>
+                        <mxPoint x="374" y="79.19327731092437" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="445" y="70.85714285714286"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-18" value="Loop Till Deployment Successful (No Authorization Errors)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="100" y="218.65709423392008" width="360" height="26.345330585064218" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-34" value="Add missing permissions to result" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-15">
+                    <mxGeometry x="330" y="197" width="210" height="21.66" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-6" value="MPF Flow and Permission Context" style="swimlane;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;startSize=20;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-90" y="240" width="620" height="570" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-7" value="MPF Service Principal (MPF SP)" style="swimlane;startSize=20;html=1;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-6">
+                    <mxGeometry y="20" width="290" height="550" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-8" value="Default Azure Credentials" style="swimlane;startSize=20;html=1;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-6">
+                    <mxGeometry x="290" y="20" width="330" height="550" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-12" style="edgeStyle=none;html=1;" edge="1" parent="o3ituPAFXDVxBlvktbKY-8" source="o3ituPAFXDVxBlvktbKY-10" target="o3ituPAFXDVxBlvktbKY-11">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-10" value="Remove all role assignments for MPF SP" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-8">
+                    <mxGeometry x="72" y="30" width="190" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-14" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-8" source="o3ituPAFXDVxBlvktbKY-11" target="o3ituPAFXDVxBlvktbKY-13">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-11" value="Create New Custom Role with no Permissions" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-8">
+                    <mxGeometry x="38" y="70" width="260" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-13" value="Associate custom Role with MPF SP" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-8">
+                    <mxGeometry x="80" y="110" width="176" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-39" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-8" source="o3ituPAFXDVxBlvktbKY-33" target="o3ituPAFXDVxBlvktbKY-36">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-33" value="Remove all role assignments for MPF SP" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-8">
+                    <mxGeometry x="53" y="410" width="210" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-36" value="Cleanup all resources created including Custom Role" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-8">
+                    <mxGeometry x="38" y="450" width="240" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-37" value="Return Result" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" vertex="1" parent="o3ituPAFXDVxBlvktbKY-8">
+                    <mxGeometry x="60" y="490" width="210" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-41" style="edgeStyle=none;html=1;entryX=0.469;entryY=0.1;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="o3ituPAFXDVxBlvktbKY-8" source="o3ituPAFXDVxBlvktbKY-36" target="o3ituPAFXDVxBlvktbKY-37">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="o3ituPAFXDVxBlvktbKY-17" style="edgeStyle=none;html=1;entryX=0.472;entryY=0.117;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="o3ituPAFXDVxBlvktbKY-13" target="o3ituPAFXDVxBlvktbKY-16">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

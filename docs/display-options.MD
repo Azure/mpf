@@ -1,7 +1,11 @@
-## az-mpf Display Options
+## MPF Display Options
 
-### Detailed output
-The utility by default prints the overall required permissions. It is also possible to view additional details of the permissions at an individual resource level. The following is a sample of detailed output:
+### View Terraform logs
+
+In the case of terraform using --verbose or --debug will also show the terraform logs. The following is a sample of terraform logs:
+
+### View Detailed output
+The utility by default prints the overall required permissions. It is also possible to view additional details of the permissions at an individual resource level by using the **showDetailedOutput** flag. The following is a sample of detailed output:
 ```shell
 # Detailed Text output
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -461,9 +465,3 @@ Microsoft.Compute/virtualMachines/extensions/read
 Microsoft.Compute/virtualMachines/extensions/write
 --------------
 ```
-
-
-
-
-
-
