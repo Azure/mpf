@@ -2,7 +2,7 @@
 
 ### View Terraform logs
 
-In the case of Terraform, using --verbose or --debug will also show the Terraform logs. The following is a sample of Terraform logs:
+In the case of Terraform, using --verbose or --debug will also show the Terraform logs.
 
 ### View Detailed Output
 

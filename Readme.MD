@@ -1,6 +1,6 @@
 # MPF utility (Azure Deployment Minimum Permissions Finder)
 
-This utility finds the minimum permissions required for a given Azure deployment. This can help when you need to figure out the details of what permissions a service principal or managed identity will need to deploy a given ARM template, Bicep file, or Terraform module. Similarly, when assigning a Service Principal / Managed Identity to an Azure Policy Assignment, this utility can help you figure out the minimum permissions required by the Service Principal / Managed Identity to enforce/remediate the policy. It is recommended that the utility is used in a development or test environment to find the minimum permissions required.
+This utility finds the minimum permissions required for a given Azure deployment. This can help when you need to figure out the details of what permissions a service principal or managed identity will need to deploy a given ARM template, Bicep file, or Terraform module. Similarly, when assigning a Service Principal / Managed Identity to an Azure Policy Assignment, this utility can help you figure out the minimum permissions required by the Service Principal / Managed Identity to enforce/remediate the policy. It is recommended that the utility is used in a **development** or **test environment** to find the minimum permissions required.
 
 ## How It Works
 
@@ -24,10 +24,6 @@ The overview of how this utility works is as follows:
 * The required permissions are displayed based on the display options. These options can be used to view the resource-wise breakup of permissions and also to export the result in JSON format.
 * All resources created are cleaned up by the utility, including the Role Assignments and Custom Role.
 
-## MPF Design
-
-The [MPF Design](docs/mpf-design.md) document provides details on the design, including the packages and abstractions.
-
 ## Supported Deployment Providers
 
 * Azure **ARM** Template: The ARM endpoints of both modes described below return multiple authorization errors at a time, and as a result, the final output is usually displayed in under 90 seconds, even for complex templates.
@@ -38,7 +34,7 @@ The [MPF Design](docs/mpf-design.md) document provides details on the design, in
 
 ## Flags and Environment Variables
 
-The commands can be used with flags or environment variables. For details on the flags and environment variables, please refer to the [command line flags and environment variables](docs/commandline-flags-and-env-variables.MD) document.
+The commands can be used with flags or environment variables. For details on the flags and environment variables, please refer to the [command line flags and environment variables](docs/commandline-flags-and-env-variables.md) document.
 
 ## Installation
 
@@ -109,6 +105,10 @@ The default Azure CLI credentials used by the utility need to have the following
 ## Known Issues and Workarounds
 
 The [Known Issues and Workarounds](docs/known-issues-and-workarounds.MD) document provides details on the known issues and workarounds for the utility.
+
+## MPF Design
+
+The [MPF Design](docs/mpf-design.md) document provides details on the design, including the packages and abstractions.
 
 ## License
 
