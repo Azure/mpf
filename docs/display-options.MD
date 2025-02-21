@@ -1,7 +1,13 @@
-## az-mpf Display Options
+## MPF Display Options
 
-### Detailed output
-The utility by default prints the overall required permissions. It is also possible to view additional details of the permissions at an individual resource level. The following is a sample of detailed output:
+### View Terraform logs
+
+In the case of Terraform, using --verbose or --debug will also show the Terraform logs.
+
+### View Detailed Output
+
+The utility by default prints the overall required permissions. It is also possible to view additional details of the permissions at an individual resource level by using the **showDetailedOutput** flag. The following is a sample of detailed output:
+
 ```shell
 # Detailed Text output
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -26,7 +32,7 @@ Microsoft.Resources/deployments/write
 ------------------------------------------------------------------------------------------------------------------------------------------
 
 
-Break down of permissions by different resource types:
+Breakdown of permissions by different resource types:
 
 Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-9uOhnnS/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet: 
 Microsoft.Network/virtualNetworks/read
@@ -47,6 +53,7 @@ Microsoft.ContainerService/managedClusters/write
 
 
 ### JSON Output which by default shows the details as well
+
 It is possible to also get the JSON output, which by default shows details as well. The following is a sample of JSON output:
 
 ```shell
@@ -85,8 +92,9 @@ $ ./az-mpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --
 
 ```
 
-### Viewing info, warn or debug level logs
-By default the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn or debug. Additionally the global flag --verbose can be used to view info level logging and --debug can be used to   view debug level logging. The following is a sample of info level logging:
+### Viewing info, warn, or debug level logs
+
+By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of info level logging:
 
 ```shell
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -149,6 +157,7 @@ Microsoft.Resources/deployments/write
 ```
 
 ### Complex ARM template sample
+
 Let us look at the detailed output of a more complex ARM template. The following is the command used to run the sample:
 
 ```shell
@@ -220,7 +229,7 @@ Microsoft.Storage/storageAccounts/write
 ------------------------------------------------------------------------------------------------------------------------------------------
 
 
-Break down of permissions by different resource types:
+Breakdown of permissions by different resource types:
 
 Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-nib4c9B/providers/Microsoft.Network/privateEndpoints/AcrPrivateEndpoint: 
 Microsoft.Network/privateEndpoints/read
@@ -461,9 +470,3 @@ Microsoft.Compute/virtualMachines/extensions/read
 Microsoft.Compute/virtualMachines/extensions/write
 --------------
 ```
-
-
-
-
-
-

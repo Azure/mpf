@@ -4,11 +4,11 @@
 
 ### Token Expiry
 
-If your default Azure credentials token issued for the utility expires before the utility completes the execution, that execution will fail. When this happens the utility saves the permissions inferred upto that point in the terraform module directory, and these are automatically added next time the utility executes for the same terraform module directory.
+If your default Azure credentials token issued for the utility expires before the utility completes the execution, that execution will fail. When this happens, the utility saves the permissions inferred up to that point in the Terraform module directory, and these are automatically added next time the utility executes for the same Terraform module directory.
 
-### Terrafor azurerm provider crash
+### Terraform azurerm provider crash
 
-The azurerm provider version < 4.2.0 can crash when using resources like `azurerm_application_insights` without all permissions to create the resource. Details can be found in the [GitHub issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467155082). If this issue is encountered it is recommended to upgrade your azurerm provider version to 4.2.0 or higher. It must be noted that there are some Azure Verified Modules which still use older versions of the azure provider.
+The azurerm provider version < 4.2.0 can crash when using resources like `azurerm_application_insights` without all permissions to create the resource. Details can be found in the [GitHub issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467155082). If this issue is encountered, it is recommended to upgrade your azurerm provider version to 4.2.0 or higher. It must be noted that there are some Azure Verified Modules which still use older versions of the Azure provider.
 
 ### Existing Resource / Import Errors
 
@@ -16,5 +16,4 @@ Creation of certain resources, like the application insights resource, also invo
 
 ### Billing Features Payload Error
 
-This issue is also related to the [Github Issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2520407658). The utility retries the request to workaround this issue.
-
+This issue is also related to the [GitHub Issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2520407658). The utility retries the request to work around this issue.
