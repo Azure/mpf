@@ -36,8 +36,7 @@ func GetAddressAndResourceIDFromExistingResourceError(existingResourceErr string
 		return nil, errors.New("Non existing resource error")
 	}
 
-	var resMap map[string]string
-	resMap = make(map[string]string)
+	var resMap map[string]string = make(map[string]string)
 	// var err error
 	re := regexp.MustCompile(`Error: A resource with the ID "([^"]+)" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "([^"]+)" for more information.\n\n  with ([^,]+),`)
 	// re := regexp.MustCompile(`Error: A resource with the ID "([^']+)" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "([^']+)" for more information\.(.*)  with ([^,]+),`)

@@ -1,4 +1,6 @@
 
+
+
 resource "random_id" "rg" {
   byte_length = 8
 }
@@ -16,16 +18,16 @@ resource "azurerm_resource_group" "this" {
 
 
 module "law" {
-  source              = "./modules/law"
-  location            = azurerm_resource_group.this.location
+  source                       = "./modules/law"
+  location                     = azurerm_resource_group.this.location
   log_analytics_workspace_name = "lawtftest${random_integer.rnd_num.result}"
-  resource_group_name = azurerm_resource_group.this.name
-  tags                = var.tags
+  resource_group_name          = azurerm_resource_group.this.name
+  tags                         = var.tags
 }
 
 terraform {
- required_version = ">= 1.9.6, < 2.0.0"
- required_providers {
+  required_version = ">= 1.9.6, < 2.0.0"
+  required_providers {
 
     azuread = {
       source  = "hashicorp/azuread"

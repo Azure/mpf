@@ -63,10 +63,16 @@ func NewTerraformCommand() *cobra.Command {
 	}
 
 	terraformCmd.Flags().StringVarP(&flgTFPath, "tfPath", "", "", "Path to Terraform Executable")
-	terraformCmd.MarkFlagRequired("tfPath")
+	err := terraformCmd.MarkFlagRequired("tfPath")
+	if err != nil {
+		log.Errorf("Error marking flag required for Terraform executable path: %v\n", err)
+	}
 
 	terraformCmd.Flags().StringVarP(&flgWorkingDir, "workingDir", "", "", "Path to Terraform Working Directory")
-	terraformCmd.MarkFlagRequired("workingDir")
+	err = terraformCmd.MarkFlagRequired("workingDir")
+	if err != nil {
+		log.Errorf("Error marking flag required for Terraform working directory: %v\n", err)
+	}
 
 	terraformCmd.Flags().StringVarP(&flgVarFilePath, "varFilePath", "", "", "Path to Terraform Variable File")
 	terraformCmd.Flags().BoolVarP(&flgImportExistingResourcesToState, "importExistingResourcesToState", "", true, "On existing resource error, import existing resources into to Terraform State. This will also destroy the imported resources before MPF execution completes.")

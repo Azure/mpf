@@ -86,11 +86,30 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&flgVerbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&flgDebug, "debug", "d", false, "debug output")
 
-	rootCmd.MarkPersistentFlagRequired("subscriptionID")
-	rootCmd.MarkPersistentFlagRequired("tenantID")
-	rootCmd.MarkPersistentFlagRequired("spClientID")
-	rootCmd.MarkPersistentFlagRequired("spObjectID")
-	rootCmd.MarkPersistentFlagRequired("spClientSecret")
+	err := rootCmd.MarkPersistentFlagRequired("subscriptionID")
+	if err != nil {
+		log.Errorf("Error marking flag required for subscription ID: %v\n", err)
+	}
+
+	err = rootCmd.MarkPersistentFlagRequired("tenantID")
+	if err != nil {
+		log.Errorf("Error marking flag required for tenant ID: %v\n", err)
+	}
+
+	err = rootCmd.MarkPersistentFlagRequired("spClientID")
+	if err != nil {
+		log.Errorf("Error marking flag required for SP client ID: %v\n", err)
+	}
+
+	err = rootCmd.MarkPersistentFlagRequired("spObjectID")
+	if err != nil {
+		log.Errorf("Error marking flag required for SP object ID: %v\n", err)
+	}
+
+	err = rootCmd.MarkPersistentFlagRequired("spClientSecret")
+	if err != nil {
+		log.Errorf("Error marking flag required for SP client secret: %v\n", err)
+	}
 
 	rootCmd.MarkFlagsMutuallyExclusive("showDetailedOutput", "jsonOutput")
 
@@ -139,7 +158,10 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 		// Apply the viper config value to the flag when the flag is not set and viper has a value
 		if !f.Changed && v.IsSet(configName) {
 			val := v.Get(configName)
-			cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+			err := cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+			if err != nil {
+				log.Errorf("Error setting flag %s: %v\n", f.Name, err)
+			}
 		}
 	})
 }

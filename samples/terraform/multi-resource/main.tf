@@ -1,4 +1,6 @@
 
+
+
 terraform {
 
 }
@@ -57,9 +59,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_B2s"
+    name           = "default"
+    node_count     = 1
+    vm_size        = "Standard_B2s"
     vnet_subnet_id = azurerm_subnet.subnet.id
   }
 

@@ -44,7 +44,8 @@ var flgDeploymentNamePfx string
 var flgLocation string
 var flgTemplateFilePath string
 var flgParametersFilePath string
-var flgFullDeployment bool
+
+// var flgFullDeployment bool
 
 // armCmd represents the arm command
 
@@ -66,10 +67,16 @@ func NewARMCommand() *cobra.Command {
 	armCmd.Flags().StringVarP(&flgDeploymentNamePfx, "deploymentNamePfx", "", "testDeploy", "Deployment Name Prefix")
 
 	armCmd.Flags().StringVarP(&flgTemplateFilePath, "templateFilePath", "", "", "Path to ARM Template File")
-	armCmd.MarkFlagRequired("templateFilePath")
+	err := armCmd.MarkFlagRequired("templateFilePath")
+	if err != nil {
+		log.Errorf("Error marking flag required for ARM template file path: %v\n", err)
+	}
 
 	armCmd.Flags().StringVarP(&flgParametersFilePath, "parametersFilePath", "", "", "Path to Template Parameters File")
-	armCmd.MarkFlagRequired("parametersFilePath")
+	err = armCmd.MarkFlagRequired("parametersFilePath")
+	if err != nil {
+		log.Errorf("Error marking flag required for ARM template parameters file path: %v\n", err)
+	}
 
 	armCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus", "Location")
 

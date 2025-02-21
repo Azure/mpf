@@ -1,5 +1,7 @@
+
+
 location = "eastus2"
 tags = {
-  env  = "test"
+  env = "test"
 }
 log_analytics_workspace_name = "lawtftest123"

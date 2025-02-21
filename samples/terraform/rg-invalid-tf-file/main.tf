@@ -1,3 +1,5 @@
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY AN AZURE CONTAINER Instance
 # This is an example of how to deploy an Azure Container Instance
@@ -9,12 +11,12 @@
 # ------------------------------------------------------------------------------
 
 terraform {
-#   required_providers {
-#     azurerm = {
-#       version = "~>2.29.0"
-#       source  = "hashicorp/azurerm"
-#     }
-#   }
+  #   required_providers {
+  #     azurerm = {
+  #       version = "~>2.29.0"
+  #       source  = "hashicorp/azurerm"
+  #     }
+  #   }
 
 }
 

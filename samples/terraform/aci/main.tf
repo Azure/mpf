@@ -1,4 +1,6 @@
 
+
+
 terraform {
 
 }
@@ -30,7 +32,7 @@ resource "azurerm_container_group" "aci" {
 
   ip_address_type = "Public"
   dns_name_label  = "aci${random_integer.rnd_num.result}"
-  os_type         = "Linux" 
+  os_type         = "Linux"
 
   container {
     name   = "hello-world"

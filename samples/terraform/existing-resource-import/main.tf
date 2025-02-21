@@ -1,4 +1,6 @@
 
+
+
 resource "random_id" "rg" {
   byte_length = 8
 }
@@ -10,13 +12,13 @@ resource "azurerm_resource_group" "rg" {
 
 # create log analytics workspace
 resource "azurerm_log_analytics_workspace" "this" {
-  location                = azurerm_resource_group.rg.location 
-  name                    = "law${random_id.rg.hex}"
-  resource_group_name     = azurerm_resource_group.rg.name
-  sku                     = "PerGB2018"
-  retention_in_days       = var.retention_in_days
-  tags                    = var.tags
- }
+  location            = azurerm_resource_group.rg.location
+  name                = "law${random_id.rg.hex}"
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = var.retention_in_days
+  tags                = var.tags
+}
 
 # resource "azurerm_application_insights" "this" {
 #   application_type                      = "web"
@@ -27,7 +29,7 @@ resource "azurerm_log_analytics_workspace" "this" {
 # }
 
 module "application_insights" {
-  source                        = "Azure/avm-res-insights-component/azurerm"
+  source = "Azure/avm-res-insights-component/azurerm"
   # source = "github.com/Azure/terraform-azurerm-avm-res-insights-component"
   version                       = "0.1.5"
   resource_group_name           = azurerm_resource_group.rg.name

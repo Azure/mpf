@@ -64,13 +64,22 @@ func NewBicepCommand() *cobra.Command {
 	bicepCmd.Flags().StringVarP(&flgDeploymentNamePfx, "deploymentNamePfx", "", "testDeploy", "Deployment Name Prefix")
 
 	bicepCmd.Flags().StringVarP(&flgBicepFilePath, "bicepFilePath", "", "", "Path to bicep File")
-	bicepCmd.MarkFlagRequired("bicepFilePath")
+	err := bicepCmd.MarkFlagRequired("bicepFilePath")
+	if err != nil {
+		log.Errorf("Error marking flag required for Bicep file path: %v\n", err)
+	}
 
 	bicepCmd.Flags().StringVarP(&flgParametersFilePath, "parametersFilePath", "", "", "Path to bicep Parameters File")
-	bicepCmd.MarkFlagRequired("parametersFilePath")
+	err = bicepCmd.MarkFlagRequired("parametersFilePath")
+	if err != nil {
+		log.Errorf("Error marking flag required for Bicep parameters file path: %v\n", err)
+	}
 
 	bicepCmd.Flags().StringVarP(&flgBicepExecPath, "bicepExecPath", "", "", "Bicep Executable Path")
-	bicepCmd.MarkFlagRequired("bicepExecPath")
+	err = bicepCmd.MarkFlagRequired("bicepExecPath")
+	if err != nil {
+		log.Errorf("Error marking flag required for Bicep executable path: %v\n", err)
+	}
 
 	bicepCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus", "Location")
 
