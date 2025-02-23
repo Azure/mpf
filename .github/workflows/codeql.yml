@@ -2,24 +2,24 @@
 ---
 name: 🛡️ CodeQL
 
-on:
-  push:
-    branches: ["main"]
-    paths-ignore:
-      - "*.md"
-      - "*.md.tmpl"
-      - "*.tf"
-  pull_request:
-    branches: ["main"]
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
-    paths-ignore:
-      - "*.md"
-      - "*.md.tmpl"
-      - "*.tf"
+# on:
+#   push:
+#     branches: ["main"]
+#     paths-ignore:
+#       - "*.md"
+#       - "*.md.tmpl"
+#       - "*.tf"
+#   pull_request:
+#     branches: ["main"]
+#     types:
+#       - opened
+#       - reopened
+#       - synchronize
+#       - ready_for_review
+#     paths-ignore:
+#       - "*.md"
+#       - "*.md.tmpl"
+#       - "*.tf"
   # schedule:
   #   - cron: "32 19 * * 2"
   workflow_dispatch:
