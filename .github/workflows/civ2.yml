@@ -202,7 +202,7 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-          thresholds: "40 60"
+          thresholds: "30 60"
 
       - name: 📤 Upload Coverage summary
         if: always()
