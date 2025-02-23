@@ -1,0 +1,140 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+---
+# Terraform Provider testing workflow.
+name: 🧪 v2-arm-bicep-e2e
+
+# This GitHub action runs your tests for each pull request.
+# Optionally, you can turn it on using a schedule for regular testing.
+on:
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+
+jobs:
+
+  testarmbicepe2e:
+    name: 🧪 Run ARM Bicep e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
+    runs-on: ubuntu-24.04
+    env:
+      MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+      MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+      MPF_SPCLIENTID: ${{ secrets.MPF_SPCLIENTID }}
+      MPF_SPCLIENTSECRET: ${{ secrets.MPF_SPCLIENTSECRET }}
+      MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 🚧 Setup Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
+        with:
+          repo-token: ${{ github.token }}
+
+      - name: 🔀 Download Go dependencies
+        run: task deps:download
+
+      - name: 🔨 Setup Test tools
+        run: task test:tools
+
+      - name: Install Bicep
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+
+      - name: 'Az CLI login - federated'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
+          tenant-id: ${{ secrets.MPF_TENANTID }}
+          subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
+
+      - name: 🧪 Run ARM Bicep E2E Tests
+        run: task teste2e:armbicep
+
+
+
+      - name: 📤 Upload ARM Bicep e2e test results
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: ${{ format('{0}-{1}-test-results', matrix.cli, env.CLI_VERSION) }}
+          path: testresults.xml
+          if-no-files-found: warn
+          overwrite: true
+
+      - name: 📤 Upload ARM Bicep e2e test coverage results
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: ${{ format('{0}-{1}-test-coverage-results', matrix.cli, env.CLI_VERSION) }}
+          path: |
+            coverage.html
+            coverage.json
+            coverage.out
+            coverage.txt
+            coverage.xml
+          if-no-files-found: warn
+          overwrite: true
+
+      - name: 📢 Publish ARM Bicep e2e test results
+        if: always()
+        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+        with:
+          name: 📜 Test results (${{ matrix.cli }} ${{ matrix.version }})
+          reporter: jest-junit
+          path: testresults.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⚙️ Get ARM Bicep e2e test Coverage summary
+        if: always()
+        uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
+        with:
+          filename: coverage.xml
+          badge: true
+          fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: "30 60"
+
+      - name: 📤 Upload ARM Bicep e2e Coverage summary
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: ${{ format('{0}-{1}-test-coverage-summary', matrix.cli, env.CLI_VERSION) }}
+          path: |
+            code-coverage-results.md
+          if-no-files-found: warn
+          overwrite: true
+  
+  check-test-matrix:
+    if: always()
+    name: 🧪 Check ARM Bicep e2e Tests
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: ✅ OK
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: exit 0
+      - name: 🛑 Failure
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1
