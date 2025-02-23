@@ -57,9 +57,6 @@ jobs:
           terraform_wrapper: false
           terraform_version: "1.10.4"
         
-      - name: 'Set TF_PATH'
-        run: echo "TF_PATH=$(which terraform)" >> $GITHUB_ENV
-        
       - name: 'Az CLI login - federated'
         uses: azure/login@v1
         with:
