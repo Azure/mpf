@@ -128,7 +128,7 @@ jobs:
   check-test-matrix:
     if: always()
     name: 🧪 Check ARM Bicep e2e Tests
-    needs: test
+    needs: testarmbicepe2e
     runs-on: ubuntu-24.04
     steps:
       - name: ✅ OK
