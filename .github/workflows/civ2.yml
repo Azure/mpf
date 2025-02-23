@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   lintGo:
-    name: lint, build, unit test
+    name: Go lint
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -68,7 +68,7 @@ jobs:
           args: --out-format=github-actions
       
   linkMarkdowns:
-    name: 📃 Check Docs
+    name: 📃 Lint Markdown
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -126,6 +126,10 @@ jobs:
   test:
     name: 🧪 Run Tests (${{ matrix.cli }} ${{ matrix.version }})
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -184,6 +188,7 @@ jobs:
           name: 📜 Test results (${{ matrix.cli }} ${{ matrix.version }})
           reporter: jest-junit
           path: testresults.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: ⚙️ Get Coverage summary
         if: always()
