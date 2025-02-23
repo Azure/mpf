@@ -8,6 +8,9 @@ name: 🧪 v2-terraform-e2e
 on:
   workflow_dispatch:
 
+  schedule:
+    - cron: '0 22 * * *'
+
 permissions:
   id-token: write
   contents: read
