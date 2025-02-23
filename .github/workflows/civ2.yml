@@ -218,7 +218,6 @@ jobs:
     name: 📔 Coverage Summary
     needs:
       - test
-    if: always() && needs.changes.outputs.src == 'true'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
