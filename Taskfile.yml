@@ -190,7 +190,7 @@ tasks:
     desc: Run e2e tests for ARM and Bicep
     cmds:
       - go clean -testcache
-      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM TestBicep -p 1 -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic' 
+      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM TestBicep -p 1 -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic' 
       # - task: test:getcover
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
