@@ -8,6 +8,9 @@ name: 🧪 v2-arm-bicep-e2e
 on:
   workflow_dispatch:
 
+  schedule:
+    - cron: '0 21 * * *'
+
 permissions:
   id-token: write
   contents: read
