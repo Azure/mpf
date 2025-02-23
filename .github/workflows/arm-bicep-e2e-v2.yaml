@@ -12,7 +12,6 @@ permissions:
   id-token: write
   contents: read
 
-
 jobs:
 
   testarmbicepe2e:
@@ -68,16 +67,23 @@ jobs:
       - name: 🧪 Run ARM Bicep E2E Tests
         run: task teste2e:armbicep
 
-
-
-      - name: 📤 Upload ARM Bicep e2e test results
+      - name: 📤 Upload ARM Bicep e2e test coverage file
         if: always()
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: ${{ format('{0}-{1}-test-results', matrix.cli, env.CLI_VERSION) }}
-          path: testresults.xml
+          name: ${{ format('{0}-{1}-test-coverage-file', matrix.cli, env.CLI_VERSION) }}
+          path: coverage.out
           if-no-files-found: warn
           overwrite: true
+
+      # - name: 📤 Upload ARM Bicep e2e test results
+      #   if: always()
+      #   uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+      #   with:
+      #     name: ${{ format('{0}-{1}-test-results', matrix.cli, env.CLI_VERSION) }}
+      #     path: testresults.xml
+      #     if-no-files-found: warn
+      #     overwrite: true
 
       - name: 📤 Upload ARM Bicep e2e test coverage results
         if: always()
