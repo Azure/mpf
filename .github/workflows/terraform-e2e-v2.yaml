@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 ---
 # Terraform Provider testing workflow.
-name: 🧪 v2-arm-bicep-e2e
+name: 🧪 v2-terraform-e2e
 
 # This GitHub action runs your tests for each pull request.
 # Optionally, you can turn it on using a schedule for regular testing.
@@ -14,8 +14,8 @@ permissions:
 
 jobs:
 
-  testarmbicepe2e:
-    name: 🧪 Run ARM Bicep e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
+  testterraforme2e:
+    name: 🧪 Run Terraform e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
     runs-on: ubuntu-24.04
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
@@ -51,12 +51,12 @@ jobs:
       - name: 🔨 Setup Test tools
         run: task test:tools
 
-      - name: Install Bicep
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-          chmod +x ./bicep
-          sudo mv ./bicep /usr/local/bin/bicep
-
+      - name: 🚧 Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_wrapper: false
+          terraform_version: "1.10.4"
+        
       - name: 'Az CLI login - federated'
         uses: azure/login@v1
         with:
@@ -64,5 +64,5 @@ jobs:
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
-      - name: 🧪 Run ARM Bicep E2E Tests
-        run: task teste2e:armbicep
+      - name: 🧪 Run Terraform E2E Tests
+        run: task teste2e:terraform
