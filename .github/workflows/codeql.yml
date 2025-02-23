@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+---
+name: 🛡️ CodeQL
+
+# on:
+#   push:
+#     branches: ["main"]
+#     paths-ignore:
+#       - "*.md"
+#       - "*.md.tmpl"
+#       - "*.tf"
+#   pull_request:
+#     branches: ["main"]
+#     types:
+#       - opened
+#       - reopened
+#       - synchronize
+#       - ready_for_review
+#     paths-ignore:
+#       - "*.md"
+#       - "*.md.tmpl"
+#       - "*.tf"
+  # schedule:
+  #   - cron: "32 19 * * 2"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ format('{0}-{1}-{2}-{3}-{4}', github.workflow, github.event_name, github.ref, github.base_ref || null, github.head_ref || null) }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: 🩺 CodeQL Analysis
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-24.04' }}
+    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["go"]
+
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - name: 🚧 Setup Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
+        with:
+          repo-token: ${{ github.token }}
+
+      - name: 💫 Initialize CodeQL
+        uses: github/codeql-action/init@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: 🔨 Setup tools
+        run: task install:goreleaser
+
+      - name: 🏗️ Build binary
+        run: task build
+
+      - name: 🩺 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
+        with:
+          category: "/language:${{matrix.language}}"
+          upload: never
+          output: codeql-results
+
+      - name: 📤 Upload CodeQL result
+        uses: github/codeql-action/upload-sarif@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.9
+        with:
+          sarif_file: codeql-results
+          wait-for-processing: true
