@@ -2,25 +2,25 @@
 
 ## Installation
 
-You can download the latest version for your platform from the [releases](https://github.com/maniSbindra/az-mpf/releases/) link.
+You can download the latest version for your platform from the [releases](https://github.com/Azure/mpf/releases) link.
 
-For example, to download the latest version for Windows:
+For example, to download the latest version for Linux/amd64:
 
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/maniSbindra/az-mpf/releases/download/v0.11.0/az-mpf_0.11.0_windows_amd64.tar.gz
-tar -xzf az-mpf_0.11.0_windows_amd64.tar.gz
-mv az-mpf_0.11.0_windows_amd64 az-mpf.exe
-chmod +x ./az-mpf.exe
+curl -LO https://github.com/Azure/mpf/releases/download/v0.12.0/mpf_0.11.2_linux_amd64.zip
+unzip mpf_0.12.0_linux_amd64.zip
+mv mpf_v0.12.0 az-mpf
+chmod +x ./az-mpf
 ```
 
 And for Mac Arm64:
   
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/maniSbindra/az-mpf/releases/download/v0.11.0/az-mpf_0.11.0_darwin_arm64.tar.gz
-tar -xzf az-mpf_0.11.0_darwin_arm64.tar.gz
-mv az-mpf-darwin-arm64 az-mpf
+curl -LO https://github.com/Azure/mpf/releases/download/v0.12.0/mpf_0.12.0_darwin_arm64.zip
+unzip mpf_0.12.0_darwin_arm64.zip
+mv mpf_v0.12.0 az-mpf
 chmod +x ./az-mpf
 ```
 

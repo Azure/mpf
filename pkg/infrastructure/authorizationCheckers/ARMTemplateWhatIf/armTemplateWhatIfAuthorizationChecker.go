@@ -35,10 +35,10 @@ import (
 	URL "net/url"
 	"strings"
 
-	"github.com/manisbindra/az-mpf/pkg/domain"
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/ARMTemplateShared"
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/azureAPI"
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/mpfSharedUtils"
+	"github.com/Azure/mpf/pkg/domain"
+	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
+	"github.com/Azure/mpf/pkg/infrastructure/azureAPI"
+	"github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
 
 	log "github.com/sirupsen/logrus"
 )

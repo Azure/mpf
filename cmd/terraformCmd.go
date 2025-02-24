@@ -27,10 +27,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/authorizationCheckers/terraform"
-	resourceGroupManager "github.com/manisbindra/az-mpf/pkg/infrastructure/resourceGroupManager"
-	sproleassignmentmanager "github.com/manisbindra/az-mpf/pkg/infrastructure/spRoleAssignmentManager"
-	"github.com/manisbindra/az-mpf/pkg/usecase"
+	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/terraform"
+	resourceGroupManager "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
+	sproleassignmentmanager "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
+	"github.com/Azure/mpf/pkg/usecase"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"

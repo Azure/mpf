@@ -1,4 +1,4 @@
-module github.com/manisbindra/az-mpf
+module github.com/Azure/mpf
 
 go 1.23
 

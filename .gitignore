@@ -8,3 +8,17 @@ az-mpf-darwin-arm64
 az-mpf-linux-amd64
 az-mpf-windows-amd64.exe
 .vscode/launch-local.json
+
+
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.hcl
+**/*.log
+
+coverage.*
+
+**/.DS_Store
+.lycheecache
+
+.gpg/

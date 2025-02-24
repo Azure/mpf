@@ -27,7 +27,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/manisbindra/az-mpf/pkg/domain"
+	"github.com/Azure/mpf/pkg/domain"
 )
 
 func TestSaveResultAsJSON(t *testing.T) {
