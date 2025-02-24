@@ -1,8 +1,5 @@
-
-
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 # docs: https://taskfile.dev
-#
 ---
 version: "3"
 
@@ -12,7 +9,6 @@ vars:
   BUILD_DEV_ARTIFACT: "{{.BUILD_DEV_OUTPUT_DIR}}/{{.PROJECT_NAME}}{{exeExt}}"
 
 tasks:
-  
   deps:
     desc: Check if dependencies are up to date
     cmds:
@@ -111,7 +107,6 @@ tasks:
       - for: [tflint, tfsec, checkov]
         task: install:{{.ITEM}}
 
-  
   # ----------------------
   # Build
   # ----------------------
@@ -190,12 +185,12 @@ tasks:
     desc: Run e2e tests for ARM and Bicep
     cmds:
       - go clean -testcache
-      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM TestBicep -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic' 
+      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM TestBicep -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
       # - task: test:getcover
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
-      LDFLAGS: "-s -w -X main.version=testAcc"  
-  
+      LDFLAGS: "-s -w -X main.version=testAcc"
+
   teste2e:terraform:
     desc: Run e2e tests for Terraform
     cmds:
@@ -204,7 +199,7 @@ tasks:
       - task: test:getcover
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
-      LDFLAGS: "-s -w -X main.version=testAcc"  
+      LDFLAGS: "-s -w -X main.version=testAcc"
 
   testacc:
     desc: Run acceptance tests

@@ -9,7 +9,6 @@ az-mpf-linux-amd64
 az-mpf-windows-amd64.exe
 .vscode/launch-local.json
 
-
 **/.terraform/
 **/*.tfstate
 **/*.tfstate.*
@@ -22,3 +21,21 @@ coverage.*
 .lycheecache
 
 .gpg/
+.task/
+bin/
+dist/
+build/
+*.exe
+.dev/
+_dev/
+__debug*
+*.env
+
+# Terraform
+.terraform/
+*.tfplan
+*.tfstate
+*.tfstate.backup
+*.lock.hcl
+*.lock.info
+*.tfrc
