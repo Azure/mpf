@@ -46,7 +46,7 @@ jobs:
         uses: goreleaser/goreleaser-action@90a3faa9d0182683851fbfa97ca1a2cb983bfca3 # v6.2.1
         with:
           version: "~> v2"
-          args: release --clean --release-notes=".changes/${{ github.event.client_payload.tag }}.md" --verbose
+          args: release --clean --verbose
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GPG_FINGERPRINT: ${{ steps.import-gpg.outputs.fingerprint }}
