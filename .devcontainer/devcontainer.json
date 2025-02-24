@@ -3,15 +3,15 @@
     "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
     "features": {
         "ghcr.io/devcontainers/features/azure-cli:latest": {
-			"version": "2.65.0",
+            "version": "2.69.0",
             "installBicep": true
-		},
+        },
         "ghcr.io/devcontainers/features/terraform:1": {
-            "version": "1.10.4"
+            "version": "1.10.5"
         },
         "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.23.6"
-          },
+            "version": "1.24.0"
+        }
     },
     "customizations": {
         "vscode": {
