@@ -28,9 +28,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Azure/mpf/pkg/domain"
+	"github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
 	"github.com/google/uuid"
-	"github.com/manisbindra/az-mpf/pkg/domain"
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/mpfSharedUtils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"

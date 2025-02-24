@@ -36,7 +36,7 @@ The overview of how this utility works is as follows:
 
 The commands can be used with flags or environment variables. For details on the flags and environment variables, please refer to the [command line flags and environment variables](docs/commandline-flags-and-env-variables.md) document.
 
-## Installation
+## Installation / Quickstart
 
 For installation instructions, please refer to the [installation and quickstart](docs/installation-and-quickstart.md) document.
 

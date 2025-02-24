@@ -26,7 +26,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/manisbindra/az-mpf/pkg/domain"
+	"github.com/Azure/mpf/pkg/domain"
 	log "github.com/sirupsen/logrus"
 )
 

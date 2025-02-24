@@ -31,12 +31,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/ARMTemplateShared"
-	"github.com/manisbindra/az-mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateWhatIf"
-	mpfSharedUtils "github.com/manisbindra/az-mpf/pkg/infrastructure/mpfSharedUtils"
-	resourceGroupManager "github.com/manisbindra/az-mpf/pkg/infrastructure/resourceGroupManager"
-	sproleassignmentmanager "github.com/manisbindra/az-mpf/pkg/infrastructure/spRoleAssignmentManager"
-	"github.com/manisbindra/az-mpf/pkg/usecase"
+	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
+	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateWhatIf"
+	mpfSharedUtils "github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
+	resourceGroupManager "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
+	sproleassignmentmanager "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
+	"github.com/Azure/mpf/pkg/usecase"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )

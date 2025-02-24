@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 ---
 # Terraform Provider testing workflow.
-name: 🧪 CI-v2
+name: 🧪 mpf-ci
 
 # This GitHub action runs your tests for each pull request.
 # Optionally, you can turn it on using a schedule for regular testing.

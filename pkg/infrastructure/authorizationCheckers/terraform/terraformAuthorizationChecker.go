@@ -27,8 +27,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Azure/mpf/pkg/domain"
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/manisbindra/az-mpf/pkg/domain"
 	log "github.com/sirupsen/logrus"
 )
 
