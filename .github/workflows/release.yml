@@ -6,7 +6,6 @@ on:
   push:
     tags:
     - 'v*'
-    - 'test-action-release-*'
 
 permissions:
   contents: read
@@ -25,7 +24,6 @@ jobs:
       - name: ⤵️ Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          # Allow goreleaser to access older tag information.
           fetch-depth: 0
 
       - name: 🚧 Setup Go
