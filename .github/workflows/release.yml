@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+---
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+    - 'v*'
+    - 'test-action-release-*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: 🚀 Release
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: write
+      attestations: write
+    environment:
+      name: release
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Allow goreleaser to access older tag information.
+          fetch-depth: 0
+          ref: "refs/tags/${{ github.event.client_payload.tag }}"
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 🔐 Import GPG key
+        uses: crazy-max/ghaction-import-gpg@cb9bde2e2525e640591a934b1fd28eef1dcaf5e5 # v6.2.0
+        id: import-gpg
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
+
+      - name: 🚧 Setup Syft
+        uses: anchore/sbom-action/download-syft@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0.18.0
+
+      - name: 🚀 Run GoReleaser
+        uses: goreleaser/goreleaser-action@90a3faa9d0182683851fbfa97ca1a2cb983bfca3 # v6.2.1
+        with:
+          version: "~> v2"
+          args: release --clean --release-notes=".changes/${{ github.event.client_payload.tag }}.md" --verbose
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GPG_FINGERPRINT: ${{ steps.import-gpg.outputs.fingerprint }}
+          GORELEASER_CURRENT_TAG: ${{ github.event.client_payload.tag }}
+
+      - name: 📝 Attest Archives
+        uses: actions/attest-build-provenance@520d128f165991a6c774bcb264f323e3d70747f4 # v2.2.0
+        with:
+          subject-path: |
+            dist/*.zip
