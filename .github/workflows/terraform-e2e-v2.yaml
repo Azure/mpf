@@ -61,7 +61,7 @@ jobs:
           terraform_version: "1.10.4"
         
       - name: 'Az CLI login - federated'
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
           tenant-id: ${{ secrets.MPF_TENANTID }}
