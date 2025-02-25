@@ -12,6 +12,9 @@ on:
   schedule:
     - cron: '0 21 * * *'
 
+concurrency:
+  group: shared_mpf_service_principal_workflow_group
+
 permissions:
   id-token: write
   contents: read
@@ -20,7 +23,6 @@ jobs:
   testarmbicepe2e:
     name: 🧪 Run ARM Bicep e2e Tests
     runs-on: ubuntu-24.04
-    concurrency: shared_mpf_service_principal
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
       MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
