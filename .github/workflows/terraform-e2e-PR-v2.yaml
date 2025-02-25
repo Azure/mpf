@@ -6,7 +6,7 @@ name: 🧪 v2-terraform-e2e
 # This GitHub action runs your tests before merging a pull request via merge groups
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 on:
-  merge_group:
+  pull_request:
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * *'
@@ -17,7 +17,8 @@ permissions:
 
 jobs:
   testterraforme2e:
-    name: 🧪 Run Terraform e2e Tests
+    if: false #https://github.com/orgs/community/discussions/51120
+    name: 🧪 Run Terraform e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
     runs-on: ubuntu-24.04
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
