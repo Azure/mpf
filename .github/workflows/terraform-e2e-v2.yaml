@@ -7,8 +7,6 @@ name: 🧪 v2-terraform-e2e
 # Optionally, you can turn it on using a schedule for regular testing.
 on:
   merge_group:
-    types:
-      - checks_requested
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * *'
