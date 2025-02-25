@@ -6,8 +6,10 @@ name: 🧪 v2-terraform-e2e
 # This GitHub action runs your tests for each pull request.
 # Optionally, you can turn it on using a schedule for regular testing.
 on:
+  merge_group:
+    types:
+      - checks_requested
   workflow_dispatch:
-
   schedule:
     - cron: '0 22 * * *'
 
