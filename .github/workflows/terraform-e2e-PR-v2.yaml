@@ -18,7 +18,7 @@ permissions:
 jobs:
   testterraforme2e:
     if: false #https://github.com/orgs/community/discussions/51120
-    name: 🧪 Run Terraform e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
+    name: 🧪 Run Terraform e2e Tests
     runs-on: ubuntu-24.04
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
