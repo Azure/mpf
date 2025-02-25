@@ -17,8 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  if: github.event_name != 'pull_request'
   testterraforme2e:
+    if: github.event_name != 'pull_request'
     name: 🧪 Run Terraform e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
     runs-on: ubuntu-24.04
     env:

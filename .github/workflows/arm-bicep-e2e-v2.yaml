@@ -18,8 +18,8 @@ permissions:
   contents: read
 
 jobs:
-  if: github.event_name != 'pull_request'
   testarmbicepe2e:
+    if: github.event_name != 'pull_request'
     name: 🧪 Run ARM Bicep e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
     runs-on: ubuntu-24.04
     env:
