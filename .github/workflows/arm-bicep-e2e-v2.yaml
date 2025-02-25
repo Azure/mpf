@@ -6,6 +6,7 @@ name: 🧪 v2-arm-bicep-e2e
 # This GitHub action runs your tests for each pull request.
 # Optionally, you can turn it on using a schedule for regular testing.
 on:
+  pull_request:
   merge_group:
   workflow_dispatch:
 
@@ -17,7 +18,7 @@ permissions:
   contents: read
 
 jobs:
-
+  if: github.event_name != 'pull_request'
   testarmbicepe2e:
     name: 🧪 Run ARM Bicep e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
     runs-on: ubuntu-24.04
