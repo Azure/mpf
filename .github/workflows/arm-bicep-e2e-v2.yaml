@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 ---
-# Terraform Provider testing workflow.
+
 name: 🧪 v2-arm-bicep-e2e
 
 # This GitHub action runs your tests before merging a pull request via merge groups
