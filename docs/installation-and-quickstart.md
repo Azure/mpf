@@ -24,6 +24,20 @@ mv mpf_v0.12.0 azmpf
 chmod +x ./azmpf
 ```
 
+## Creating a service principal for MPF
+
+To use MPF, you need to create a service principal in your Azure Active Directory tenant. You can create a service principal using the Azure CLI or the Azure portal. The service principal needs no roles assigned to it, as the MPF utility will as it is remove any assigned roles each time it executes.
+Here is an example of how to create a service principal using the Azure CLI:
+
+```shell
+# az login
+
+MPF_SP=$(az ad sp create-for-rbac --name "MPF_SP" --skip-assignment)
+MPF_SPCLIENTID=$(echo $MPF_SP | jq -r .appId)
+MPF_SPCLIENTSECRET=$(echo $MPF_SP | jq -r .password)
+MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
+```
+
 ## Quickstart / Usage
 
 ### ARM
