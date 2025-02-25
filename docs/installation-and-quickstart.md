@@ -10,8 +10,8 @@ For example, to download the latest version for Linux/amd64:
 # Please change the version in the URL to the latest version
 curl -LO https://github.com/Azure/mpf/releases/download/v0.12.0/mpf_0.11.2_linux_amd64.zip
 unzip mpf_0.12.0_linux_amd64.zip
-mv mpf_v0.12.0 az-mpf
-chmod +x ./az-mpf
+mv mpf_v0.12.0 azmpf
+chmod +x ./azmpf
 ```
 
 And for Mac Arm64:
@@ -20,8 +20,8 @@ And for Mac Arm64:
 # Please change the version in the URL to the latest version
 curl -LO https://github.com/Azure/mpf/releases/download/v0.12.0/mpf_0.12.0_darwin_arm64.zip
 unzip mpf_0.12.0_darwin_arm64.zip
-mv mpf_v0.12.0 az-mpf
-chmod +x ./az-mpf
+mv mpf_v0.12.0 azmpf
+chmod +x ./azmpf
 ```
 
 ## Quickstart / Usage
@@ -35,7 +35,7 @@ export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
 export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
-$ ./az-mpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
@@ -61,7 +61,7 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
 
-$ ./az-mpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
+$ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
@@ -93,7 +93,7 @@ export MPF_TFPATH=TERRAFORM_EXECUTABLE_PATH
 # $MPF_TFPATH init
 # popd
 
-$ ./az-mpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars --debug
+$ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars --debug
 .
 # debug information
 .
@@ -114,4 +114,4 @@ Microsoft.Resources/subscriptions/resourcegroups/write
 
 It is also possible to additionally view detailed resource-level permissions required as shown in the [display options](./display-options.MD) document.
 
-The blog post [Figuring out the Minimum Permissions Required to Deploy an Azure ARM Template](https://medium.com/microsoftazure/figuring-out-the-minimum-permissions-required-to-deploy-an-azure-arm-template-d1c1e74092fa) provides a more contextual usage scenario for az-mpf.
+The blog post [Figuring out the Minimum Permissions Required to Deploy an Azure ARM Template](https://medium.com/microsoftazure/figuring-out-the-minimum-permissions-required-to-deploy-an-azure-arm-template-d1c1e74092fa) provides a more contextual usage scenario for azmpf.
