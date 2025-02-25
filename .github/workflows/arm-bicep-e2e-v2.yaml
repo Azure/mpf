@@ -3,10 +3,9 @@
 # Terraform Provider testing workflow.
 name: 🧪 v2-arm-bicep-e2e
 
-# This GitHub action runs your tests for each pull request.
-# Optionally, you can turn it on using a schedule for regular testing.
+# This GitHub action runs your tests before merging a pull request via merge groups
+# Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 on:
-  pull_request:
   merge_group:
   workflow_dispatch:
 
@@ -19,8 +18,7 @@ permissions:
 
 jobs:
   testarmbicepe2e:
-    if: github.event_name != 'pull_request'
-    name: 🧪 Run ARM Bicep e2e Tests (${{ matrix.cli }} ${{ matrix.version }})
+    name: 🧪 Run ARM Bicep e2e Tests
     runs-on: ubuntu-24.04
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
