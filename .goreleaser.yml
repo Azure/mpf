@@ -12,7 +12,7 @@ archives:
       - src: LICENSE
         dst: LICENSE.txt
     formats: [ 'zip' ]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "az{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 builds:
   - dir: cmd
@@ -35,11 +35,11 @@ builds:
     ignore:
       - goos: darwin
         goarch: "386"
-    binary: "{{ .ProjectName }}_v{{ .Version }}"
+    binary: "az{{ .ProjectName }}_v{{ .Version }}"
 
 checksum:
   algorithm: sha256
-  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
+  name_template: "az{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
 
 signs:
   - artifacts: checksum
