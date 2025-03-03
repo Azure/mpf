@@ -47,8 +47,13 @@ var inDestroyPhase bool
 const (
 	TFDestroyStateEnteredFileName = ".azmpfEnteredDestroyPhase.txt"
 	TFExistingResourceErrorMsg    = "to be managed via Terraform this resource needs to be imported into the State"
-	BillingFeaturesPayloadError   = "CurrentBillingFeatures is required in payload"
-	// AuthorizationPermissionMismatchErr = "AuthorizationPermissionMismatch"
+
+	// Returning this response will trigger a retry
+	RetryDeploymentResponseErrorMessage = "RetryGetDeploymentAuthorizationErrors"
+
+	// Retryable errors
+	BillingFeaturesPayloadError = "CurrentBillingFeatures is required in payload"
+	WaitingForDataplaneError    = "waiting for the Data Plane"
 )
 
 func NewTerraformAuthorizationChecker(workDir string, execPath string, varFilePath string, importExistingResources bool, targetModule string) *terraformDeploymentConfig {
@@ -222,13 +227,18 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 	// }
 
 	if strings.Contains(errorMsg, "Authorization") {
+		if strings.Contains(errorMsg, WaitingForDataplaneError) {
+			log.Warnln("terraform apply: waiting for dataplane error occured, requesting retry")
+			return RetryDeploymentResponseErrorMessage, nil
+		}
+		log.Debug("terraform apply: authorization error occured")
 		return errorMsg, nil
 	}
 
 	// Temporary fix to workaround issue https://github.com/hashicorp/terraform-provider-azurerm/issues/27961
 	// It is observed only once, so retrying works
 	if strings.Contains(errorMsg, BillingFeaturesPayloadError) {
-		return errorMsg, nil
+		return RetryDeploymentResponseErrorMessage, nil
 	}
 
 	// import errors can occur for some resources, when identity does not have all required permissions,
