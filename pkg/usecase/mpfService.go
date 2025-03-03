@@ -140,7 +140,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		log.Debugln("authErrMesg: ", authErrMesg)
 
 		if err == nil && strings.Contains(authErrMesg, RetryDeploymentResponseErrorMessage) {
-			log.Warnf("received retry request from authorization checker ,retrying deployment.... \n", err)
+			log.Warnf("received retry request from authorization checker, retrying deployment.... \n")
 			continue
 		}
 
