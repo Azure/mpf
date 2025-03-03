@@ -30,9 +30,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const BillingFeaturesPayloadError = "CurrentBillingFeatures is required in payload"
-
-// const AuthorizationPermissionMismatchErr = "AuthorizationPermissionMismatch"
+// RetryDeploymentResponseErrorMessage is the error message returned by a deployment authorization checker when it wants the deployment to be retried
+const RetryDeploymentResponseErrorMessage = "RetryGetDeploymentAuthorizationErrors"
 
 type MPFService struct {
 	ctx                                 context.Context
@@ -125,7 +124,6 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	// Add initial permissions to requiredPermissions map
 	log.Infoln("Adding initial permissions to requiredPermissions map")
 	s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], s.permissionsToAddToResult...)
-	// s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], s.permissionsToAddToResult...)
 
 	maxIterations := 50
 	iterCount := 0
@@ -141,17 +139,10 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 
 		log.Debugln("authErrMesg: ", authErrMesg)
 
-		// Temporary fix to workaround issue https://github.com/hashicorp/terraform-provider-azurerm/issues/27961
-		// It is observed only once, so retrying works
-		if err == nil && strings.Contains(authErrMesg, BillingFeaturesPayloadError) {
-			log.Warnf("Billing Features Payload Error: %v, retrying.... \n", err)
+		if err == nil && strings.Contains(authErrMesg, RetryDeploymentResponseErrorMessage) {
+			log.Warnf("received retry request from authorization checker ,retrying deployment.... \n", err)
 			continue
 		}
-
-		// if err == nil && strings.Contains(err.Error(), AuthorizationPermissionMismatchErr) {
-		// 	log.Warnf("AuthrorizationPermissionMismatchErr Error: %v, retrying.... \n", err)
-		// 	continue
-		// }
 
 		if err != nil {
 			log.Warnf("Non Authorization error received: %v \n", err)

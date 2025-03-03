@@ -32,8 +32,9 @@ import (
 )
 
 func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, error) {
-	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") {
-		log.Infoln("Non Authorization Error when creating deployment:", authErrMesg)
+	log.Debugf("Attempting to Parse Authorization Error: %s", authErrMesg)
+	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") {
+		log.Warnln("Non Authorization Error when creating deployment:", authErrMesg)
 		return nil, errors.New("Could not parse deploment error, potentially due to a Non-Authorization error")
 	}
 
@@ -42,11 +43,17 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 
 	switch {
 	case strings.Count(authErrMesg, "LinkedAuthorizationFailed") >= 1:
+		log.Debug("Parsing LinkedAuthorizationFailed Error")
 		resMap, err = parseLinkedAuthorizationFailedErrors(authErrMesg)
 	case strings.Count(authErrMesg, "AuthorizationFailed") >= 1:
+		log.Debug("Parsing AuthorizationFailed Error")
 		resMap, err = parseMultiAuthorizationFailedErrors(authErrMesg)
 	case strings.Count(authErrMesg, "Authorization failed") >= 1:
+		log.Debug("Parsing Authorization failed Error")
 		resMap, err = parseMultiAuthorizationErrors(authErrMesg)
+	case strings.Count(authErrMesg, "AuthorizationPermissionMismatch") >= 1:
+		log.Debug("Parsing AuthorizationPermissionMismatch Error")
+		resMap, err = parseAuthorizationPermissionMismatchError(authErrMesg)
 	}
 
 	if err != nil {
