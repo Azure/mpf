@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -46,7 +45,7 @@ func TestARMTemplatWhatIfInvalidParams(t *testing.T) {
 	mpfArgs.TemplateFilePath = "../samples/templates/aks.json"
 	mpfArgs.ParametersFilePath = "../samples/templates/aks-invalid-params.json"
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -90,7 +89,7 @@ func TestARMTemplatWhatIfInvalidTemplate(t *testing.T) {
 	mpfArgs.TemplateFilePath = "../samples/templates/aks-invalid-template.json"
 	mpfArgs.ParametersFilePath = "../samples/templates/aks-parameters.json"
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -134,7 +133,7 @@ func TestARMTemplatWhatIfBlankTemplateAndParams(t *testing.T) {
 	mpfArgs.TemplateFilePath = "../samples/templates/blank-template.json"
 	mpfArgs.ParametersFilePath = "../samples/templates/blank-params.json"
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 

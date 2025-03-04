@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"os"
 	"path"
 	"runtime"
@@ -59,7 +58,7 @@ func TestTerraformACI(t *testing.T) {
 	varsFile := path.Join(curDir, "../samples/terraform/aci/dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -105,7 +104,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -151,7 +150,7 @@ func TestTerraformModuleTest(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/module-test")
 	log.Infof("wrkDir: %s", wrkDir)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -201,7 +200,7 @@ func TestTerraformModuleTest(t *testing.T) {
 // 	wrkDir := path.Join(curDir, "../samples/terraform/multi-resource")
 // 	varsFile := path.Join(curDir, "../samples/terraform/multi-resource/dev.vars.tfvars")
 
-// 	ctx := context.Background()
+// 	ctx := t.Context()
 
 // 	mpfConfig := presentation.getMPFConfig(mpfArgs)
 

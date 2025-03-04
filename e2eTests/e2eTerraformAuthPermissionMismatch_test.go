@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"os"
 	"path"
 	"runtime"
@@ -60,7 +59,7 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/authorization-permission-mismatch")
 	log.Infof("wrkDir: %s", wrkDir)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
