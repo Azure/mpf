@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -71,7 +70,7 @@ func TestBicepInvalidParams(t *testing.T) {
 	}
 	// defer os.Remove(armTemplatePath)
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 

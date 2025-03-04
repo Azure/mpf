@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -121,7 +120,7 @@ func TestARMTemplatMultiResourceTemplate(t *testing.T) {
 	mpfArgs.TemplateFilePath = "../samples/templates/multi-resource-template.json"
 	mpfArgs.ParametersFilePath = "../samples/templates/multi-resource-parameters.json"
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -219,7 +218,7 @@ func TestARMTemplatAksPrivateSubnetTemplate(t *testing.T) {
 	mpfArgs.TemplateFilePath = "../samples/templates/aks-private-subnet.json"
 	mpfArgs.ParametersFilePath = "../samples/templates/aks-private-subnet-parameters.json"
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 

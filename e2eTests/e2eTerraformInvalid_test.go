@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"os"
 	"path"
 	"runtime"
@@ -59,7 +58,7 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 	varsFile := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars/dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -101,7 +100,7 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tf-file")
 	log.Infof("wrkDir: %s", wrkDir)
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
@@ -139,7 +138,7 @@ func TestTerraformACIInvalidTfExec(t *testing.T) {
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 

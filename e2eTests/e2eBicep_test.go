@@ -23,7 +23,6 @@
 package e2etests
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -74,7 +73,7 @@ func TestBicepAks(t *testing.T) {
 	}
 	// defer os.Remove(armTemplatePath)
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
