@@ -34,8 +34,8 @@ import (
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
 	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateWhatIf"
 	mpfSharedUtils "github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
-	resourceGroupManager "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
-	sproleassignmentmanager "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
+	rgm "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
+	spram "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
 	"github.com/Azure/mpf/pkg/usecase"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -84,8 +84,8 @@ func TestBicepInvalidParams(t *testing.T) {
 	// azAPIClient := azureAPI.NewAzureAPIClients(mpfArgs.SubscriptionID)
 	var rgManager usecase.ResourceGroupManager
 	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager
-	rgManager = resourceGroupManager.NewResourceGroupManager(mpfArgs.SubscriptionID)
-	spRoleAssignmentManager = sproleassignmentmanager.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
+	rgManager = rgm.NewResourceGroupManager(mpfArgs.SubscriptionID)
+	spRoleAssignmentManager = spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
 
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
