@@ -222,19 +222,6 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 	errorMsg := err.Error()
 	log.Debugln("terraform apply error: ", errorMsg)
 
-	// if strings.Contains(errorMsg, AuthorizationPermissionMismatchErr) {
-	// 	return errorMsg, nil
-	// }
-
-	if strings.Contains(errorMsg, "Authorization") {
-		if strings.Contains(errorMsg, WaitingForDataplaneError) {
-			log.Warnln("terraform apply: waiting for dataplane error occured, requesting retry")
-			return RetryDeploymentResponseErrorMessage, nil
-		}
-		log.Debug("terraform apply: authorization error occured")
-		return errorMsg, nil
-	}
-
 	// Temporary fix to workaround issue https://github.com/hashicorp/terraform-provider-azurerm/issues/27961
 	// It is observed only once, so retrying works
 	if strings.Contains(errorMsg, BillingFeaturesPayloadError) {
@@ -253,6 +240,15 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 			return msg, err
 		}
 		return a.terraformApply(mpfConfig, tf)
+	}
+
+	if strings.Contains(errorMsg, "Authorization") {
+		if strings.Contains(errorMsg, WaitingForDataplaneError) {
+			log.Warnln("terraform apply: waiting for dataplane error occured, requesting retry")
+			return RetryDeploymentResponseErrorMessage, nil
+		}
+		log.Debug("terraform apply: authorization error occured")
+		return errorMsg, nil
 	}
 
 	log.Warnf("terraform apply: non authorizaton error occured: %s", errorMsg)
