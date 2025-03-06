@@ -68,7 +68,7 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 		return nil, fmt.Errorf("Could not parse deployment error for scope/permissions: %s", authErrMesg)
 	}
 
-	return resMap, nil
+	return appendPermissionsForSpecialCases(resMap), nil
 }
 
 // For 'AuthorizationFailed' errors

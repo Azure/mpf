@@ -242,7 +242,7 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 		return a.terraformApply(mpfConfig, tf)
 	}
 
-	if strings.Contains(errorMsg, "Authorization") {
+	if strings.Contains(errorMsg, "Authorization") || strings.Contains(errorMsg, "LinkedAccessCheckFailed") {
 		if strings.Contains(errorMsg, WaitingForDataplaneError) {
 			log.Warnln("terraform apply: waiting for dataplane error occured, requesting retry")
 			return RetryDeploymentResponseErrorMessage, nil
