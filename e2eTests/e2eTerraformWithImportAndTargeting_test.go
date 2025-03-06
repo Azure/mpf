@@ -80,7 +80,7 @@ func TestTerraformWithImport(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 13, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+	assert.Equal(t, 17, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
