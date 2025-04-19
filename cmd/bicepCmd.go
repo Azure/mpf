@@ -81,7 +81,8 @@ func NewBicepCommand() *cobra.Command {
 		log.Errorf("Error marking flag required for Bicep executable path: %v\n", err)
 	}
 
-	bicepCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus", "Location")
+	bicepCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus2", "Location")
+	bicepCmd.Flags().BoolVarP(&flgSubscriptionScoped, "subscriptionScoped", "", false, "Is Deployment Subscription Scoped")
 
 	// bicepCmd.Flags().BoolVarP(&flgFullDeployment, "fullDeployment", "", false, "Full Deployment")
 
@@ -98,6 +99,8 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	log.Infof("BicepFilePath: %s\n", flgBicepFilePath)
 	log.Infof("ParametersFilePath: %s\n", flgParametersFilePath)
 	log.Infof("BicepExecPath: %s\n", flgBicepExecPath)
+	log.Infof("SubscriptionScoped: %t\n", flgSubscriptionScoped)
+	log.Infof("Location: %s\n", flgLocation)
 
 	// validate if template and parameters files exists
 	if _, err := os.Stat(flgBicepFilePath); os.IsNotExist(err) {
@@ -150,6 +153,8 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 		TemplateFilePath:   armTemplatePath,
 		ParametersFilePath: flgParametersFilePath,
 		DeploymentName:     deploymentName,
+		SubscriptionScoped: flgSubscriptionScoped,
+		Location:           flgLocation,
 	}
 
 	var rgManager usecase.ResourceGroupManager
@@ -166,7 +171,11 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	initialPermissionsToAdd = []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
-	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, true)
+	var autoCreateResourceGroup bool = true
+	if flgSubscriptionScoped {
+		autoCreateResourceGroup = false
+	}
+	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, autoCreateResourceGroup)
 
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
 	if err != nil {
@@ -180,7 +189,12 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 		log.Errorf("Error deleting Generated ARM template file: %v\n", err)
 	}
 
-	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.ResourceGroup.ResourceGroupResourceID)
+	// log.Infof("Displaying MPF Result: %v\n", mpfResult)
+	log.Infof("Show Detailed Output: %t\n", flgShowDetailedOutput)
+	log.Infof("JSON Output: %t\n", flgJSONOutput)
+	log.Infof("Subscription ID: %s\n", mpfConfig.SubscriptionID)
+
+	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.SubscriptionID)
 
 	if err != nil {
 		if len(mpfResult.RequiredPermissions) > 0 {

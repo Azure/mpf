@@ -44,6 +44,7 @@ var flgDeploymentNamePfx string
 var flgLocation string
 var flgTemplateFilePath string
 var flgParametersFilePath string
+var flgSubscriptionScoped bool
 
 // var flgFullDeployment bool
 
@@ -78,7 +79,9 @@ func NewARMCommand() *cobra.Command {
 		log.Errorf("Error marking flag required for ARM template parameters file path: %v\n", err)
 	}
 
-	armCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus", "Location")
+	armCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus2", "Location")
+
+	armCmd.Flags().BoolVarP(&flgSubscriptionScoped, "subscriptionScoped", "", false, "Is Deployment Subscription Scoped")
 
 	// armCmd.Flags().BoolVarP(&flgFullDeployment, "fullDeployment", "", false, "Full Deployment")
 
@@ -94,6 +97,8 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 	log.Debugf("DeploymentNamePfx: %s\n", flgDeploymentNamePfx)
 	log.Infof("TemplateFilePath: %s\n", flgTemplateFilePath)
 	log.Infof("ParametersFilePath: %s\n", flgParametersFilePath)
+	log.Infof("Location: %s\n", flgLocation)
+	log.Infof("SubscriptionScoped: %t\n", flgSubscriptionScoped)
 
 	// validate if template and parameters files exists
 	if _, err := os.Stat(flgTemplateFilePath); os.IsNotExist(err) {
@@ -127,6 +132,8 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 		TemplateFilePath:   flgTemplateFilePath,
 		ParametersFilePath: flgParametersFilePath,
 		DeploymentName:     deploymentName,
+		SubscriptionScoped: flgSubscriptionScoped,
+		Location:           flgLocation,
 	}
 
 	var rgManager usecase.ResourceGroupManager
@@ -145,7 +152,11 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, true)
 
-	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.ResourceGroup.ResourceGroupResourceID)
+	log.Infof("Show Detailed Output: %t\n", flgShowDetailedOutput)
+	log.Infof("JSON Output: %t\n", flgJSONOutput)
+	log.Infof("Subscription Resource ID: %s\n", mpfConfig.SubscriptionID)
+
+	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.SubscriptionID)
 
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
 	if err != nil {
@@ -159,17 +170,18 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 	displayResult(mpfResult, displayOptions)
 }
 
-func getDislayOptions(flgShowDetailedOutput bool, flgJSONOutput bool, rgResourceId string) presentation.DisplayOptions {
+func getDislayOptions(flgShowDetailedOutput bool, flgJSONOutput bool, subscriptionID string) presentation.DisplayOptions {
 	return presentation.DisplayOptions{
-		ShowDetailedOutput:             flgShowDetailedOutput,
-		JSONOutput:                     flgJSONOutput,
-		DefaultResourceGroupResourceID: rgResourceId,
+		ShowDetailedOutput: flgShowDetailedOutput,
+		JSONOutput:         flgJSONOutput,
+		SubscriptionID:     subscriptionID,
 	}
 }
 
 func displayResult(mpfResult domain.MPFResult, displayOptions presentation.DisplayOptions) {
 	resultDisplayer := presentation.NewMPFResultDisplayer(mpfResult, displayOptions)
 	err := resultDisplayer.DisplayResult(os.Stdout)
+
 	if err != nil {
 		log.Fatal(err)
 	}

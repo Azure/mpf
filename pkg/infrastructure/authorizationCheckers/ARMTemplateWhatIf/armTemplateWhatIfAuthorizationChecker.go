@@ -72,8 +72,12 @@ func (a *armWhatIfConfig) CleanDeployment(mpfConfig domain.MPFConfig) error {
 // Get parameters in standard format that is without the schema, contentVersion and parameters fields
 
 func (a *armWhatIfConfig) CreateEmptyDeployment(client *http.Client, deploymentName string, bearerToken string, mpfConfig domain.MPFConfig) error {
-
-	deploymentUri := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourcegroups/%s/providers/Microsoft.Resources/deployments/%s?api-version=2020-10-01", mpfConfig.SubscriptionID, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName)
+	var deploymentUri string
+	if a.armConfig.SubscriptionScoped {
+		deploymentUri = fmt.Sprintf("https://management.azure.com/subscriptions/%s/providers/Microsoft.Resources/deployments/%s?api-version=2021-04-01", mpfConfig.SubscriptionID, deploymentName)
+	} else {
+		deploymentUri = fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourcegroups/%s/providers/Microsoft.Resources/deployments/%s?api-version=2020-10-01", mpfConfig.SubscriptionID, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName)
+	}
 
 	log.Info("Creating empty deployment...")
 	log.Debug(deploymentUri)
@@ -146,12 +150,18 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	// convert parameters to standard format
 	parameters = ARMTemplateShared.GetParametersInStandardFormat(parameters)
 
+	// if Subscription scoped, we need to specify deployment location
+
 	fullTemplate := map[string]interface{}{
 		"properties": map[string]interface{}{
 			"mode":       "Incremental",
 			"template":   template,
 			"parameters": parameters,
 		},
+	}
+
+	if a.armConfig.SubscriptionScoped {
+		fullTemplate["location"] = a.armConfig.Location
 	}
 
 	// convert bodyJSON to string
@@ -169,7 +179,13 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 
 	client := &http.Client{}
 
-	url := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourcegroups/%s/providers/Microsoft.Resources/deployments/%s/whatIf?api-version=2021-04-01", mpfConfig.SubscriptionID, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName)
+	var url string
+	if a.armConfig.SubscriptionScoped {
+		url = fmt.Sprintf("https://management.azure.com/subscriptions/%s/providers/Microsoft.Resources/deployments/%s/whatIf?api-version=2022-09-01", mpfConfig.SubscriptionID, deploymentName)
+	} else {
+		url = fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourcegroups/%s/providers/Microsoft.Resources/deployments/%s/whatIf?api-version=2021-04-01", mpfConfig.SubscriptionID, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName)
+	}
+
 	reqMethod := "POST"
 
 	req, err := http.NewRequest(reqMethod, url, bytes.NewBufferString(fullTemplateJSONString))
@@ -190,11 +206,18 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	log.Debugf("Response Body: %s", string(bodyBytes))
+
 	// if response status code is 400, indicates invalid template
 	if resp.StatusCode == 400 {
 		// log.Errorf("InvalidTemplate error occured: %s. Please check the Template and Parameters", resp.Status)
 		// return "", errors.New("InvalidTemplate")
 		// return "", fmt.Error("InvalidTemplate: Please check the Template and Parameters: %w", resp.Status)
+		log.Warnf("Response Body: %s", string(bodyBytes))
 		return "", fmt.Errorf("%w, %w", ARMTemplateShared.ErrInvalidTemplate, errors.New("please check the template and parameter files"))
 	}
 
@@ -204,6 +227,7 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	_, err = URL.ParseRequestURI(whatIfRespLoc)
 	if err != nil {
 		// return "", err
+		log.Warnf("Response Body: %s", string(bodyBytes))
 		return "", fmt.Errorf("Error parsing what if response location: %w", err)
 	}
 

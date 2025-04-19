@@ -156,7 +156,7 @@ func getMPFTerraform(cmd *cobra.Command, args []string) {
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(flgWorkingDir, flgTFPath, flgVarFilePath, flgImportExistingResourcesToState, flgTargetModule)
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
-	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.ResourceGroup.ResourceGroupResourceID)
+	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.SubscriptionID)
 
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
 	if err != nil {

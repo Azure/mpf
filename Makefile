@@ -28,7 +28,7 @@ GOTEST = $(GOCMD) test
 GOGET = $(GOCMD) get
 
 # Name of the binary output
-BINARY_NAME = az-mpf
+BINARY_NAME = azmpf
 
 # Main source file
 # MAIN_FILE = main.go

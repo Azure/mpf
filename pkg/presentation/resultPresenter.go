@@ -29,9 +29,9 @@ import (
 )
 
 type DisplayOptions struct {
-	ShowDetailedOutput             bool
-	JSONOutput                     bool
-	DefaultResourceGroupResourceID string
+	ShowDetailedOutput bool
+	JSONOutput         bool
+	SubscriptionID     string
 }
 
 // type ResultDisplayer interface {
