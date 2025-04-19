@@ -70,8 +70,7 @@ jobs:
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
-      - name: 🧪 Run ARM E2E Tests
-        run: task teste2e:arm
-      
-      - name: 🧪 Run Bicep E2E Tests
-        run: task teste2e:bicep
+      - name: 🧪 Run ARM and Bicep E2E Tests
+        run: |
+          task teste2e:arm
+          task teste2e:bicep
