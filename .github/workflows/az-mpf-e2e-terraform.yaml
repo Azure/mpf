@@ -25,8 +25,8 @@ name: Terraform e2e tests
 on:
   workflow_dispatch:
 
-  schedule:
-    - cron: '0 2 * * *'
+  # schedule:
+  #   - cron: '0 2 * * *'
 
 concurrency:
   group: shared_mpf_service_principal_workflow_group
