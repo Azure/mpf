@@ -16,7 +16,7 @@ export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
 export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
-$ ./az-mpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --showDetailedOutput
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --showDetailedOutput
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
@@ -63,7 +63,7 @@ export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
 export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
-$ ./az-mpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput
 
 {
   "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44": [
@@ -103,7 +103,7 @@ export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
 export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
-$ ./az-mpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --verbose
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --verbose
 
 INFO[0000] Executing MPF for ARM                        
 INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json 
@@ -167,7 +167,7 @@ export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
 export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
-$ ./az-mpf arm --templateFilePath ./samples/templates/multi-resource-template.json --parametersFilePath ./samples/templates/multi-resource-parameters.json --showDetailedOutput 
+$ ./azmpf arm --templateFilePath ./samples/templates/multi-resource-template.json --parametersFilePath ./samples/templates/multi-resource-parameters.json --showDetailedOutput 
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
@@ -470,3 +470,27 @@ Microsoft.Compute/virtualMachines/extensions/read
 Microsoft.Compute/virtualMachines/extensions/write
 --------------
 ```
+
+### Subscription scoped Bicep deployment
+
+The --subscriptionScoped flag indicates whether the deployment is scoped to a subscription. If set, the deployment will target a subscription else it is resource group scoped deployment. The following is a sample of subscription scoped Bicep deployment:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+
+$ ./azmpf bicep --bicepFilePath ./samples/bicep/subscription-scope-create-rg.bicep --parametersFilePath ./samples/bicep/subscription-scope-create-rg-params.json  --subscriptionScoped --location eastus2
+------------------------------------------------------------------------------------------------------------------------------------------
+Permissions Required:
+------------------------------------------------------------------------------------------------------------------------------------------
+Microsoft.Resources/deployments/read
+Microsoft.Resources/deployments/write
+Microsoft.Resources/subscriptions/resourceGroups/read
+Microsoft.Resources/subscriptions/resourceGroups/write
+------------------------------------------------------------------------------------------------------------------------------------------
+```
+

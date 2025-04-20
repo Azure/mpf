@@ -206,7 +206,7 @@ tasks:
       echo "Test passed: $RESULT_LINE_COUNT lines"
 
   testcli:terraform:
-    desc: Run CLI tests for Bicep
+    desc: Run CLI tests for Terraform
     cmds:
     - |
       RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
