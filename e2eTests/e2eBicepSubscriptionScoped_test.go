@@ -59,8 +59,7 @@ func TestBicepSubscriptionScoped(t *testing.T) {
 		Location:           "eastus2",
 	}
 
-	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager
-	spRoleAssignmentManager = spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
+	spRoleAssignmentManager := spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
 
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
