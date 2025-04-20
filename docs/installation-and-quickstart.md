@@ -8,9 +8,9 @@ For example, to download the latest version for Linux/amd64:
 
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/Azure/mpf/releases/download/v0.13.0/azmpf_0.13.0_linux_amd64.zip
-unzip azmpf_0.13.0_linux_amd64.zip
-mv azmpf_v0.13.0 azmpf
+curl -LO https://github.com/Azure/mpf/releases/download/v0.14.0/azmpf_0.14.0_linux_amd64.zip
+unzip azmpf_0.14.0_linux_amd64.zip
+mv azmpf_v0.14.0 azmpf
 chmod +x ./azmpf
 ```
 
@@ -18,9 +18,9 @@ And for Mac Arm64:
   
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/Azure/mpf/releases/download/v0.13.0/azmpf_0.13.0_darwin_arm64.zip
-unzip azmpf_0.13.0_darwin_arm64.zip
-mv azmpf_v0.13.0 azmpf
+curl -LO https://github.com/Azure/mpf/releases/download/v0.14.0/azmpf_0.14.0_darwin_arm64.zip
+unzip azmpf_0.14.0_darwin_arm64.zip
+mv azmpf_v0.14.0 azmpf
 chmod +x ./azmpf
 ```
 
