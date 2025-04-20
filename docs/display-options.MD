@@ -471,6 +471,29 @@ Microsoft.Compute/virtualMachines/extensions/write
 --------------
 ```
 
+### Subscription scoped ARM deployment
+
+The --subscriptionScoped flag indicates whether the deployment is scoped to a subscription. If set, the deployment will target a subscription else it is resource group scoped deployment. The following is a sample of subscription scoped ARM deployment:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+
+$ ./azmpf arm --templateFilePath ./samples/templates/subscription-scope-create-rg.json --parametersFilePath ./samples/templates/subscription-scope-create-rg-params.json --subscriptionScoped --location eastus2
+------------------------------------------------------------------------------------------------------------------------------------------
+Permissions Required:
+------------------------------------------------------------------------------------------------------------------------------------------
+Microsoft.Resources/deployments/read
+Microsoft.Resources/deployments/write
+Microsoft.Resources/subscriptions/resourceGroups/read
+Microsoft.Resources/subscriptions/resourceGroups/write
+------------------------------------------------------------------------------------------------------------------------------------------
+```
+
 ### Subscription scoped Bicep deployment
 
 The --subscriptionScoped flag indicates whether the deployment is scoped to a subscription. If set, the deployment will target a subscription else it is resource group scoped deployment. The following is a sample of subscription scoped Bicep deployment:
