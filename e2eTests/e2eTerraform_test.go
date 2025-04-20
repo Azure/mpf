@@ -82,7 +82,7 @@ func TestTerraformACI(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformACINoTfvarsFile(t *testing.T) {
@@ -128,7 +128,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 5, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+	assert.Equal(t, 5, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformModuleTest(t *testing.T) {
@@ -174,7 +174,7 @@ func TestTerraformModuleTest(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 //
@@ -241,5 +241,5 @@ func TestTerraformModuleTest(t *testing.T) {
 // 	// Microsoft.Resources/subscriptions/resourcegroups/write
 // 	//check if mpfResult.RequiredPermissions is not empty and has 54 permissions for scope ResourceGroupResourceID
 // 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-// 	assert.Equal(t, 16, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+// 	assert.Equal(t, 16, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 // }

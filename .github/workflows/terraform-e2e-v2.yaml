@@ -73,3 +73,9 @@ jobs:
           export MPF_TFPATH=$(which terraform)
           echo "Terraform path: $MPF_TFPATH"
           task teste2e:terraform
+
+      - name: 🧪 Run Terraform CLI Tests
+        run: |
+          export MPF_TFPATH=$(which terraform)
+          echo "Terraform path: $MPF_TFPATH"
+          task testcli:terraform

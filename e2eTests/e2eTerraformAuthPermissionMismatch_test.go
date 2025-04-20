@@ -82,5 +82,5 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 11, len(mpfResult.RequiredPermissions[mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+	assert.Equal(t, 11, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }

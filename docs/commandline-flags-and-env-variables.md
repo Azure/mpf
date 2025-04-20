@@ -25,6 +25,7 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 | resourceGroupNamePfx | MPF_RESOURCEGROUPNAMEPFX | Optional           | Prefix for the resource group name. If not provided, default prefix is testdeployrg. For ARM deployments this temporary resource group is created                                |
 | deploymentNamePfx    | MPF_DEPLOYMENTNAMEPFX    | Optional           | Prefix for the deployment name. If not provided, default prefix is testDeploy. For ARM deployments this temporary deployment is created                                |
 | location             | MPF_LOCATION             | Optional           | Location for the resource group. If not provided, default location is eastus                                      |
+| subscriptionScoped     | MPF_SUBSCRIPTIONSCOPED     | Optional           | This flag indicates whether the deployment is scoped to a subscription. If set, the deployment will target a subscription else it is resource group scoped deployment.                                 |
 
 ### Bicep Flags
 
@@ -36,6 +37,7 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 | resourceGroupNamePfx | MPF_RESOURCEGROUPNAMEPFX | Optional           | Prefix for the resource group name. If not provided, default prefix is testdeployrg. For Bicep deployments this temporary resource group is created                                |
 | deploymentNamePfx    | MPF_DEPLOYMENTNAMEPFX    | Optional           | Prefix for the deployment name. If not provided, default prefix is testDeploy. For Bicep deployments this temporary deployment is created                                |
 | location             | MPF_LOCATION             | Optional           | Location for the resource group. If not provided, default location is eastus                                      |
+| subscriptionScoped     | MPF_SUBSCRIPTIONSCOPED     | Optional           | This flag indicates whether the deployment is scoped to a subscription. If set, the deployment will target a subscription else it is resource group scoped deployment.                                 |
 
 ## Terraform Flags
 

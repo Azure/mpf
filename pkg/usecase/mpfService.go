@@ -123,14 +123,14 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 
 	// Add initial permissions to requiredPermissions map
 	log.Infoln("Adding initial permissions to requiredPermissions map")
-	s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], s.permissionsToAddToResult...)
+	s.requiredPermissions[s.mpfConfig.SubscriptionID] = append(s.requiredPermissions[s.mpfConfig.SubscriptionID], s.permissionsToAddToResult...)
 
 	maxIterations := 50
 	iterCount := 0
 	for {
 		authErrMesg, err := s.deploymentAuthCheckerCleaner.GetDeploymentAuthorizationErrors(s.mpfConfig)
 
-		log.Debugf("Iteration Number: %d \n", iterCount)
+		log.Infof("Iteration Number: %d \n", iterCount)
 
 		if authErrMesg == "" && err == nil {
 			log.Infoln("Authorization Successful")
@@ -177,14 +177,14 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		log.Infoln("Adding mising scopes/permissions to final result map...")
 		for k, v := range scpMp {
 			s.requiredPermissions[k] = append(s.requiredPermissions[k], v...)
-			s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID] = append(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID], v...)
+			s.requiredPermissions[s.mpfConfig.SubscriptionID] = append(s.requiredPermissions[s.mpfConfig.SubscriptionID], v...)
 		}
 
 		// assign permission to role
 		log.Infoln("Adding permission/scope to role...........")
-		log.Debugln("Number of Permissions added to role:", len(s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID]))
+		log.Debugln("Number of Permissions added to role:", len(s.requiredPermissions[s.mpfConfig.SubscriptionID]))
 
-		permissionsIncludingInitialPermissions := append(s.initialPermissionsToAdd, s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID]...)
+		permissionsIncludingInitialPermissions := append(s.initialPermissionsToAdd, s.requiredPermissions[s.mpfConfig.SubscriptionID]...)
 		err = s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.Role, permissionsIncludingInitialPermissions)
 
 		// err = s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.ResourceGroup.ResourceGroupName, s.mpfConfig.Role, s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID])

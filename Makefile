@@ -28,7 +28,7 @@ GOTEST = $(GOCMD) test
 GOGET = $(GOCMD) get
 
 # Name of the binary output
-BINARY_NAME = az-mpf
+BINARY_NAME = azmpf
 
 # Main source file
 # MAIN_FILE = main.go
@@ -74,9 +74,13 @@ build-all:
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(OUTPUT_DIR)/$(BINARY_NAME)-linux-amd64 ./cmd
 	GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(OUTPUT_DIR)/$(BINARY_NAME)-windows-amd64.exe ./cmd
 
-test-e2e: # arm and bicep tests
+test-e2e-arm: # arm and bicep tests
 	@echo "Running end-to-end tests..."
-	$(GOTEST) ./e2eTests -v -run TestARM TestBicep
+	$(GOTEST) ./e2eTests -v -run TestARM
+
+test-e2e-bicep: # bicep tests
+	@echo "Running end-to-end tests..."
+	$(GOTEST) ./e2eTests -v -run TestBicep
 
 test-e2e-terraform: # terraform tests
 	@echo "Running end-to-end tests..."
