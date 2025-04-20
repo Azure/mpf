@@ -181,8 +181,44 @@ tasks:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
       LDFLAGS: "-s -w -X main.version=testUnit"
 
+  testcli:arm:
+    desc: Run CLI tests for ARM
+    cmds:
+    - |
+      RESULT_LINE_COUNT=$(go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json | wc -l)
+      echo "Result line count: $RESULT_LINE_COUNT"
+      if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
+        echo "Expected 13 lines, got $RESULT_LINE_COUNT"
+        exit 1
+      fi
+      echo "Test passed: $RESULT_LINE_COUNT lines"
+
+  testcli:bicep:
+    desc: Run CLI tests for Bicep
+    cmds:
+    - |
+      RESULT_LINE_COUNT=$(go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json | wc -l)
+      echo "Result line count: $RESULT_LINE_COUNT"
+      if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
+        echo "Expected 13 lines, got $RESULT_LINE_COUNT"
+        exit 1
+      fi
+      echo "Test passed: $RESULT_LINE_COUNT lines"
+
+  testcli:terraform:
+    desc: Run CLI tests for Bicep
+    cmds:
+    - |
+      RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
+      echo "Result line count: $RESULT_LINE_COUNT"
+      if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
+        echo "Expected 13 lines, got $RESULT_LINE_COUNT"
+        exit 1
+      fi
+      echo "Test passed: $RESULT_LINE_COUNT lines"
+
   teste2e:arm:
-    desc: Run e2e tests for ARM and Bicep
+    desc: Run e2e tests for ARM
     cmds:
       - go clean -testcache
       - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
@@ -190,9 +226,10 @@ tasks:
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
       LDFLAGS: "-s -w -X main.version=testAcc"
-  
+
+
   teste2e:bicep:
-    desc: Run e2e tests for ARM and Bicep
+    desc: Run e2e tests for Bicep
     cmds:
       - go clean -testcache
       - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestBicep -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
@@ -200,7 +237,7 @@ tasks:
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
       LDFLAGS: "-s -w -X main.version=testAcc"
-
+  
   teste2e:terraform:
     desc: Run e2e tests for Terraform
     cmds:

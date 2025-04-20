@@ -74,5 +74,11 @@ jobs:
       - name: 🧪 Run ARM E2E Tests
         run: task teste2e:arm
 
+      - name: 🧪 Run ARM CLI Tests
+        run: task testcli:arm
+
       - name: 🧪 Run Bicep E2E Tests
         run: task teste2e:bicep
+
+      - name: 🧪 Run Bicep CLI Tests 
+        run: task testcli:bicep
