@@ -1,30 +1,19 @@
 
 
 
-resource "random_id" "rg" {
-  byte_length = 8
-}
 
-resource "azurerm_resource_group" "this" {
-  location = "East US2" # Location used just for the example
-  name     = "rg-${random_id.rg.hex}"
-}
 
 
 
 module "law" {
   source                       = "./modules/law"
-  location                     = azurerm_resource_group.this.location
   log_analytics_workspace_name = var.log_analytics_workspace_name
-  resource_group_name          = azurerm_resource_group.this.name
   tags                         = var.tags
 }
 
 module "law2" {
   source                       = "./modules/law"
-  location                     = azurerm_resource_group.this.location
   log_analytics_workspace_name = "${var.log_analytics_workspace_name}2"
-  resource_group_name          = azurerm_resource_group.this.name
   tags                         = var.tags
 }
 
