@@ -89,7 +89,46 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
     "Microsoft.Network/virtualNetworks/subnets/write"
   ]
 }
+```
 
+### JSON Output with Bicep
+
+Similar to ARM templates, it is also possible to get JSON output when using Bicep files. The following is a sample of JSON output with Bicep:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+
+$ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --jsonOutput
+
+{
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write",
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write",
+    "Microsoft.Network/virtualNetworks/write",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.ContainerService/managedClusters/myAKSCluster": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.Network/virtualNetworks/myVNet": [
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.Network/virtualNetworks/myVNet/subnets/mySubnet": [
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write"
+  ]
+}
 ```
 
 ### Viewing info, warn, or debug level logs
@@ -516,4 +555,3 @@ Microsoft.Resources/subscriptions/resourceGroups/read
 Microsoft.Resources/subscriptions/resourceGroups/write
 ------------------------------------------------------------------------------------------------------------------------------------------
 ```
-
