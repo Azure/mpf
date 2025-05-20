@@ -131,6 +131,124 @@ $ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --param
 }
 ```
 
+### Detailed Output with Bicep
+
+Similar to ARM templates, it is also possible to get detailed output showing permissions required at an individual resource level when using Bicep files by using the **showDetailedOutput** flag:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+
+$ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --showDetailedOutput
+
+------------------------------------------------------------------------------------------------------------------------------------------
+Permissions Required:
+------------------------------------------------------------------------------------------------------------------------------------------
+Microsoft.ContainerService/managedClusters/read
+Microsoft.ContainerService/managedClusters/write
+Microsoft.Network/virtualNetworks/read
+Microsoft.Network/virtualNetworks/subnets/read
+Microsoft.Network/virtualNetworks/subnets/write
+Microsoft.Network/virtualNetworks/write
+Microsoft.Resources/deployments/read
+Microsoft.Resources/deployments/write
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Breakdown of permissions by different resource types:
+
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-3Fa9bNj/providers/Microsoft.Network/virtualNetworks/myVNet: 
+Microsoft.Network/virtualNetworks/read
+Microsoft.Network/virtualNetworks/write
+--------------
+
+
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-3Fa9bNj/providers/Microsoft.Network/virtualNetworks/myVNet/subnets/mySubnet: 
+Microsoft.Network/virtualNetworks/subnets/read
+Microsoft.Network/virtualNetworks/subnets/write
+--------------
+
+
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-3Fa9bNj/providers/Microsoft.ContainerService/managedClusters/myAKSCluster: 
+Microsoft.ContainerService/managedClusters/read
+Microsoft.ContainerService/managedClusters/write
+--------------
+```
+
+### Verbose Logging with Bicep
+
+Similar to ARM templates, it is also possible to view verbose logs when using Bicep files by using the **verbose** flag:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+
+$ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --verbose
+
+INFO[0000] Executing MPF for Bicep                      
+INFO[0000] BicepFilePath: ./samples/bicep/aks-private-subnet.bicep 
+INFO[0000] ParametersFilePath: ./samples/bicep/aks-private-subnet-params.json 
+INFO[0000] BicepExecPath: /opt/homebrew/bin/bicep       
+INFO[0000] SubscriptionScoped: false                    
+INFO[0000] Location: eastus2                            
+INFO[0003] Bicep build successful, ARM Template created at: ./samples/bicep/aks-private-subnet.json 
+INFO[0010] Creating Resource Group: testdeployrg-3Fa9bNj 
+INFO[0016] Resource Group: testdeployrg-3Fa9bNj created successfully 
+INFO[0019] Deleted all existing role assignments for service principal 
+INFO[0019] Initializing Custom Role                     
+INFO[0024] Custom role initialized successfully         
+INFO[0024] Assigning new custom role to service principal 
+INFO[0032] New Custom Role assigned to service principal successfully 
+INFO[0032] Adding initial permissions to requiredPermissions map 
+INFO[0038] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0039] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0041] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0042] Whatif Results Response Received..           
+INFO[0042] Successfully Parsed Deployment Authorization Error 
+INFO[0042] Adding mising scopes/permissions to final result map... 
+INFO[0042] Adding permission/scope to role...........   
+INFO[0045] Permission/scope added to role successfully  
+INFO[0053] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0054] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0055] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0056] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0057] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0058] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0060] Whatif Results Response Body is empty, retrying in a bit... 
+INFO[0062] Whatif Results Response Received..           
+INFO[0062] Authorization Successful                     
+INFO[0062] Cleaning up resources...                     
+INFO[0062] *************************                    
+INFO[0062] No additional cleanup needed in WhatIf mode  
+INFO[0062] *************************                    
+INFO[0068] Role definition deleted successfully         
+INFO[0072] Resource group deletion initiated successfully... 
+INFO[0072] Deleting Generated ARM Template file...      
+INFO[0072] Show Detailed Output: false                  
+INFO[0072] JSON Output: false                           
+INFO[0072] Subscription ID: SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS 
+------------------------------------------------------------------------------------------------------------------------------------------
+Permissions Required:
+------------------------------------------------------------------------------------------------------------------------------------------
+Microsoft.ContainerService/managedClusters/read
+Microsoft.ContainerService/managedClusters/write
+Microsoft.Network/virtualNetworks/read
+Microsoft.Network/virtualNetworks/subnets/read
+Microsoft.Network/virtualNetworks/subnets/write
+Microsoft.Network/virtualNetworks/write
+Microsoft.Resources/deployments/read
+Microsoft.Resources/deployments/write
+------------------------------------------------------------------------------------------------------------------------------------------
+```
+
 ### Viewing info, warn, or debug level logs
 
 By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of info level logging:
