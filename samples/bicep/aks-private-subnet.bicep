@@ -1,61 +1,58 @@
-param location string
-param clusterName string = 'myAKSCluster'
-param vnetName string = 'myVNet'
-param subnetName string = 'mySubnet'
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = {
-    name: vnetName
-    location: location
-    properties: {
-        addressSpace: {
-            addressPrefixes: [
-                '10.0.0.0/16'
-            ]
-        }
+param clusterName string
+param vnetName string
+param subnetName string
+param vnetAddressPrefix string = '10.13.0.0/16'
+param subnetAddressPrefix string = '10.13.2.0/24'
+param servicePrincipalClientId string = ''
+
+resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
+  name: vnetName
+  location: resourceGroup().location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        vnetAddressPrefix
+      ]
     }
+  }
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
-    parent: vnet
-    name: subnetName
-    properties: {
-        addressPrefix: '10.0.0.0/24'
-        privateEndpointNetworkPolicies: 'Disabled'
-        privateLinkServiceNetworkPolicies: 'Disabled'
-    }
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
+  name: '${vnetName}/${subnetName}'
+  location: resourceGroup().location
+  dependsOn: [vnet]
+  properties: {
+    addressPrefix: subnetAddressPrefix
+  }
 }
 
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-07-01' = {
-    name: clusterName
-    location: location
-    properties: {
-        kubernetesVersion: '1.21.2'
-        dnsPrefix: clusterName
-        enableRBAC: true
-        networkProfile: {
-            networkPlugin: 'azure'
-            networkMode: 'private'
-            loadBalancerSku: 'standard'
-            networkPolicy: 'calico'
-            podCidr: '10.244.0.0/16'
-            serviceCidr: '10.245.0.0/16'
-            dockerBridgeCidr: '172.17.0.1/16'
-            outboundType: 'loadBalancer'
-            loadBalancerProfile: {
-                managedOutboundIPs: {
-                    count: 1
-                }
-            }
-        }
-        agentPoolProfiles: [
-            {
-                name: 'agentpool'
-                count: 1
-                vmSize: 'Standard_DS2_v2'
-                osType: 'Linux'
-                osDiskSizeGB: 30
-                vnetSubnetID: subnet.id
-            }
-        ]
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
+  name: clusterName
+  location: resourceGroup().location
+  dependsOn: [subnet]
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    kubernetesVersion: '1.30.0'
+    dnsPrefix: clusterName
+    servicePrincipalProfile: {}
+    agentPoolProfiles: [
+      {
+        name: 'agentpool'
+        count: 1
+        vmSize: 'Standard_D2s_v3'
+        osType: 'Linux'
+        osDiskSizeGB: 30
+        vnetSubnetID: subnet.id
+        mode: 'System'
+      }
+    ]
+    networkProfile: {
+      networkPlugin: 'azure'
+      loadBalancerSku: 'standard'
+      networkPolicy: 'azure'
     }
+  }
 }

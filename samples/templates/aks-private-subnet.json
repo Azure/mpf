@@ -41,7 +41,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2017-06-01",
+            "apiVersion": "2023-05-01",
             "name": "[parameters('vnetName')]",
             "location": "[variables('location')]",
             "properties": {
@@ -54,7 +54,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2017-06-01",
+            "apiVersion": "2023-05-01",
             "name": "[concat(parameters('vnetName'), '/', parameters('subnetName'))]",
             "location": "[variables('location')]",
             "dependsOn": [
@@ -66,23 +66,27 @@
         },
         {
             "type": "Microsoft.ContainerService/managedClusters",
-            "apiVersion": "2021-07-01",
+            "apiVersion": "2023-05-01",
             "name": "[parameters('clusterName')]",
             "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
             ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
-                "kubernetesVersion": "1.21.2",
+                "kubernetesVersion": "1.30.0",
                 "dnsPrefix": "[parameters('clusterName')]",
                 "agentPoolProfiles": [
                     {
                         "name": "agentpool",
-                        "count": 3,
-                        "vmSize": "Standard_D2_v2",
+                        "count": 1,
+                        "vmSize": "Standard_D2s_v3",
                         "osType": "Linux",
                         "osDiskSizeGB": 30,
-                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+                        "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
+                        "mode": "System"
                     }
                 ],
                 "networkProfile": {

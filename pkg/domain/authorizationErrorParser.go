@@ -33,34 +33,77 @@ import (
 
 func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, error) {
 	log.Debugf("Attempting to Parse Authorization Error: %s", authErrMesg)
-	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") && !strings.Contains(authErrMesg, "LinkedAccessCheckFailed") {
+	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") && !strings.Contains(authErrMesg, "LinkedAccessCheckFailed") && !strings.Contains(authErrMesg, "LackOfPermissions") {
 		log.Warnln("Non Authorization Error when creating deployment:", authErrMesg)
 		return nil, errors.New("Could not parse deploment error, potentially due to a Non-Authorization error")
 	}
 
-	var resMap map[string][]string
-	var err error
+	resMap := make(map[string][]string)
+	var tempMaps []map[string][]string
 
-	switch {
-	case strings.Count(authErrMesg, "LinkedAuthorizationFailed") >= 1:
+	// Process LinkedAuthorizationFailed errors
+	if strings.Count(authErrMesg, "LinkedAuthorizationFailed") >= 1 {
 		log.Debug("Parsing LinkedAuthorizationFailed Error")
-		resMap, err = parseLinkedAuthorizationFailedErrors(authErrMesg)
-	case strings.Count(authErrMesg, "AuthorizationFailed") >= 1:
-		log.Debug("Parsing AuthorizationFailed Error")
-		resMap, err = parseMultiAuthorizationFailedErrors(authErrMesg)
-	case strings.Count(authErrMesg, "Authorization failed") >= 1:
-		log.Debug("Parsing Authorization failed Error")
-		resMap, err = parseMultiAuthorizationErrors(authErrMesg)
-	case strings.Count(authErrMesg, "AuthorizationPermissionMismatch") >= 1:
-		log.Debug("Parsing AuthorizationPermissionMismatch Error")
-		resMap, err = parseAuthorizationPermissionMismatchError(authErrMesg)
-	case strings.Count(authErrMesg, "LinkedAccessCheckFailed") >= 1:
-		log.Debug("Parsing LinkedAccessCheckFailed Error")
-		resMap, err = parseLinkedAccessCheckFailedError(authErrMesg)
+		tempMap, err := parseLinkedAuthorizationFailedErrors(authErrMesg)
+		if err != nil {
+			return nil, err
+		}
+		tempMaps = append(tempMaps, tempMap)
 	}
 
-	if err != nil {
-		return nil, err
+	// Process LackOfPermissions errors
+	if strings.Count(authErrMesg, "LackOfPermissions") >= 1 {
+		log.Debug("Parsing LackOfPermissions Error")
+		tempMap, err := parseLackOfPermissionsError(authErrMesg)
+		if err != nil {
+			return nil, err
+		}
+		tempMaps = append(tempMaps, tempMap)
+	}
+
+	// Process AuthorizationFailed errors
+	if strings.Count(authErrMesg, "\"AuthorizationFailed") >= 1 || strings.Count(authErrMesg, "AuthorizationFailed:") >= 1 {
+		log.Debug("Parsing AuthorizationFailed Error")
+		tempMap, err := parseMultiAuthorizationFailedErrors(authErrMesg)
+		if err != nil {
+			return nil, err
+		}
+		tempMaps = append(tempMaps, tempMap)
+	}
+
+	// Process Authorization failed errors
+	if strings.Count(authErrMesg, "Authorization failed") >= 1 {
+		log.Debug("Parsing Authorization failed Error")
+		tempMap, err := parseMultiAuthorizationErrors(authErrMesg)
+		if err != nil {
+			return nil, err
+		}
+		tempMaps = append(tempMaps, tempMap)
+	}
+
+	// Process AuthorizationPermissionMismatch errors
+	if strings.Count(authErrMesg, "AuthorizationPermissionMismatch") >= 1 {
+		log.Debug("Parsing AuthorizationPermissionMismatch Error")
+		tempMap, err := parseAuthorizationPermissionMismatchError(authErrMesg)
+		if err != nil {
+			return nil, err
+		}
+		tempMaps = append(tempMaps, tempMap)
+	}
+
+	// Process LinkedAccessCheckFailed errors
+	if strings.Count(authErrMesg, "LinkedAccessCheckFailed") >= 1 {
+		log.Debug("Parsing LinkedAccessCheckFailed Error")
+		tempMap, err := parseLinkedAccessCheckFailedError(authErrMesg)
+		if err != nil {
+			return nil, err
+		}
+		tempMaps = append(tempMaps, tempMap)
+	}
+
+	// Merge all temp maps into the result map
+	for _, tempMap := range tempMaps {
+		mergePermissionMaps(resMap, tempMap)
 	}
 
 	// If map is empty, return error
@@ -69,6 +112,30 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 	}
 
 	return appendPermissionsForSpecialCases(resMap), nil
+}
+
+// mergePermissionMaps merges the source map into the destination map,
+// ensuring unique permissions for each scope
+func mergePermissionMaps(dest, src map[string][]string) {
+	for scope, permissions := range src {
+		if _, exists := dest[scope]; !exists {
+			dest[scope] = make([]string, 0)
+		}
+
+		// Add permissions, avoiding duplicates
+		for _, permission := range permissions {
+			found := false
+			for _, existing := range dest[scope] {
+				if existing == permission {
+					found = true
+					break
+				}
+			}
+			if !found {
+				dest[scope] = append(dest[scope], permission)
+			}
+		}
+	}
 }
 
 // For 'AuthorizationFailed' errors
@@ -130,49 +197,6 @@ func parseMultiAuthorizationErrors(authorizationFailedErrMsg string) (map[string
 			// resourceType := match[1]
 			action := match[5]
 			scope := match[6]
-
-			if _, ok := scopePermissionsMap[scope]; !ok {
-				scopePermissionsMap[scope] = make([]string, 0)
-			}
-			scopePermissionsMap[scope] = append(scopePermissionsMap[scope], action)
-		}
-	}
-
-	// if map is empty, return error
-	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("No scope/permissions found in Multi error message")
-	}
-
-	return scopePermissionsMap, nil
-
-}
-
-// For 'LinkedAuthorizationFailed' errors
-func parseLinkedAuthorizationFailedErrors(authorizationFailedErrMsg string) (map[string][]string, error) {
-
-	// Regular expression to extract resource information
-	// re := regexp.MustCompile(`Authorization failed for template resource '([^']+)' of type '([^']+)'\. The client '([^']+)' with object id '([^']+)' does not have permission to perform action '([^']+)' at scope '([^']+)'\.`)
-
-	// Find regular expressions to pull action and scope from error message "does not have permission to perform action(s) 'Microsoft.Network/virtualNetworks/subnets/join/action' on the linked scope(s) '/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/az-mpf-tf-test-rg/providers/Microsoft.Network/virtualNetworks/vnet-32a70ccbb3247e2b/subnets/subnet-32a70ccbb3247e2b' (respectively) or the linked scope(s) are invalid".
-	re := regexp.MustCompile(`does not have permission to perform action\(s\) '([^']+)' on the linked scope\(s\) '([^']+)' \(respectively\) or the linked scope\(s\) are invalid`)
-
-	// Find all matches in the error message
-	matches := re.FindAllStringSubmatch(authorizationFailedErrMsg, -1)
-
-	// If No Matches found return error
-	if len(matches) == 0 {
-		return nil, errors.New("No matches found in 'Authorization failed' error message")
-	}
-
-	// Create a map to store scope/permissions
-	scopePermissionsMap := make(map[string][]string)
-
-	// Iterate through the matches and populate the map
-	for _, match := range matches {
-		if len(match) == 3 {
-			// resourceType := match[1]
-			action := match[1]
-			scope := match[2]
 
 			if _, ok := scopePermissionsMap[scope]; !ok {
 				scopePermissionsMap[scope] = make([]string, 0)

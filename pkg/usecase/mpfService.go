@@ -104,10 +104,13 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	log.Infoln("Initializing Custom Role")
 	// err = mpf.CreateUpdateCustomRole([]string{})
 
-	err = s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.Role, s.initialPermissionsToAdd)
+	err, invalidActions := s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.Role, s.initialPermissionsToAdd)
 	if err != nil {
 		log.Warn(err)
 		return s.returnMPFResult(err)
+	}
+	if len(invalidActions) > 0 {
+		log.Warnf("The following invalid actions were removed from the role: %v", invalidActions)
 	}
 	log.Infoln("Custom role initialized successfully")
 
@@ -185,7 +188,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		log.Debugln("Number of Permissions added to role:", len(s.requiredPermissions[s.mpfConfig.SubscriptionID]))
 
 		permissionsIncludingInitialPermissions := append(s.initialPermissionsToAdd, s.requiredPermissions[s.mpfConfig.SubscriptionID]...)
-		err = s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.Role, permissionsIncludingInitialPermissions)
+		err, invalidActions := s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.Role, permissionsIncludingInitialPermissions)
 
 		// err = s.spRoleAssignmentManager.CreateUpdateCustomRole(s.mpfConfig.SubscriptionID, s.mpfConfig.ResourceGroup.ResourceGroupName, s.mpfConfig.Role, s.requiredPermissions[s.mpfConfig.ResourceGroup.ResourceGroupResourceID])
 
@@ -193,6 +196,9 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 			log.Infoln("Error when adding permission/scope to role: \n", err)
 			log.Warn(err)
 			return s.returnMPFResult(err)
+		}
+		if len(invalidActions) > 0 {
+			log.Warnf("The following invalid actions were removed from the role during iteration: %v", invalidActions)
 		}
 		log.Infoln("Permission/scope added to role successfully")
 
