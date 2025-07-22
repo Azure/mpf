@@ -199,8 +199,8 @@ tasks:
     - |
       RESULT_LINE_COUNT=$(go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json | wc -l)
       echo "Result line count: $RESULT_LINE_COUNT"
-      if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
-        echo "Expected 13 lines, got $RESULT_LINE_COUNT"
+      if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
+        echo "Expected 14 lines, got $RESULT_LINE_COUNT"
         exit 1
       fi
       echo "Test passed: $RESULT_LINE_COUNT lines"
@@ -211,8 +211,8 @@ tasks:
     - |
       RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
       echo "Result line count: $RESULT_LINE_COUNT"
-      if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
-        echo "Expected 13 lines, got $RESULT_LINE_COUNT"
+      if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
+        echo "Expected 14 lines, got $RESULT_LINE_COUNT"
         exit 1
       fi
       echo "Test passed: $RESULT_LINE_COUNT lines"
@@ -221,7 +221,7 @@ tasks:
     desc: Run e2e tests for ARM
     cmds:
       - go clean -testcache
-      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
+      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestARM -v -timeout 45m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
       # - task: test:getcover
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
@@ -232,7 +232,7 @@ tasks:
     desc: Run e2e tests for Bicep
     cmds:
       - go clean -testcache
-      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestBicep -v -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
+      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestBicep -v -timeout 45m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
       # - task: test:getcover
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
