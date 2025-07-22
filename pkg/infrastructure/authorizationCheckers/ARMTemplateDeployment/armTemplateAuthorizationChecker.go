@@ -353,6 +353,15 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 			log.Infof("Could not get deployment %s: ,Error :%s \n", deploymentName, err)
 			return nil
 		}
+		// For any other error, log and return without trying to access potentially nil response
+		log.Infof("Could not get deployment %s: ,Error :%s \n", deploymentName, err)
+		return nil
+	}
+
+	// Additional safety checks for nil pointers
+	if getResp.DeploymentExtended.Properties == nil || getResp.DeploymentExtended.Properties.ProvisioningState == nil {
+		log.Infof("Deployment %s has incomplete response, skipping cleanup", deploymentName)
+		return nil
 	}
 
 	log.Infof("Deployment status: %s\n", *getResp.DeploymentExtended.Properties.ProvisioningState)
@@ -360,20 +369,20 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 	if *getResp.DeploymentExtended.Properties.ProvisioningState == armresources.ProvisioningStateRunning {
 
 		retryCount := 0
-		for _, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil); err != nil; {
-			// cancel deployment
-			if err != nil {
-				// return err
-				log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
-				time.Sleep(5 * time.Second)
-				retryCount++
-				if retryCount >= 24 {
-					log.Warnf("Could not cancel deployment %s: %s, giving up", deploymentName, err)
-					return errors.New("could not cancel deployment")
-				}
-
+		for {
+			_, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil)
+			if err == nil {
+				break
 			}
 
+			// cancel deployment
+			log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
+			time.Sleep(5 * time.Second)
+			retryCount++
+			if retryCount >= 24 {
+				log.Warnf("Could not cancel deployment %s: %s, giving up", deploymentName, err)
+				return errors.New("could not cancel deployment")
+			}
 		}
 		log.Infof("Cancelled deployment %s", deploymentName)
 		return nil
