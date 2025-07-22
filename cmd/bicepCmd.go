@@ -33,7 +33,6 @@ import (
 	"github.com/Azure/mpf/pkg/domain"
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
 	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateDeployment"
-	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateWhatIf"
 	"github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
 	resourceGroupManager "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
 	sproleassignmentmanager "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
@@ -85,8 +84,7 @@ func NewBicepCommand() *cobra.Command {
 	bicepCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus2", "Location")
 	bicepCmd.Flags().BoolVarP(&flgSubscriptionScoped, "subscriptionScoped", "", false, "Is Deployment Subscription Scoped")
 
-	bicepCmd.Flags().BoolVarP(&flgFullDeployment, "fullDeployment", "", false, "Bicep code will be deployed in full deployment mode, i.e. not what-if mode")
-	bicepCmd.MarkFlagsMutuallyExclusive("subscriptionScoped", "fullDeployment")
+	// Note: fullDeployment flag removed - Full deployment mode is now the only supported mode for Bicep
 
 	return bicepCmd
 }
@@ -103,7 +101,6 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	log.Infof("BicepExecPath: %s\n", flgBicepExecPath)
 	log.Infof("SubscriptionScoped: %t\n", flgSubscriptionScoped)
 	log.Infof("Location: %s\n", flgLocation)
-	log.Infof("FullDeployment: %t\n", flgFullDeployment)
 
 	// validate if template and parameters files exists
 	if _, err := os.Stat(flgBicepFilePath); os.IsNotExist(err) {
@@ -170,12 +167,8 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	var initialPermissionsToAdd []string
 	var permissionsToAddToResult []string
 
-	deploymentAuthorizationCheckerCleaner = func() usecase.DeploymentAuthorizationCheckerCleaner {
-		if flgFullDeployment {
-			return ARMTemplateDeployment.NewARMTemplateDeploymentAuthorizationChecker(flgSubscriptionID, *armConfig)
-		}
-		return ARMTemplateWhatIf.NewARMTemplateWhatIfAuthorizationChecker(flgSubscriptionID, *armConfig)
-	}()
+	// Always use Full Deployment mode - whatif mode has been disabled
+	deploymentAuthorizationCheckerCleaner = ARMTemplateDeployment.NewARMTemplateDeploymentAuthorizationChecker(flgSubscriptionID, *armConfig)
 
 	initialPermissionsToAdd = []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}

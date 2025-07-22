@@ -1,5 +1,11 @@
 ## MPF Display Options
 
+### Deployment Mode for ARM and Bicep
+
+ARM and Bicep templates now use **Full Deployment mode** exclusively with Incremental deployment mode, which actually deploys resources to determine permissions and then cleans them up automatically. This provides comprehensive and accurate permission detection but takes significantly longer than the previous what-if mode - expect execution times of several minutes to longer depending on template complexity and the resources being deployed.
+
+**Note**: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios, particularly for complex resource configurations and certain Azure services.
+
 ### View Terraform logs
 
 In the case of Terraform, using --verbose or --debug will also show the Terraform logs.

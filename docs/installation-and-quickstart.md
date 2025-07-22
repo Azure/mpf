@@ -40,6 +40,8 @@ MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
 
 ## Quickstart / Usage
 
+**Important**: ARM and Bicep deployments now use **Full Deployment mode** exclusively with Incremental deployment mode, which creates and deploys resources (then cleans them up automatically) to determine the required permissions. This provides the most accurate permission detection but takes longer than the previous what-if mode - expect execution times of several minutes to longer depending on template complexity and the resources being deployed. The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.
+
 ### ARM
 
 ```shell
