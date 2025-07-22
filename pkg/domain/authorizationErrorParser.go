@@ -62,7 +62,7 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 	}
 
 	// Process AuthorizationFailed errors
-	if strings.Count(authErrMesg, "\"AuthorizationFailed") >= 1 || strings.Count(authErrMesg, "AuthorizationFailed:") >= 1 {
+	if strings.Count(authErrMesg, "\"AuthorizationFailed") >= 1 || strings.Count(authErrMesg, " AuthorizationFailed:") >= 1 {
 		log.Debug("Parsing AuthorizationFailed Error")
 		tempMap, err := parseMultiAuthorizationFailedErrors(authErrMesg)
 		if err != nil {
