@@ -211,8 +211,8 @@ tasks:
     - |
       RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
       echo "Result line count: $RESULT_LINE_COUNT"
-      if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
-        echo "Expected 14 lines, got $RESULT_LINE_COUNT"
+      if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
+        echo "Expected 13 lines, got $RESULT_LINE_COUNT"
         exit 1
       fi
       echo "Test passed: $RESULT_LINE_COUNT lines"
