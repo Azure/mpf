@@ -82,9 +82,9 @@ func NewBicepCommand() *cobra.Command {
 	}
 
 	bicepCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus2", "Location")
-	bicepCmd.Flags().BoolVarP(&flgSubscriptionScoped, "subscriptionScoped", "", false, "Is Deployment Subscription Scoped")
 
 	// Note: fullDeployment flag removed - Full deployment mode is now the only supported mode for Bicep
+	// Note: subscriptionScoped flag removed - Only resource group scoped deployments supported with Full deployment mode
 
 	return bicepCmd
 }
@@ -99,7 +99,6 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	log.Infof("BicepFilePath: %s\n", flgBicepFilePath)
 	log.Infof("ParametersFilePath: %s\n", flgParametersFilePath)
 	log.Infof("BicepExecPath: %s\n", flgBicepExecPath)
-	log.Infof("SubscriptionScoped: %t\n", flgSubscriptionScoped)
 	log.Infof("Location: %s\n", flgLocation)
 
 	// validate if template and parameters files exists
@@ -153,7 +152,6 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 		TemplateFilePath:   armTemplatePath,
 		ParametersFilePath: flgParametersFilePath,
 		DeploymentName:     deploymentName,
-		SubscriptionScoped: flgSubscriptionScoped,
 		Location:           flgLocation,
 	}
 
@@ -173,10 +171,8 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	initialPermissionsToAdd = []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
+	// Always auto-create resource group since only resource group scoped deployments are supported
 	var autoCreateResourceGroup bool = true
-	if flgSubscriptionScoped {
-		autoCreateResourceGroup = false
-	}
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, autoCreateResourceGroup)
 
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()

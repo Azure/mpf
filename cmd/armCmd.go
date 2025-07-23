@@ -44,7 +44,6 @@ var flgDeploymentNamePfx string
 var flgLocation string
 var flgTemplateFilePath string
 var flgParametersFilePath string
-var flgSubscriptionScoped bool
 
 // armCmd represents the arm command
 
@@ -79,9 +78,8 @@ func NewARMCommand() *cobra.Command {
 
 	armCmd.Flags().StringVarP(&flgLocation, "location", "", "eastus2", "Location")
 
-	armCmd.Flags().BoolVarP(&flgSubscriptionScoped, "subscriptionScoped", "", false, "Is Deployment Subscription Scoped")
-
 	// Note: fullDeployment flag removed - Full deployment mode is now the only supported mode for ARM templates
+	// Note: subscriptionScoped flag removed - Only resource group scoped deployments supported with Full deployment mode
 
 	return armCmd
 }
@@ -96,7 +94,6 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 	log.Infof("TemplateFilePath: %s\n", flgTemplateFilePath)
 	log.Infof("ParametersFilePath: %s\n", flgParametersFilePath)
 	log.Infof("Location: %s\n", flgLocation)
-	log.Infof("SubscriptionScoped: %t\n", flgSubscriptionScoped)
 
 	// validate if template and parameters files exists
 	if _, err := os.Stat(flgTemplateFilePath); os.IsNotExist(err) {
@@ -130,7 +127,6 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 		TemplateFilePath:   flgTemplateFilePath,
 		ParametersFilePath: flgParametersFilePath,
 		DeploymentName:     deploymentName,
-		SubscriptionScoped: flgSubscriptionScoped,
 		Location:           flgLocation,
 	}
 

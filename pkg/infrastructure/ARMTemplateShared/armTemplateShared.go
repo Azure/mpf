@@ -30,7 +30,6 @@ type ArmTemplateAdditionalConfig struct {
 	TemplateFilePath   string
 	ParametersFilePath string
 	DeploymentName     string
-	SubscriptionScoped bool
 	Location           string
 }
 
