@@ -65,6 +65,12 @@ check_azure_cli() {
         exit 1
     fi
     
+    if ! command -v jq &> /dev/null; then
+        print_status $RED "❌ jq is not installed. Please install jq and try again."
+        echo "   Installation instructions: https://stedolan.github.io/jq/download/"
+        exit 1
+    fi
+    
     if ! az account show &> /dev/null; then
         print_status $RED "❌ You are not logged in to Azure CLI. Please run 'az login' and try again."
         exit 1
