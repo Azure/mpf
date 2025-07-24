@@ -82,7 +82,8 @@ MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
 echo "Service Principal created successfully!"
 echo "Client ID: $MPF_SPCLIENTID"
 echo "Object ID: $MPF_SPOBJECTID"
-echo "Client Secret: $MPF_SPCLIENTSECRET"
+# Note: Never display secrets in logs or console output for security
+echo "Client Secret: [HIDDEN - Store securely for automation use]"
 ```
 
 #### Alternative: Using Azure Portal
