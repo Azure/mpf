@@ -42,6 +42,10 @@ For installation instructions, please refer to the [installation and quickstart]
 
 For usage details, please refer to the [quickstart / usage details](docs/installation-and-quickstart.md#quickstart--usage) document.
 
+## Copilots and Agents Integration
+
+For guidance on integrating MPF into automated workflows, AI agents, and copilot systems, please refer to the [Copilots and Agents Integration Guide](docs/copilots-agents-guidance.md).
+
 ## Display Options
 
 To view details of the display options the utility provides, please refer to the [display options](docs/display-options.MD) document.
