@@ -13,6 +13,7 @@
 | jsonOutput         | MPF_JSONOUTPUT       | Optional           | If set to true, the detailed output is printed in JSON format                                                            |
 | verbose            | MPF_VERBOSE          | Optional           | If set to true, verbose output with informational messages is displayed                                          |
 | debug              | MPF_DEBUG            | Optional           | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens |
+| preserveResources  | MPF_PRESERVERESOURCES | Optional          | If set to true, preserves resources created including the custom role definition (skips cleanup)                |
 
 When used for Terraform, the verbose and debug flags show detailed logs from Terraform.
 

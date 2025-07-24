@@ -45,9 +45,10 @@ type MPFService struct {
 	autoAddReadPermissionForEachWrite   bool
 	autoAddDeletePermissionForEachWrite bool
 	autoCreateResourceGroup             bool
+	preserveResources                   bool
 }
 
-func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnMgr ServicePrincipalRolemAssignmentManager, deploymentAuthChkCln DeploymentAuthorizationCheckerCleaner, mpfConfig domain.MPFConfig, initialPermissionsToAdd []string, permissionsToAddToResult []string, autoAddReadPermissionForEachWrite bool, autoAddDeletePermissionForEachWrite bool, autoCreateResourceGroup bool) *MPFService {
+func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnMgr ServicePrincipalRolemAssignmentManager, deploymentAuthChkCln DeploymentAuthorizationCheckerCleaner, mpfConfig domain.MPFConfig, initialPermissionsToAdd []string, permissionsToAddToResult []string, autoAddReadPermissionForEachWrite bool, autoAddDeletePermissionForEachWrite bool, autoCreateResourceGroup bool, preserveResources bool) *MPFService {
 	return &MPFService{
 		ctx:                                 ctx,
 		rgManager:                           rgMgr,
@@ -60,6 +61,7 @@ func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnM
 		autoAddReadPermissionForEachWrite:   autoAddReadPermissionForEachWrite,
 		autoAddDeletePermissionForEachWrite: autoAddDeletePermissionForEachWrite,
 		autoCreateResourceGroup:             autoCreateResourceGroup,
+		preserveResources:                   preserveResources,
 	}
 }
 
@@ -214,6 +216,14 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 }
 
 func (s *MPFService) CleanUpResources() {
+	if s.preserveResources {
+		log.Infoln("Preserving resources as requested - skipping cleanup...")
+		log.Infoln("Note: Custom role definition and role assignments will be preserved")
+		log.Infoln("Custom role name: ", s.mpfConfig.Role.RoleDefinitionName)
+		log.Infoln("Custom role ID: ", s.mpfConfig.Role.RoleDefinitionID)
+		return
+	}
+
 	log.Infoln("Cleaning up resources...")
 	log.Infoln("*************************")
 

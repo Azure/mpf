@@ -65,6 +65,11 @@ func (a *armDeploymentConfig) GetDeploymentAuthorizationErrors(mpfConfig domain.
 }
 
 func (a *armDeploymentConfig) CleanDeployment(mpfConfig domain.MPFConfig) error {
+	if mpfConfig.PreserveResources {
+		log.Infoln("Preserving ARM deployment resources as requested - skipping deployment cleanup")
+		return nil
+	}
+
 	log.Infoln("Cleaning up resources...")
 	log.Infoln("*************************")
 
