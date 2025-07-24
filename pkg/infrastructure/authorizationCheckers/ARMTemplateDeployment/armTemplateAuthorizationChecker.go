@@ -265,24 +265,21 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 
 	if *getResp.Properties.ProvisioningState == armresources.ProvisioningStateRunning {
 
-		retryCount := 0
-		for {
+		const maxRetries = 24
+		for retryCount := 0; retryCount < maxRetries; retryCount++ {
 			_, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil)
 			if err == nil {
-				break
+				log.Infof("Cancelled deployment %s", deploymentName)
+				return nil
 			}
 
 			// cancel deployment
 			log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
 			time.Sleep(5 * time.Second)
-			retryCount++
-			if retryCount >= 24 {
-				log.Warnf("Could not cancel deployment %s: %s, giving up", deploymentName, err)
-				return errors.New("could not cancel deployment")
-			}
 		}
-		log.Infof("Cancelled deployment %s", deploymentName)
-		return nil
+
+		log.Warnf("Could not cancel deployment %s after %d retries, giving up", deploymentName, maxRetries)
+		return errors.New("could not cancel deployment")
 	}
 
 	return nil
