@@ -100,7 +100,7 @@ func (r *SPRoleAssignmentManager) createUpdateCustomRole(subscription string, ro
 		"permissions": []map[string]interface{}{
 			{
 				"actions":        permissions,
-				"dataActions":    []string{},
+				"dataActions":    role.DefaultDataActions,
 				"notActions":     []string{},
 				"notDataActions": []string{},
 			},

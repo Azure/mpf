@@ -27,6 +27,7 @@ type Role struct {
 	RoleDefinitionName        string
 	RoleDefinitionDescription string
 	RoleDefinitionResourceID  string
+	DefaultDataActions        []string
 }
 
 type ResourceGroup struct {
