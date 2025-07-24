@@ -263,24 +263,24 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 
 	log.Infof("Deployment status: %s\n", *getResp.Properties.ProvisioningState)
 
-	if *getResp.Properties.ProvisioningState == armresources.ProvisioningStateRunning {
-
-		const maxRetries = 24
-		for retryCount := 0; retryCount < maxRetries; retryCount++ {
-			_, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil)
-			if err == nil {
-				log.Infof("Cancelled deployment %s", deploymentName)
-				return nil
-			}
-
-			// cancel deployment
-			log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
-			time.Sleep(5 * time.Second)
-		}
-
-		log.Warnf("Could not cancel deployment %s after %d retries, giving up", deploymentName, maxRetries)
-		return errors.New("could not cancel deployment")
+	if !(*getResp.Properties.ProvisioningState == armresources.ProvisioningStateRunning) {
+		return nil
 	}
 
-	return nil
+	const maxRetries = 24
+	for retryCount := 0; retryCount < maxRetries; retryCount++ {
+		_, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil)
+		if err == nil {
+			log.Infof("Cancelled deployment %s", deploymentName)
+			return nil
+		}
+
+		// cancel deployment
+		log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
+		time.Sleep(5 * time.Second)
+	}
+
+	log.Warnf("Could not cancel deployment %s after %d retries, giving up", deploymentName, maxRetries)
+	return errors.New("could not cancel deployment")
+
 }
