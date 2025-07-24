@@ -56,9 +56,23 @@ You can also build locally by cloning this repo and running `make build`.
 
 To run the unit tests, run `make test`.
 
-### End to End ARM and Bicep Tests
+### End to End ARM Tests
 
-To run the end-to-end tests for ARM and Bicep, you need to have the following environment variables set, and then execute `make test-e2e`:
+To run the end-to-end tests for ARM, you need to have the following environment variables set, and then execute `make test-e2e-arm`:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+
+make test-e2e-arm
+```
+
+### End to End Bicep Tests
+
+To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `make test-e2e-bicep`:
 
 ```shell
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -68,7 +82,7 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
 
-make test-e2e
+make test-e2e-bicep
 ```
 
 ### End to End Terraform Tests

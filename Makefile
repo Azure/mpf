@@ -76,13 +76,13 @@ build-all:
 
 test-e2e-arm: # arm and bicep tests
 	@echo "Running end-to-end tests..."
-	$(GOTEST) ./e2eTests -v -run TestARM
+	$(GOTEST) ./e2eTests -v -timeout 40m  -run TestARM
 
 test-e2e-bicep: # bicep tests
 	@echo "Running end-to-end tests..."
-	$(GOTEST) ./e2eTests -v -run TestBicep
+	$(GOTEST) ./e2eTests -v -timeout 40m -run TestBicep
 
 test-e2e-terraform: # terraform tests
 	@echo "Running end-to-end tests..."
-	$(GOTEST) ./e2eTests -v -timeout 20m -run TestTerraform
+	$(GOTEST) ./e2eTests -v -timeout 40m -run TestTerraform
 
