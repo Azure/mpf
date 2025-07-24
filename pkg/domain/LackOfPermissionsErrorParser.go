@@ -24,30 +24,33 @@ package domain
 
 import (
 	"errors"
-	"log"
 	"regexp"
+
+	log "github.com/sirupsen/logrus"
 )
 
-func parseLinkedAccessCheckFailedError(authorizationFailedErrMsg string) (map[string][]string, error) {
+func parseLackOfPermissionsError(authorizationFailedErrMsg string) (map[string][]string, error) {
 
-	log.Printf("Attempting to Parse LinkedAccessCheckFailedError Error: %s", authorizationFailedErrMsg)
+	log.Debugf("Attempting to Parse LackOfPermissions Error: %s", authorizationFailedErrMsg)
 
-	re := regexp.MustCompile(`The client with object id '([^']+)' does not have authorization to perform action '([^']+)'.* over scope '([^']+)' or the scope is invalid\.`)
+	// "code": "LackOfPermissions",\r\n"target": "workspace.Kind",\r\n"message": "You do not have Azure RBAC permissions to create new AI hubs. To create an AI hub, you are required to have contributor permissions on your resource group, or more specifically the Microsoft.MachineLearningServices/workspaces/hubs/write permission.",\r\n"additionalInfo": "Please check your permissions and try again."
+
+	re := regexp.MustCompile(`or more specifically the (Microsoft\.([^\.]+)) permission\.`)
 
 	matches := re.FindAllStringSubmatch(authorizationFailedErrMsg, -1)
 
 	if len(matches) == 0 {
-		return nil, errors.New("no matches found in 'LinkedAccessCheckFailedError' error message")
+		return nil, errors.New("no matches found in 'LackOfPermissions' error message")
 	}
 
 	scopePermissionsMap := make(map[string][]string)
 
 	// Iterate through the matches and populate the map
 	for _, match := range matches {
-		if len(match) == 4 {
+		if len(match) == 3 {
 			// resourceType := match[1]
-			action := match[2]
-			scope := match[3]
+			action := match[1]
+			scope := "ScopeCannotBeParsedFromLackOfPermissionsError"
 
 			if _, ok := scopePermissionsMap[scope]; !ok {
 				scopePermissionsMap[scope] = make([]string, 0)
@@ -58,7 +61,7 @@ func parseLinkedAccessCheckFailedError(authorizationFailedErrMsg string) (map[st
 
 	// if map is empty, return error
 	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("no scope/permissions found in LinkedAccessCheckFailedError message")
+		return nil, errors.New("no scope/permissions found in LackOfPermissions message")
 	}
 
 	return scopePermissionsMap, nil

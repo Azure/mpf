@@ -23,16 +23,12 @@
 package ARMTemplateDeployment
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	// "log"
-	"net/http"
 	"strings"
 
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
@@ -42,6 +38,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 	"github.com/Azure/mpf/pkg/domain"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 )
 
 type armDeploymentConfig struct {
@@ -61,7 +60,8 @@ func NewARMTemplateDeploymentAuthorizationChecker(subscriptionID string, armConf
 }
 
 func (a *armDeploymentConfig) GetDeploymentAuthorizationErrors(mpfConfig domain.MPFConfig) (string, error) {
-	return a.deployARMTemplate(a.armConfig.DeploymentName, mpfConfig)
+	// return a.deployARMTemplate(a.armConfig.DeploymentName, mpfConfig)
+	return a.deployARMTemplatev2(a.armConfig.DeploymentName, mpfConfig)
 }
 
 func (a *armDeploymentConfig) CleanDeployment(mpfConfig domain.MPFConfig) error {
@@ -74,103 +74,119 @@ func (a *armDeploymentConfig) CleanDeployment(mpfConfig domain.MPFConfig) error 
 	return nil
 }
 
-func (a *armDeploymentConfig) deployARMTemplate(deploymentName string, mpfConfig domain.MPFConfig) (string, error) {
+func (a *armDeploymentConfig) deployARMTemplatev2(deploymentName string, mpfConfig domain.MPFConfig) (string, error) {
 
-	// jsonData, err := json.Marshal(properties)
-	// spCred, err := azidentity.NewClientSecretCredential(a.mpfCfg.Args.TenantID, a.mpfCfg.Args.SPClientID, a.mpfCfg.Args.SPClientSecret, nil)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	bearerToken, err := a.azAPIClient.GetSPBearerToken(mpfConfig.TenantID, mpfConfig.SP.SPClientID, mpfConfig.SP.SPClientSecret)
+	cred, err := azidentity.NewClientSecretCredential(mpfConfig.TenantID, mpfConfig.SP.SPClientID, mpfConfig.SP.SPClientSecret, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error creating client secret credential: %w", err)
+	}
+
+	defer func() {
+		if cred != nil {
+			// cred.Close()
+			cred = nil
+		}
+	}()
+
+	ctx := context.Background()
+	clientFactory, err := armresources.NewClientFactory(mpfConfig.SubscriptionID, cred, nil)
+	if err != nil {
+		return "", fmt.Errorf("error creating client factory: %w", err)
 	}
 
 	// read template and parameters
 	template, err := mpfSharedUtils.ReadJson(a.armConfig.TemplateFilePath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %w", ARMTemplateShared.ErrInvalidTemplate, fmt.Errorf("error reading template file: %w", err))
 	}
 
 	parameters, err := mpfSharedUtils.ReadJson(a.armConfig.ParametersFilePath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %w", ARMTemplateShared.ErrInvalidTemplate, fmt.Errorf("error reading parameters file: %w", err))
 	}
 
 	// convert parameters to standard format
 	parameters = ARMTemplateShared.GetParametersInStandardFormat(parameters)
 
-	fullTemplate := map[string]interface{}{
-		"properties": map[string]interface{}{
-			"mode":       "Incremental",
-			"template":   template,
-			"parameters": parameters,
+	// fullTemplate := map[string]interface{}{
+	// 	"properties": map[string]interface{}{
+	// 		"mode":       "Incremental",
+	// 		"template":   template,
+	// 		"parameters": parameters,
+	// 	},
+	// }
+
+	// // convert bodyJSON to string
+	// fullTemplateJSONBytes, err := json.Marshal(fullTemplate)
+	// if err != nil {
+	// 	return "", fmt.Errorf("%w, %w", ARMTemplateShared.ErrInvalidTemplate, fmt.Errorf("error marshalling fullTemplateJSON: %w", err))
+	// }
+
+	// fullTemplateJSONString := string(fullTemplateJSONBytes)
+
+	// log.Debugln()
+	// log.Debugln(fullTemplateJSONString)
+	// log.Debugln()
+
+	poller, err := clientFactory.NewDeploymentsClient().BeginCreateOrUpdate(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, armresources.Deployment{
+		Properties: &armresources.DeploymentProperties{
+			Mode:       to.Ptr(armresources.DeploymentModeIncremental),
+			Parameters: parameters,
+			Template:   template,
 		},
-	}
+	}, nil)
 
-	// convert bodyJSON to string
-	fullTemplateJSONBytes, err := json.Marshal(fullTemplate)
 	if err != nil {
-		return "", err
+		errMesg := err.Error()
+
+		// Check for different types of errors and handle accordingly
+		switch {
+		case strings.Contains(errMesg, "AuthorizationFailed") ||
+			strings.Contains(errMesg, "Authorization failed") ||
+			strings.Contains(errMesg, "AuthorizationPermissionMismatch") ||
+			strings.Contains(errMesg, "LinkedAccessCheckFailed"):
+			return errMesg, nil
+
+		case strings.Contains(errMesg, "InvalidTemplate") && !strings.Contains(errMesg, "InvalidTemplateDeployment"):
+			log.Warnf("Error message: %s", errMesg)
+			return "", fmt.Errorf("%w: please check the template and parameters file: %s", ARMTemplateShared.ErrInvalidTemplate, errMesg)
+
+		case strings.Contains(errMesg, "InvalidRequestContent") && !strings.Contains(errMesg, "InvalidTemplateDeployment"):
+			log.Warnf("Error message: %s", errMesg)
+			return "", fmt.Errorf("%w: please check the template and parameters file: %s", ARMTemplateShared.ErrInvalidTemplate, errMesg)
+
+		case strings.Contains(errMesg, "InvalidTemplateDeployment"):
+			// This indicates all Authorization errors are fixed
+			// Sample error [{\"code\":\"PodIdentityAddonFeatureFlagNotEnabled\",\"message\":\"Provisioning of resource(s) for container service aks-24xalwx7i2ueg in resource group testdeployrg-Y2jsRAG failed. Message: PodIdentity addon is not allowed since feature 'Microsoft.ContainerService/EnablePodIdentityPreview' is not enabled.
+			// Hence ok to proceed, and not return error in this condition
+			log.Warnf("Post Authorization error occurred: %s", errMesg)
+		}
 	}
 
-	fullTemplateJSONString := string(fullTemplateJSONBytes)
-
-	log.Debugln()
-	log.Debugln(fullTemplateJSONString)
-	log.Debugln()
-	// create JSON body with template and parameters
-
-	client := &http.Client{}
-
-	log.Info("MPF mode is fullDeployment, Proceeding to create resources....")
-	url := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourcegroups/%s/providers/Microsoft.Resources/deployments/%s?api-version=2020-10-01", mpfConfig.SubscriptionID, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName)
-	reqMethod := "PUT"
-
-	req, err := http.NewRequest(reqMethod, url, bytes.NewBufferString(fullTemplateJSONString))
+	_, err = poller.PollUntilDone(ctx, nil)
 	if err != nil {
-		return "", err
+		errMesg := err.Error()
+		log.Debugf("Error message: %s", errMesg)
+
+		// Check for different types of errors and handle accordingly
+		switch {
+		case strings.Contains(errMesg, "AuthorizationFailed") ||
+			strings.Contains(errMesg, "Authorization failed") ||
+			strings.Contains(errMesg, "AuthorizationPermissionMismatch") ||
+			strings.Contains(errMesg, "LinkedAccessCheckFailed"):
+			return errMesg, nil
+
+		case strings.Contains(errMesg, "LackOfPermissions"):
+			log.Warnf("LackOfPermissions error occurred: %s", errMesg)
+			return errMesg, nil
+
+		case strings.Contains(errMesg, "InvalidTemplateDeployment"):
+			// This indicates all Authorization errors are fixed
+			// Sample error [{\"code\":\"PodIdentityAddonFeatureFlagNotEnabled\",\"message\":\"Provisioning of resource(s) for container service aks-24xalwx7i2ueg in resource group testdeployrg-Y2jsRAG failed. Message: PodIdentity addon is not allowed since feature 'Microsoft.ContainerService/EnablePodIdentityPreview' is not enabled.
+			// Hence ok to proceed, and not return error in this condition
+			log.Warnf("Post Authorization error occurred: %s", errMesg)
+		}
 	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "Go HTTP Client")
-
-	// add bearer token to header
-	req.Header.Add("Authorization", "Bearer "+bearerToken)
-
-	// make request
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	var respBody string
-
-	// read response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	respBody = string(body)
-
-	// fmt.Println(respBody)
-	log.Debugln(respBody)
-	// print response body
-	if strings.Contains(respBody, "Authorization") {
-		return respBody, nil
-	}
-
-	if strings.Contains(respBody, "InvalidTemplateDeployment") {
-		// This indicates all Authorization errors are fixed
-		// Sample error [{\"code\":\"PodIdentityAddonFeatureFlagNotEnabled\",\"message\":\"Provisioning of resource(s) for container service aks-24xalwx7i2ueg in resource group testdeployrg-Y2jsRAG failed. Message: PodIdentity addon is not allowed since feature 'Microsoft.ContainerService/EnablePodIdentityPreview' is not enabled.
-		// Hence ok to proceed, and not return error in this condition
-		log.Warnf("Non Authorizaton error occured: %s", respBody)
-	}
-
 	return "", nil
 
 }
@@ -234,31 +250,37 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 			log.Infof("Could not get deployment %s: ,Error :%s \n", deploymentName, err)
 			return nil
 		}
-	}
-
-	log.Infof("Deployment status: %s\n", *getResp.DeploymentExtended.Properties.ProvisioningState)
-
-	if *getResp.DeploymentExtended.Properties.ProvisioningState == armresources.ProvisioningStateRunning {
-
-		retryCount := 0
-		for _, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil); err != nil; {
-			// cancel deployment
-			if err != nil {
-				// return err
-				log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
-				time.Sleep(5 * time.Second)
-				retryCount++
-				if retryCount >= 24 {
-					log.Warnf("Could not cancel deployment %s: %s, giving up", deploymentName, err)
-					return errors.New("could not cancel deployment")
-				}
-
-			}
-
-		}
-		log.Infof("Cancelled deployment %s", deploymentName)
+		// For any other error, log and return without trying to access potentially nil response
+		log.Infof("Could not get deployment %s: ,Error :%s \n", deploymentName, err)
 		return nil
 	}
 
-	return nil
+	// Additional safety checks for nil pointers
+	if getResp.Properties == nil || getResp.Properties.ProvisioningState == nil {
+		log.Infof("Deployment %s has incomplete response, skipping cleanup", deploymentName)
+		return nil
+	}
+
+	log.Infof("Deployment status: %s\n", *getResp.Properties.ProvisioningState)
+
+	if !(*getResp.Properties.ProvisioningState == armresources.ProvisioningStateRunning) {
+		return nil
+	}
+
+	const maxRetries = 24
+	for retryCount := 0; retryCount < maxRetries; retryCount++ {
+		_, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil)
+		if err == nil {
+			log.Infof("Cancelled deployment %s", deploymentName)
+			return nil
+		}
+
+		// cancel deployment
+		log.Warnf("Could not cancel deployment %s: %s, retrying in a bit", deploymentName, err)
+		time.Sleep(5 * time.Second)
+	}
+
+	log.Warnf("Could not cancel deployment %s after %d retries, giving up", deploymentName, maxRetries)
+	return errors.New("could not cancel deployment")
+
 }

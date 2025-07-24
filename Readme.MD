@@ -26,10 +26,8 @@ The overview of how this utility works is as follows:
 
 ## Supported Deployment Providers
 
-* Azure **ARM** Template: The ARM endpoints of both modes described below return multiple authorization errors at a time, and as a result, the final output is usually displayed in under 90 seconds, even for complex templates.
-  * What-if mode: This is the default ARM mode. It uses the ARM what-if endpoint to get the authorization errors and find the minimum permissions required for a deployment, without actually creating any resources.
-  * FullDeployment mode: This mode has been deprecated and is no longer supported.
-* **Bicep**: The Bicep mode is similar to the ARM what-if mode and uses the ARM what-if endpoint to get the authorization errors and find the minimum permissions required for a deployment, without actually creating any resources. Internally, the utility converts the Bicep file to an ARM template and then uses the ARM what-if endpoint.
+* Azure **ARM** Template: Uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Resources are actually created during the process and then automatically cleaned up. The ARM endpoints return multiple authorization errors at a time, but since resources are actually deployed, the execution time can range from several minutes to longer depending on the complexity of the template and resources being deployed. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
+* **Bicep**: The Bicep mode uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Internally, the utility converts the Bicep file to an ARM template and then uses the ARM deployment endpoint. Like ARM mode, resources are actually created and automatically cleaned up, so execution time can range from several minutes to longer depending on template complexity. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
 * **Terraform**: The Terraform mode finds the minimum permissions required for a deployment by getting the authorization errors from the Terraform plan/apply and destroy commands. All resources are cleaned up by the utility. Since Terraform calls the ARM APIs for one resource at a time, the authorization errors are not received in bulk, and as a result, it can take quite long to get the final result. The overall time is the time taken to run the Terraform plan/apply/destroy commands, plus the overhead of getting and parsing the authorization errors a few times.
 
 ## Flags and Environment Variables
@@ -58,9 +56,23 @@ You can also build locally by cloning this repo and running `make build`.
 
 To run the unit tests, run `make test`.
 
-### End to End ARM and Bicep Tests
+### End to End ARM Tests
 
-To run the end-to-end tests for ARM and Bicep, you need to have the following environment variables set, and then execute `make test-e2e`:
+To run the end-to-end tests for ARM, you need to have the following environment variables set, and then execute `make test-e2e-arm`:
+
+```shell
+export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
+export MPF_TENANTID=YOUR_TENANT_ID
+export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
+export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
+export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+
+make test-e2e-arm
+```
+
+### End to End Bicep Tests
+
+To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `make test-e2e-bicep`:
 
 ```shell
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -70,7 +82,7 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
 
-make test-e2e
+make test-e2e-bicep
 ```
 
 ### End to End Terraform Tests

@@ -241,10 +241,14 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	log.Debugln(respBody)
 
 	switch {
+	case strings.Contains(respBody, "LackOfPermissions"):
+		log.Warnf("LackOfPermissions error occurred: %s", respBody)
+		return respBody, nil
 	case strings.Contains(respBody, "InvalidTemplate") && !strings.Contains(respBody, "InvalidTemplateDeployment"):
 		// This indicates the ARM Template or Bicep File has issues.
 		// Sample
 		// {"status":"Failed","error":{"code":"InvalidTemplate","message":"Deployment template validation failed: 'The template parameters 'aksClusterName, virtualNetworkName' in the parameters file are not valid; they are not present in the original template and can therefore not be provided at deployment time. The only supported parameters for this template are 'clusterName, location, subnetName, vnetName'. Please see https://aka.ms/arm-pass-parameter-values for usage details.'.","additionalInfo":[{"type":"TemplateViolation","info":{"lineNumber":0,"linePosition":0,"path":""}}]}}
+		log.Warnf("Response Body: %s", string(bodyBytes))
 		return "", fmt.Errorf("%w: please check the template and parameters file: %s", ARMTemplateShared.ErrInvalidTemplate, respBody)
 	case strings.Contains(respBody, "Authorization") && !strings.Contains(respBody, "{\"status\":\"Succeeded\""):
 		// This indicates Authorization errors occured

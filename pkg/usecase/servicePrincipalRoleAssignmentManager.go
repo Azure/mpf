@@ -34,7 +34,7 @@ type ServicePrincipalAssignmentModifier interface {
 }
 
 type CustomRoleCreatorModifier interface {
-	CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) error
+	CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) (error, []string)
 	DeleteCustomRole(subscription string, role domain.Role) error
 }
 

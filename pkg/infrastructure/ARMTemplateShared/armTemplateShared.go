@@ -30,8 +30,8 @@ type ArmTemplateAdditionalConfig struct {
 	TemplateFilePath   string
 	ParametersFilePath string
 	DeploymentName     string
-	SubscriptionScoped bool
 	Location           string
+	SubscriptionScoped bool
 }
 
 // Get parameters in standard format that is without the schema, contentVersion and parameters fields

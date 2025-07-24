@@ -49,33 +49,39 @@ func NewSPRoleAssignmentManager(subscriptionID string) *SPRoleAssignmentManager 
 	}
 }
 
-func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) error {
-	retryCount := 3
+// CreateUpdateCustomRole creates or updates a custom role in Azure
+// It retries up to 5 times if it encounters an InvalidActionOrNotAction error
+// It returns an error if it fails to create or update the role
+// It returns a list of invalid actions that were removed from the role
+func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) (error, []string) {
+	retryCount := 5
 	permissionsToAdd := permissions
+	var invalidActions []string
 
 	for i := 0; i < retryCount; i++ {
 		log.Debugf("Creating/Updating Role Definition: %s, Retry: %d", role.RoleDefinitionName, i+1)
 		err := r.createUpdateCustomRole(subscription, role, permissionsToAdd)
 		if err != nil && strings.Contains(err.Error(), "InvalidActionOrNotAction") {
 			errMsg := err.Error()
-			log.Warnf("InvalidActionOrNotAction error occured. Atempting to remove invalid action...")
-			actionsToRemove, err := domain.GetDeleteActionFromInvalidActionOrNotActionError(errMsg)
+			log.Warnf("InvalidActionOrNotAction error occurred. Attempting to remove invalid action...")
+			actionsToRemove, err := domain.GetInvalidActionFromInvalidActionOrNotActionError(errMsg)
 			if err != nil {
 				log.Warnf("Could not get actions to remove from error: %s", err.Error())
-				return err
+				return err, []string{}
 			}
 			log.Debug("Filtering Invalid Actions: ", actionsToRemove)
+			invalidActions = append(invalidActions, actionsToRemove...)
 			permissionsToAdd = filterInvalidActions(permissionsToAdd, actionsToRemove)
 			continue // retry
 		}
 		if err != nil { // not retrying for other errors
 			log.Debugf("Error when updating role: %s", err.Error())
-			return err
+			return err, []string{}
 		}
 		log.Infof("Role definition created/updated successfully")
 		break
 	}
-	return nil
+	return nil, invalidActions
 }
 
 func (r *SPRoleAssignmentManager) createUpdateCustomRole(subscription string, role domain.Role, permissions []string) error {
@@ -219,7 +225,7 @@ func (r *SPRoleAssignmentManager) AssignRoleToSP(subscription string, SPOBjectID
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return fmt.Errorf("Failed to assign role to SP. Status code: %s", string(body))
+		return fmt.Errorf("failed to assign role to SP. Status code: %s", string(body))
 	}
 
 	// print response body

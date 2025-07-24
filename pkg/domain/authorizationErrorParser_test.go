@@ -1,17 +1,17 @@
 //     MIT License
-// 
+//
 //     Copyright (c) Microsoft Corporation.
-// 
+//
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
 //     in the Software without restriction, including without limitation the rights
 //     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //     copies of the Software, and to permit persons to whom the Software is
 //     furnished to do so, subject to the following conditions:
-// 
+//
 //     The above copyright notice and this permission notice shall be included in all
 //     copies or substantial portions of the Software.
-// 
+//
 //     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -67,19 +67,6 @@ func TestSingleAuthorizationSpaceFailedError(t *testing.T) {
 	// Assert first and last values in the map
 	firstMatch := spm["/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/appgw-zcrtnp4zt4k44WafPolicy"]
 	assert.Equal(t, "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/write", firstMatch[0])
-}
-
-func TestSingleLinkedAuthorizationFailedError(t *testing.T) {
-	singleLinkedAuthorizationFailedError := "error: LinkedAuthorizationFailed: The client 'a31fc7f1-1349-4b3c-af16-60422be430cc' with object id 'a31fc7f1-1349-4b3c-af16-60422be430cc' has permission to perform action 'Microsoft.ContainerService/managedClusters/write' on scope '/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/az-mpf-tf-test-rg/providers/Microsoft.ContainerService/managedClusters/aks-32a70ccbb3247e2b'; however, it does not have permission to perform action(s) 'Microsoft.Network/virtualNetworks/subnets/join/action' on the linked scope(s) '/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/az-mpf-tf-test-rg/providers/Microsoft.Network/virtualNetworks/vnet-32a70ccbb3247e2b/subnets/subnet-32a70ccbb3247e2b' (respectively) or the linked scope(s) are invalid."
-	spm, err := GetScopePermissionsFromAuthError(singleLinkedAuthorizationFailedError)
-	l := len(spm)
-	assert.Nil(t, err)
-	assert.NotNil(t, spm)
-	assert.GreaterOrEqual(t, l, 1)
-
-	// Assert values in the map
-	firstMatch := spm["/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/az-mpf-tf-test-rg/providers/Microsoft.Network/virtualNetworks/vnet-32a70ccbb3247e2b/subnets/subnet-32a70ccbb3247e2b"]
-	assert.Equal(t, "Microsoft.Network/virtualNetworks/subnets/join/action", firstMatch[0])
 }
 
 func TestMultiAuthorizationSpaceFailedErrors(t *testing.T) {
