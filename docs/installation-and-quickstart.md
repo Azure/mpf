@@ -24,6 +24,42 @@ mv azmpf_v0.15.0 azmpf
 chmod +x ./azmpf
 ```
 
+## Checking Your Permissions
+
+Before using MPF, you should verify that your Azure CLI user has the required permissions. MPF includes a script to check this for you.
+
+### Using the Permissions Check Script
+
+Download the `check-permissions.sh` script from the repository and run it:
+
+```shell
+# Download the script (or use it from the cloned repository)
+curl -LO https://github.com/Azure/mpf/raw/main/check-permissions.sh
+chmod +x check-permissions.sh
+
+# Check permissions for your current subscription
+./check-permissions.sh
+
+# Or check permissions for a specific subscription
+./check-permissions.sh --subscription-id YOUR_SUBSCRIPTION_ID
+```
+
+The script will check if you have all the required permissions:
+- Microsoft.Authorization/roleDefinitions/read
+- Microsoft.Authorization/roleDefinitions/write
+- Microsoft.Authorization/roleDefinitions/delete
+- Microsoft.Authorization/roleAssignments/read
+- Microsoft.Authorization/roleAssignments/write
+- Microsoft.Authorization/roleAssignments/delete
+- Microsoft.Resources/subscriptions/resourcegroups/delete
+- Microsoft.Resources/subscriptions/resourcegroups/read
+- Microsoft.Resources/subscriptions/resourcegroups/write
+
+The script will output colored results showing which permissions you have and which are missing. If you're missing permissions, contact your Azure administrator to assign you one of these roles:
+- **Owner** (recommended - includes all required permissions)
+- **Contributor + User Access Administrator** (combination that provides all required permissions)
+- **Custom role** with all the above permissions
+
 ## Creating a service principal for MPF
 
 To use MPF, you need to create a service principal in your Azure Active Directory tenant. You can create a service principal using the Azure CLI or the Azure portal. The service principal needs no roles assigned to it, as the MPF utility will as it is remove any assigned roles each time it executes.
