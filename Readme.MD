@@ -114,6 +114,19 @@ The default Azure CLI credentials used by the utility need to have the following
 * "Microsoft.Resources/subscriptions/resourcegroups/read"
 * "Microsoft.Resources/subscriptions/resourcegroups/write"
 
+### Checking Your Permissions
+
+You can use the included `check-permissions.sh` script to verify that your Azure CLI user has all the required permissions before running MPF:
+
+```shell
+# Download and run the permissions check script
+curl -LO https://github.com/Azure/mpf/raw/main/check-permissions.sh
+chmod +x check-permissions.sh
+./check-permissions.sh
+```
+
+For detailed instructions, see the [installation and quickstart](docs/installation-and-quickstart.md#checking-your-permissions) guide.
+
 ## Known Issues and Workarounds
 
 The [Known Issues and Workarounds](docs/known-issues-and-workarounds.MD) document provides details on the known issues and workarounds for the utility.
