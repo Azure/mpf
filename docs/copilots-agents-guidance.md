@@ -58,7 +58,53 @@ azmpf bicep \
   --jsonOutput
 ```
 
-### 2. Environment Variable Configuration
+### 2. Prerequisites: Service Principal Setup
+
+Before integrating MPF into your automated workflows, you need to create a service principal in your Azure Active Directory tenant. The service principal requires **no roles assigned to it** initially, as MPF will dynamically manage role assignments during execution and remove them when complete.
+
+#### Creating a Service Principal
+
+You can create a service principal using the Azure CLI or the Azure portal. Here's how to create one using the Azure CLI:
+
+```bash
+# Login to Azure
+az login
+
+# Create service principal with no role assignments
+MPF_SP=$(az ad sp create-for-rbac --name "MPF_SP" --skip-assignment)
+
+# Extract the required values
+MPF_SPCLIENTID=$(echo $MPF_SP | jq -r .appId)
+MPF_SPCLIENTSECRET=$(echo $MPF_SP | jq -r .password)
+MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
+
+# Display the values for use in automation
+echo "Service Principal created successfully!"
+echo "Client ID: $MPF_SPCLIENTID"
+echo "Object ID: $MPF_SPOBJECTID"
+echo "Client Secret: $MPF_SPCLIENTSECRET"
+```
+
+#### Alternative: Using Azure Portal
+
+1. Navigate to **Azure Active Directory** > **App registrations**
+2. Click **New registration**
+3. Provide a name (e.g., "MPF-ServicePrincipal")
+4. Select **Accounts in this organizational directory only**
+5. Click **Register**
+6. Note the **Application (client) ID** and **Directory (tenant) ID**
+7. Go to **Certificates & secrets** > **New client secret**
+8. Create a secret and save the **Value** immediately
+9. Go to **Overview** and note the **Object ID**
+
+#### Security Considerations for Service Principals
+
+- **Store credentials securely**: Use Azure Key Vault, GitHub Secrets, or Azure DevOps Variable Groups
+- **Rotate secrets regularly**: Set up automated secret rotation
+- **Monitor usage**: Enable auditing for the service principal
+- **Principle of least privilege**: MPF handles this automatically by assigning minimal permissions
+
+### 3. Environment Variable Configuration
 
 For better security and automation, use environment variables instead of command-line parameters:
 
