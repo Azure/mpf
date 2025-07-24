@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+---
+name: 🧪 windows-terraform-e2e
+
+# This GitHub action runs your tests before merging a pull request via merge groups
+# Merge Group Discussions: https://github.com/orgs/community/discussions/51120
+on:
+  merge_group:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22 * * *'
+
+concurrency:
+  group: shared_mpf_service_principal_workflow_group_windows
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  testterraforme2ewindows:
+    name: 🧪 Run Terraform e2e Tests (Windows)
+    runs-on: windows-latest
+    env:
+      MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+      MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+      MPF_SPCLIENTID: ${{ secrets.MPF_SPCLIENTID }}
+      MPF_SPCLIENTSECRET: ${{ secrets.MPF_SPCLIENTSECRET }}
+      MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+      id-token: write
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 🚧 Setup Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
+        with:
+          repo-token: ${{ github.token }}
+
+      - name: 🔀 Download Go dependencies
+        run: task deps:download
+
+      - name: 🔨 Setup Test tools
+        run: task test:tools
+
+      - name: 🚧 Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_wrapper: false
+          terraform_version: "1.10.4"
+        
+      - name: 'Az CLI login - federated'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
+          tenant-id: ${{ secrets.MPF_TENANTID }}
+          subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
+
+      - name: 🧪 Run Terraform E2E Tests
+        shell: powershell
+        run: |
+          $env:MPF_TFPATH = (Get-Command terraform).Source
+          Write-Host "Terraform path: $env:MPF_TFPATH"
+          task teste2e:terraform
+
+      - name: 🧪 Run Terraform CLI Tests
+        shell: powershell
+        run: |
+          $env:MPF_TFPATH = (Get-Command terraform).Source
+          Write-Host "Terraform path: $env:MPF_TFPATH"
+          task testcli:terraform

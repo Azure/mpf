@@ -24,7 +24,7 @@ package e2etests
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -55,9 +55,9 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
-	curDir := path.Dir(filename)
+	curDir := filepath.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := path.Join(curDir, "../samples/terraform/authorization-permission-mismatch")
+	wrkDir := filepath.Join(curDir, "../samples/terraform/authorization-permission-mismatch")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
