@@ -39,3 +39,4 @@ __debug*
 *.lock.hcl
 *.lock.info
 *.tfrc
+azmpf
