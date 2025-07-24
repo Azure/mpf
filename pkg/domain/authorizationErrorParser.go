@@ -35,7 +35,7 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 	log.Debugf("Attempting to Parse Authorization Error: %s", authErrMesg)
 	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") && !strings.Contains(authErrMesg, "LinkedAccessCheckFailed") && !strings.Contains(authErrMesg, "LackOfPermissions") {
 		log.Warnln("Non Authorization Error when creating deployment:", authErrMesg)
-		return nil, errors.New("Could not parse deploment error, potentially due to a Non-Authorization error")
+		return nil, errors.New("could not parse deployment error, potentially due to a non-authorization error")
 	}
 
 	resMap := make(map[string][]string)
@@ -108,7 +108,7 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 
 	// If map is empty, return error
 	if len(resMap) == 0 {
-		return nil, fmt.Errorf("Could not parse deployment error for scope/permissions: %s", authErrMesg)
+		return nil, fmt.Errorf("could not parse deployment error for scope/permissions: %s", authErrMesg)
 	}
 
 	return appendPermissionsForSpecialCases(resMap), nil
@@ -146,7 +146,7 @@ func parseMultiAuthorizationFailedErrors(authorizationFailedErrMsg string) (map[
 	matches := re.FindAllStringSubmatch(authorizationFailedErrMsg, -1)
 
 	if len(matches) == 0 {
-		return nil, errors.New("No matches found in 'AuthorizationFailed' error message")
+		return nil, errors.New("no matches found in 'AuthorizationFailed' error message")
 	}
 
 	scopePermissionsMap := make(map[string][]string)
@@ -167,7 +167,7 @@ func parseMultiAuthorizationFailedErrors(authorizationFailedErrMsg string) (map[
 
 	// if map is empty, return error
 	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("No scope/permissions found in Multi error message")
+		return nil, errors.New("no scope/permissions found in Multi error message")
 	}
 
 	return scopePermissionsMap, nil
@@ -185,7 +185,7 @@ func parseMultiAuthorizationErrors(authorizationFailedErrMsg string) (map[string
 
 	// If No Matches found return error
 	if len(matches) == 0 {
-		return nil, errors.New("No matches found in 'Authorization failed' error message")
+		return nil, errors.New("no matches found in 'Authorization failed' error message")
 	}
 
 	// Create a map to store scope/permissions
@@ -207,7 +207,7 @@ func parseMultiAuthorizationErrors(authorizationFailedErrMsg string) (map[string
 
 	// if map is empty, return error
 	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("No scope/permissions found in Multi error message")
+		return nil, errors.New("no scope/permissions found in Multi error message")
 	}
 
 	return scopePermissionsMap, nil

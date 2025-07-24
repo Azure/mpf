@@ -37,7 +37,7 @@ func parseLinkedAccessCheckFailedError(authorizationFailedErrMsg string) (map[st
 	matches := re.FindAllStringSubmatch(authorizationFailedErrMsg, -1)
 
 	if len(matches) == 0 {
-		return nil, errors.New("No matches found in 'LinkedAccessCheckFailedError' error message")
+		return nil, errors.New("no matches found in 'LinkedAccessCheckFailedError' error message")
 	}
 
 	scopePermissionsMap := make(map[string][]string)
@@ -58,7 +58,7 @@ func parseLinkedAccessCheckFailedError(authorizationFailedErrMsg string) (map[st
 
 	// if map is empty, return error
 	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("No scope/permissions found in LinkedAccessCheckFailedError message")
+		return nil, errors.New("no scope/permissions found in LinkedAccessCheckFailedError message")
 	}
 
 	return scopePermissionsMap, nil

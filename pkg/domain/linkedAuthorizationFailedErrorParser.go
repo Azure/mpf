@@ -41,7 +41,7 @@ func parseLinkedAuthorizationFailedErrors(authorizationFailedErrMsg string) (map
 
 	// If No Matches found return error
 	if len(matches) == 0 {
-		return nil, errors.New("No matches found in 'Authorization failed' error message")
+		return nil, errors.New("no matches found in 'Authorization failed' error message")
 	}
 
 	// Create a map to store scope/permissions
@@ -69,7 +69,7 @@ func parseLinkedAuthorizationFailedErrors(authorizationFailedErrMsg string) (map
 
 	// if map is empty, return error
 	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("No scope/permissions found in Multi error message")
+		return nil, errors.New("no scope/permissions found in Multi error message")
 	}
 
 	return scopePermissionsMap, nil

@@ -63,7 +63,7 @@ func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, ro
 		err := r.createUpdateCustomRole(subscription, role, permissionsToAdd)
 		if err != nil && strings.Contains(err.Error(), "InvalidActionOrNotAction") {
 			errMsg := err.Error()
-			log.Warnf("InvalidActionOrNotAction error occured. Atempting to remove invalid action...")
+			log.Warnf("InvalidActionOrNotAction error occurred. Attempting to remove invalid action...")
 			actionsToRemove, err := domain.GetInvalidActionFromInvalidActionOrNotActionError(errMsg)
 			if err != nil {
 				log.Warnf("Could not get actions to remove from error: %s", err.Error())
@@ -225,7 +225,7 @@ func (r *SPRoleAssignmentManager) AssignRoleToSP(subscription string, SPOBjectID
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return fmt.Errorf("Failed to assign role to SP. Status code: %s", string(body))
+		return fmt.Errorf("failed to assign role to SP. Status code: %s", string(body))
 	}
 
 	// print response body

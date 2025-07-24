@@ -71,7 +71,7 @@ func parseAuthorizationPermissionMismatchError(authorizationFailedErrMsg string)
 
 	// if map is empty, return error
 	if len(scopePermissionsMap) == 0 {
-		return nil, errors.New("No scope/permissions found in AuthorizationPermissionMismatch error message")
+		return nil, errors.New("no scope/permissions found in AuthorizationPermissionMismatch error message")
 	}
 
 	return scopePermissionsMap, nil

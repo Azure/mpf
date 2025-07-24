@@ -29,6 +29,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Compiled regex patterns for scope type detection - compiled once at package level for performance
+var (
+	resourceGroupScopeRe = regexp.MustCompile(`(?i)^/subscriptions/[^/]+/resourceGroups/[^/]+$`)
+	subscriptionScopeRe  = regexp.MustCompile(`^/subscriptions/[^/]+$`)
+)
+
 // completePartialAction converts incomplete actions to proper Azure resource provider format
 // based on the scope pattern. Returns the completed action and any error encountered.
 func completePartialAction(action, scope string) (string, error) {
@@ -39,10 +45,6 @@ func completePartialAction(action, scope string) (string, error) {
 	}
 
 	if action == "/read" {
-		// Compile regex patterns for scope type detection
-		resourceGroupScopeRe := regexp.MustCompile(`(?i)^/subscriptions/[^/]+/resourceGroups/[^/]+$`)
-		subscriptionScopeRe := regexp.MustCompile(`^/subscriptions/[^/]+$`)
-
 		// Use compiled regex patterns to determine the correct action based on the scope pattern
 		if resourceGroupScopeRe.MatchString(scope) {
 			// This is a resource group scope pattern: /subscriptions/{subscription-id}/resourceGroups/{resource-group-name}
