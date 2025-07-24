@@ -9,6 +9,7 @@
 | spClientID         | MPF_SPCLIENTID       | Required           |                                                                                                                  |
 | spObjectID         | MPF_SPOBJECTID       | Required           | Note this is the SP Object id and is different from the Client ID                                                |
 | spClientSecret     | MPF_SPCLIENTSECRET   | Required           |                                                                                                                  |
+| defaultDataActions | MPF_DEFAULTDATAACTIONS | Optional         | Comma-separated list of default data plane permissions (dataActions) to add to the custom role. Useful for Terraform scenarios that require data plane access, such as creating Azure Search indexes |
 | showDetailedOutput | MPF_SHOWDETAILEDOUTPUT | Optional       | If set to true, the output shows details of permissions resource wise as well. This is not needed if --jsonOutput is specified |
 | jsonOutput         | MPF_JSONOUTPUT       | Optional           | If set to true, the detailed output is printed in JSON format                                                            |
 | verbose            | MPF_VERBOSE          | Optional           | If set to true, verbose output with informational messages is displayed                                          |
