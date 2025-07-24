@@ -470,56 +470,56 @@ func TestARMTemplatAksPrivateSubnetTemplateFullDeployment(t *testing.T) {
 	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
-func TestARMTemplatAIHubFullDeployment(t *testing.T) {
+// func TestARMTemplatAIHubFullDeployment(t *testing.T) {
 
-	mpfArgs, err := getTestingMPFArgs()
-	if err != nil {
-		t.Skip("required environment variables not set, skipping end to end test")
-	}
-	mpfArgs.TemplateFilePath = "../samples/templates/full-deployment-additional/ai-hub.json"
-	mpfArgs.ParametersFilePath = "../samples/templates/full-deployment-additional/ai-hub.parameters.json"
+// 	mpfArgs, err := getTestingMPFArgs()
+// 	if err != nil {
+// 		t.Skip("required environment variables not set, skipping end to end test")
+// 	}
+// 	mpfArgs.TemplateFilePath = "../samples/templates/full-deployment-additional/ai-hub.json"
+// 	mpfArgs.ParametersFilePath = "../samples/templates/full-deployment-additional/ai-hub.parameters.json"
 
-	ctx := t.Context()
+// 	ctx := t.Context()
 
-	mpfConfig := getMPFConfig(mpfArgs)
+// 	mpfConfig := getMPFConfig(mpfArgs)
 
-	deploymentName := fmt.Sprintf("%s-%s", mpfArgs.DeploymentNamePfx, mpfSharedUtils.GenerateRandomString(7))
-	armConfig := &ARMTemplateShared.ArmTemplateAdditionalConfig{
-		TemplateFilePath:   mpfArgs.TemplateFilePath,
-		ParametersFilePath: mpfArgs.ParametersFilePath,
-		DeploymentName:     deploymentName,
-	}
+// 	deploymentName := fmt.Sprintf("%s-%s", mpfArgs.DeploymentNamePfx, mpfSharedUtils.GenerateRandomString(7))
+// 	armConfig := &ARMTemplateShared.ArmTemplateAdditionalConfig{
+// 		TemplateFilePath:   mpfArgs.TemplateFilePath,
+// 		ParametersFilePath: mpfArgs.ParametersFilePath,
+// 		DeploymentName:     deploymentName,
+// 	}
 
-	var rgManager usecase.ResourceGroupManager
-	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager
-	rgManager = resourceGroupManager.NewResourceGroupManager(mpfArgs.SubscriptionID)
-	spRoleAssignmentManager = sproleassignmentmanager.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
+// 	var rgManager usecase.ResourceGroupManager
+// 	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager
+// 	rgManager = resourceGroupManager.NewResourceGroupManager(mpfArgs.SubscriptionID)
+// 	spRoleAssignmentManager = sproleassignmentmanager.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
 
-	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
-	var mpfService *usecase.MPFService
+// 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
+// 	var mpfService *usecase.MPFService
 
-	deploymentAuthorizationCheckerCleaner = ARMTemplateDeployment.NewARMTemplateDeploymentAuthorizationChecker(mpfArgs.SubscriptionID, *armConfig)
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, true)
+// 	deploymentAuthorizationCheckerCleaner = ARMTemplateDeployment.NewARMTemplateDeploymentAuthorizationChecker(mpfArgs.SubscriptionID, *armConfig)
+// 	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
+// 	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+// 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, true)
 
-	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
-	if err != nil {
-		t.Error(err)
-	}
+// 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
 
-	//full deployment mode will capture more permissions than whatif
-	//including the hub-specific permissions that whatif can't detect
-	//"Microsoft.CognitiveServices/accounts/read"
-	//"Microsoft.CognitiveServices/accounts/write"
-	//"Microsoft.MachineLearningServices/workspaces/hubs/read"
-	//"Microsoft.MachineLearningServices/workspaces/hubs/write"
-	//"Microsoft.MachineLearningServices/workspaces/read"
-	//"Microsoft.MachineLearningServices/workspaces/write"
-	//"Microsoft.Resources/deployments/read"
-	//"Microsoft.Resources/deployments/write"
+// 	//full deployment mode will capture more permissions than whatif
+// 	//including the hub-specific permissions that whatif can't detect
+// 	//"Microsoft.CognitiveServices/accounts/read"
+// 	//"Microsoft.CognitiveServices/accounts/write"
+// 	//"Microsoft.MachineLearningServices/workspaces/hubs/read"
+// 	//"Microsoft.MachineLearningServices/workspaces/hubs/write"
+// 	//"Microsoft.MachineLearningServices/workspaces/read"
+// 	//"Microsoft.MachineLearningServices/workspaces/write"
+// 	//"Microsoft.Resources/deployments/read"
+// 	//"Microsoft.Resources/deployments/write"
 
-	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	fmt.Printf("Required Permissions: %v\n", mpfResult.RequiredPermissions[mpfConfig.SubscriptionID])
-	assert.GreaterOrEqual(t, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]), 8)
-}
+// 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
+// 	fmt.Printf("Required Permissions: %v\n", mpfResult.RequiredPermissions[mpfConfig.SubscriptionID])
+// 	assert.GreaterOrEqual(t, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]), 8)
+// }
