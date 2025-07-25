@@ -25,9 +25,26 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --showDetailedOutput --verbose
+```
 
+Or using PowerShell on Windows:
+
+```powershell
+# Detailed Text output
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --showDetailedOutput --verbose
+```
+
+Output:
+
+```
 INFO[0000] Executing MPF for ARM                        
-INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json 
+INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json
 INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
 INFO[0000] Location: eastus2                            
 INFO[0001] Creating Resource Group: testdeployrg-OJ2zCNA  
@@ -101,9 +118,25 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --outputFormat json --verbose
+```
 
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --outputFormat json --verbose
+```
+
+Output:
+
+```
 INFO[0000] Executing MPF for ARM                        
-INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json 
+INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json
 INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
 INFO[0000] Location: eastus2                            
 INFO[0001] Creating Resource Group: testdeployrg-Uqc4z3E  
@@ -181,8 +214,23 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
+```
 
-------------------------------------------------------------------------------------------------------------------------------------------
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json
+```
+
+Output:
+
+```
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
 Microsoft.ContainerService/managedClusters/read
@@ -209,8 +257,23 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
 $ ./azmpf arm --templateFilePath ./samples/templates/multi-resource-template.json --parametersFilePath ./samples/templates/multi-resource-parameters.json --showDetailedOutput
+```
 
-------------------------------------------------------------------------------------------------------------------------------------------
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\multi-resource-template.json --parametersFilePath .\samples\templates\multi-resource-parameters.json --showDetailedOutput
+```
+
+Output:
+
+```
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
 Microsoft.Authorization/roleAssignments/read
