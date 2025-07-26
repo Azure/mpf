@@ -44,8 +44,8 @@ Output:
 
 ```
 INFO[0000] Executing MPF for ARM                        
-INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json
-INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
+INFO[0000] TemplateFilePath: .\samples\templates\aks-private-subnet.json
+INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json 
 INFO[0000] Location: eastus2                            
 INFO[0001] Creating Resource Group: testdeployrg-OJ2zCNA  
 INFO[0007] Resource Group: testdeployrg-OJ2zCNA created successfully  
@@ -136,8 +136,8 @@ Output:
 
 ```
 INFO[0000] Executing MPF for ARM                        
-INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json
-INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
+INFO[0000] TemplateFilePath: .\samples\templates\aks-private-subnet.json
+INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json 
 INFO[0000] Location: eastus2                            
 INFO[0001] Creating Resource Group: testdeployrg-Uqc4z3E  
 INFO[0007] Resource Group: testdeployrg-Uqc4z3E created successfully  
