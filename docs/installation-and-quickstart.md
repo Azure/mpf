@@ -91,7 +91,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
+```text
 INFO[0000] Executing MPF for ARM                        
 INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json 
 INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
@@ -163,7 +163,7 @@ $env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe" # Path to 
 
 Output:
 
-```                      
+```text
 INFO[0000] BicepFilePath: ./samples/bicep/aks-private-subnet.bicep 
 INFO[0000] ParametersFilePath: ./samples/bicep/aks-private-subnet-params.json 
 INFO[0000] Location: eastus2                            
@@ -245,7 +245,7 @@ $env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe" # Path to the Terra
 
 Output:
 
-```
+```text
 .
 # debug information
 .
