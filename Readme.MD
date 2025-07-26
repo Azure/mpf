@@ -70,6 +70,8 @@ export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 make test-e2e-arm
 ```
 
+
+
 ### End to End Bicep Tests
 
 To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `make test-e2e-bicep`:
@@ -85,6 +87,8 @@ export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executabl
 make test-e2e-bicep
 ```
 
+
+
 ### End to End Terraform Tests
 
 The Terraform end-to-end tests can take a long time to execute, depending on the resources being created. To run the end-to-end tests for Terraform, you need to have the following environment variables set, and then execute `make test-e2e-terraform`:
@@ -99,6 +103,8 @@ export MPF_TFPATH=$(which terraform) # Path to the Terraform executable
 
 make test-e2e-terraform
 ```
+
+
 
 ## Permissions required by default Azure CLI credentials
 
