@@ -1,5 +1,7 @@
 # MPF command line flags and environment variables
 
+**Note**: Environment variables can be set using bash/shell syntax (e.g., `export MPF_SUBSCRIPTIONID=value`) on Linux/macOS, or using PowerShell syntax (e.g., `$env:MPF_SUBSCRIPTIONID = "value"`) on Windows.
+
 ## Global Flags (Common to all providers)
 
 | Flag               | Environment Variable | Required / Optional | Description                                                                                                      |

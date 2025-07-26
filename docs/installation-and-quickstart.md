@@ -14,7 +14,7 @@ mv azmpf_v0.15.0 azmpf
 chmod +x ./azmpf
 ```
 
-And for Mac Arm64:
+For Mac Arm64:
   
 ```shell
 # Please change the version in the URL to the latest version
@@ -24,10 +24,20 @@ mv azmpf_v0.15.0 azmpf
 chmod +x ./azmpf
 ```
 
+And for Windows:
+
+```powershell
+# Please change the version in the URL to the latest version
+Invoke-WebRequest -Uri "https://github.com/Azure/mpf/releases/download/v0.15.0/azmpf_0.15.0_windows_amd64.zip" -OutFile "azmpf_0.15.0_windows_amd64.zip"
+Expand-Archive -Path "azmpf_0.15.0_windows_amd64.zip" -DestinationPath "."
+Rename-Item -Path "azmpf_v0.15.0.exe" -NewName "azmpf.exe"
+```
+
 ## Creating a service principal for MPF
 
 To use MPF, you need to create a service principal in your Azure Active Directory tenant. You can create a service principal using the Azure CLI or the Azure portal. The service principal needs no roles assigned to it, as the MPF utility will as it is remove any assigned roles each time it executes.
-Here is an example of how to create a service principal using the Azure CLI:
+
+Here is an example of how to create a service principal using the Azure CLI on Linux/macOS:
 
 ```shell
 # az login
@@ -36,6 +46,17 @@ MPF_SP=$(az ad sp create-for-rbac --name "MPF_SP" --skip-assignment)
 MPF_SPCLIENTID=$(echo $MPF_SP | jq -r .appId)
 MPF_SPCLIENTSECRET=$(echo $MPF_SP | jq -r .password)
 MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
+```
+
+And here is the equivalent example using Azure CLI on Windows PowerShell:
+
+```powershell
+# az login
+
+$MPF_SP = az ad sp create-for-rbac --name "MPF_SP" --skip-assignment | ConvertFrom-Json
+$env:MPF_SPCLIENTID = $MPF_SP.appId
+$env:MPF_SPCLIENTSECRET = $MPF_SP.password
+$env:MPF_SPOBJECTID = (az ad sp show --id $MPF_SP.appId --query id -o tsv)
 ```
 
 ## Quickstart / Usage
@@ -54,7 +75,23 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --verbose
+```
 
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --verbose
+```
+
+Output:
+
+```text
 INFO[0000] Executing MPF for ARM                        
 INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json 
 INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
@@ -109,8 +146,24 @@ export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 export MPF_BICEPEXECPATH="/usr/local/bin/bicep" # Path to the Bicep executable
 
 $ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --verbose
+```
 
-INFO[0000] Executing MPF for Bicep                      
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe" # Path to the Bicep executable
+
+.\azmpf.exe bicep --bicepFilePath .\samples\bicep\aks-private-subnet.bicep --parametersFilePath .\samples\bicep\aks-private-subnet-params.json --verbose
+```
+
+Output:
+
+```text
 INFO[0000] BicepFilePath: ./samples/bicep/aks-private-subnet.bicep 
 INFO[0000] ParametersFilePath: ./samples/bicep/aks-private-subnet-params.json 
 INFO[0000] Location: eastus2                            
@@ -170,6 +223,29 @@ export MPF_TFPATH=TERRAFORM_EXECUTABLE_PATH
 # popd
 
 $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars --debug
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe" # Path to the Terraform executable
+
+# Push-Location
+# Set-Location .\samples\terraform\aci\
+# & $env:MPF_TFPATH init
+# Pop-Location
+
+.\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" --debug
+```
+
+Output:
+
+```text
 .
 # debug information
 .
