@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 ---
-name: 🧪 windows-terraform-e2e
+
+name: 🧪 windows-e2e-tests
 
 # This GitHub action runs your tests before merging a pull request
 # via merge groups
@@ -11,8 +12,9 @@ name: 🧪 windows-terraform-e2e
   push:
     branches:
       - copilot/fix-37
+
   schedule:
-    - cron: '0 22 * * *'
+    - cron: '0 19 * * *'
 
 concurrency:
   group: shared_mpf_service_principal_workflow_group
@@ -22,8 +24,8 @@ permissions:
   contents: read
 
 jobs:
-  testterraforme2ewindows:
-    name: 🧪 Run Terraform e2e Tests (Windows)
+  teste2ewindows:
+    name: 🧪 Run e2e Tests (Windows)
     runs-on: windows-latest
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
@@ -31,6 +33,7 @@ jobs:
       MPF_SPCLIENTID: ${{ secrets.MPF_SPCLIENTID }}
       MPF_SPCLIENTSECRET: ${{ secrets.MPF_SPCLIENTSECRET }}
       MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
+      MPF_BICEPEXECPATH: "C:\\Program Files\\Azure Bicep CLI\\bicep.exe"
     permissions:
       contents: read
       pull-requests: write
@@ -58,6 +61,29 @@ jobs:
 
       - name: 🔨 Setup Test tools
         run: task test:tools
+
+      - name: Install Bicep
+        shell: powershell
+        run: |
+          # Download and install Bicep for Windows
+          $bicepUrl = "https://github.com/Azure/bicep/releases/latest/" +
+            "download/bicep-win-x64.exe"
+          $bicepPath = "C:\Program Files\Azure Bicep CLI"
+          $bicepExe = "$bicepPath\bicep.exe"
+
+          # Create directory if it doesn't exist
+          New-Item -ItemType Directory -Force -Path $bicepPath | Out-Null
+
+          # Download Bicep
+          Invoke-WebRequest -Uri $bicepUrl -OutFile $bicepExe
+
+          # Add to PATH for this session
+          $env:PATH += ";$bicepPath"
+          echo "$bicepPath" | Out-File -FilePath $env:GITHUB_PATH `
+            -Encoding utf8 -Append
+
+          # Verify installation
+          & $bicepExe --version
 
       - name: 🚧 Setup Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
@@ -91,6 +117,30 @@ jobs:
           client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
+
+      - name: 🧪 Run ARM CLI Tests
+        shell: powershell
+        run: |
+          $output = go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 13) {
+            Write-Host "Expected 13 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
+
+      - name: 🧪 Run Bicep CLI Tests
+        shell: powershell
+        run: |
+          $output = go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 13) {
+            Write-Host "Expected 13 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
 
       - name: 🧪 Run Terraform CLI Tests
         shell: powershell
