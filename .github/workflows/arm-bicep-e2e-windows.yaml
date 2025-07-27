@@ -85,6 +85,26 @@ jobs:
           # Verify installation
           & $bicepExe --version
 
+      - name: Install Azure CLI
+        shell: powershell
+        run: |
+          # Download and install Azure CLI for Windows
+          $azCliUrl = "https://aka.ms/installazurecliwindows"
+          $azCliPath = "$env:TEMP\AzureCLI.msi"
+          
+          # Download Azure CLI MSI
+          Invoke-WebRequest -Uri $azCliUrl -OutFile $azCliPath
+          
+          # Install Azure CLI
+          Start-Process msiexec.exe -Wait -ArgumentList "/I $azCliPath /quiet"
+          
+          # Add Azure CLI to PATH for this session
+          $env:PATH += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+          echo "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          
+          # Verify installation
+          az --version
+
       - name: 'Az CLI login - federated'
         uses: azure/login@v2
         with:
