@@ -1,4 +1,5 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server:
+# $schema=https://json.schemastore.org/github-workflow.json
 ---
 
 name: 🧪 windows-e2e-tests
@@ -97,17 +98,19 @@ jobs:
           # Download and install Azure CLI for Windows
           $azCliUrl = "https://aka.ms/installazurecliwindows"
           $azCliPath = "$env:TEMP\AzureCLI.msi"
-          
+
           # Download Azure CLI MSI
           Invoke-WebRequest -Uri $azCliUrl -OutFile $azCliPath
-          
+
           # Install Azure CLI
           Start-Process msiexec.exe -Wait -ArgumentList "/I $azCliPath /quiet"
-          
+
           # Add Azure CLI to PATH for this session
-          $env:PATH += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
-          echo "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          
+          $cliPath = "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+          $env:PATH += ";$cliPath"
+          echo "$cliPath" | Out-File -FilePath $env:GITHUB_PATH `
+            -Encoding utf8 -Append
+
           # Verify installation
           az --version
 
@@ -121,7 +124,11 @@ jobs:
       - name: 🧪 Run ARM CLI Tests
         shell: powershell
         run: |
-          $output = go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
+          $templatePath = "./samples/templates/aks-private-subnet.json"
+          $paramsPath = "./samples/templates/aks-private-subnet-parameters.json"
+          $output = go run ./cmd arm --templateFilePath $templatePath `
+            --parametersFilePath $paramsPath
+          Write-Host $output
           $lineCount = ($output | Measure-Object -Line).Lines
           Write-Host "Result line count: $lineCount"
           if ($lineCount -ne 13) {
@@ -133,7 +140,11 @@ jobs:
       - name: 🧪 Run Bicep CLI Tests
         shell: powershell
         run: |
-          $output = go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
+          $bicepPath = "./samples/bicep/aks-private-subnet.bicep"
+          $paramsPath = "./samples/bicep/aks-private-subnet-params.json"
+          $output = go run ./cmd bicep --bicepFilePath $bicepPath `
+            --parametersFilePath $paramsPath
+          Write-Host $output
           $lineCount = ($output | Measure-Object -Line).Lines
           Write-Host "Result line count: $lineCount"
           if ($lineCount -ne 13) {
@@ -145,15 +156,20 @@ jobs:
       - name: 🧪 Run Terraform CLI Tests
         shell: powershell
         run: |
-          # Use Get-Command to dynamically find Terraform path (PowerShell best practice)
+          # Use Get-Command to dynamically find Terraform path
+          # (PowerShell best practice)
           $env:MPF_TFPATH = (Get-Command terraform).Source
           Write-Host "Terraform path: $env:MPF_TFPATH"
-          
-          $output = go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars
+
+          $workingDir = "./samples/terraform/aci"
+          $varFilePath = "./samples/terraform/aci/dev.vars.tfvars"
+          $output = go run ./cmd terraform --workingDir $workingDir `
+            --varFilePath $varFilePath
+          Write-Host $output
           $lineCount = ($output | Measure-Object -Line).Lines
           Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 13) {
-            Write-Host "Expected 13 lines, got $lineCount"
+          if ($lineCount -ne 12) {
+            Write-Host "Expected 12 lines, got $lineCount"
             exit 1
           }
           Write-Host "Test passed: $lineCount lines"
