@@ -10,10 +10,6 @@ name: 🧪 windows-e2e-tests
 "on":
   merge_group:
   workflow_dispatch:
-  push:
-    branches:
-      - copilot/fix-37
-
   schedule:
     - cron: '0 19 * * *'
 
