@@ -11,10 +11,10 @@ name: 🧪 windows-arm-bicep-e2e
   workflow_dispatch:
 
   schedule:
-    - cron: '0 21 * * *'
+    - cron: '0 19 * * *'
 
 concurrency:
-  group: shared_mpf_service_principal_workflow_group_windows
+  group: shared_mpf_service_principal_workflow_group
 
 permissions:
   id-token: write
@@ -90,7 +90,25 @@ jobs:
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
       - name: 🧪 Run ARM CLI Tests
-        run: task testcli:arm
+        shell: powershell
+        run: |
+          $output = go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 14) {
+            Write-Host "Expected 14 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
 
       - name: 🧪 Run Bicep CLI Tests
-        run: task testcli:bicep
+        shell: powershell
+        run: |
+          $output = go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 14) {
+            Write-Host "Expected 14 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"

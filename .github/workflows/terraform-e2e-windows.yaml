@@ -12,7 +12,7 @@ name: 🧪 windows-terraform-e2e
     - cron: '0 22 * * *'
 
 concurrency:
-  group: shared_mpf_service_principal_workflow_group_windows
+  group: shared_mpf_service_principal_workflow_group
 
 permissions:
   id-token: write
@@ -75,4 +75,12 @@ jobs:
           # Use Get-Command to dynamically find Terraform path (PowerShell best practice)
           $env:MPF_TFPATH = (Get-Command terraform).Source
           Write-Host "Terraform path: $env:MPF_TFPATH"
-          task testcli:terraform
+          
+          $output = go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 13) {
+            Write-Host "Expected 13 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"

@@ -24,7 +24,7 @@ package e2etests
 
 import (
 	"os"
-	"path/filepath"
+	"path"
 	"runtime"
 	"testing"
 
@@ -51,11 +51,11 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
-	curDir := filepath.Dir(filename)
+	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := filepath.Join(curDir, "../samples/terraform/rg-invalid-tfvars")
+	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
-	varsFile := filepath.Join(curDir, "../samples/terraform/rg-invalid-tfvars/dev.vars.tfvars")
+	varsFile := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars/dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
 	ctx := t.Context()
@@ -95,9 +95,9 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
-	curDir := filepath.Dir(filename)
+	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := filepath.Join(curDir, "../samples/terraform/rg-invalid-tf-file")
+	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tf-file")
 	log.Infof("wrkDir: %s", wrkDir)
 
 	ctx := t.Context()
@@ -133,9 +133,9 @@ func TestTerraformACIInvalidTfExec(t *testing.T) {
 	tfpath := "/invalid/path/to/terraform"
 
 	_, filename, _, _ := runtime.Caller(0)
-	curDir := filepath.Dir(filename)
+	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := filepath.Join(curDir, "../samples/terraform/rg-no-tfvars")
+	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
 
 	ctx := t.Context()

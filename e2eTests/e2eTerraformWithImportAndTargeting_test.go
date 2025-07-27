@@ -24,7 +24,7 @@ package e2etests
 
 import (
 	"os"
-	"path/filepath"
+	"path"
 	"runtime"
 	"testing"
 
@@ -53,9 +53,9 @@ func TestTerraformWithImport(t *testing.T) {
 	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
-	curDir := filepath.Dir(filename)
+	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := filepath.Join(curDir, "../samples/terraform/existing-resource-import")
+	wrkDir := path.Join(curDir, "../samples/terraform/existing-resource-import")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
@@ -100,9 +100,9 @@ func TestTerraformWithTargetting(t *testing.T) {
 	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
-	curDir := filepath.Dir(filename)
+	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := filepath.Join(curDir, "../samples/terraform/module-test-with-targetting")
+	wrkDir := path.Join(curDir, "../samples/terraform/module-test-with-targetting")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
