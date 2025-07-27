@@ -63,7 +63,11 @@ func (a *armWhatIfConfig) GetDeploymentAuthorizationErrors(mpfConfig domain.MPFC
 }
 
 func (a *armWhatIfConfig) CleanDeployment(mpfConfig domain.MPFConfig) error {
-	log.Infoln("No additional cleanup needed in WhatIf mode")
+	if mpfConfig.PreserveResources {
+		log.Infoln("Preserving resources as requested - no additional cleanup needed in WhatIf mode")
+	} else {
+		log.Infoln("No additional cleanup needed in WhatIf mode")
+	}
 	log.Infoln("*************************")
 
 	return nil
