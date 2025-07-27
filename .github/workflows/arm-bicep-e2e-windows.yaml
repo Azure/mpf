@@ -30,7 +30,7 @@ jobs:
       MPF_SPCLIENTID: ${{ secrets.MPF_SPCLIENTID }}
       MPF_SPCLIENTSECRET: ${{ secrets.MPF_SPCLIENTSECRET }}
       MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
-      MPF_BICEPEXECPATH: "C:\\Program Files\\bicep\\bicep.exe"
+      MPF_BICEPEXECPATH: "C:\\Program Files\\Azure Bicep CLI\\bicep.exe"
     permissions:
       contents: read
       pull-requests: write
@@ -65,7 +65,7 @@ jobs:
           # Download and install Bicep for Windows
           $bicepUrl = "https://github.com/Azure/bicep/releases/latest/" +
             "download/bicep-win-x64.exe"
-          $bicepPath = "C:\Program Files\bicep"
+          $bicepPath = "C:\Program Files\Azure Bicep CLI"
           $bicepExe = "$bicepPath\bicep.exe"
 
           # Create directory if it doesn't exist

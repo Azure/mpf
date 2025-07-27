@@ -72,6 +72,7 @@ jobs:
       - name: 🧪 Run Terraform E2E Tests
         shell: powershell
         run: |
+          # Use Get-Command to dynamically find Terraform path (PowerShell best practice)
           $env:MPF_TFPATH = (Get-Command terraform).Source
           Write-Host "Terraform path: $env:MPF_TFPATH"
           task teste2e:terraform
@@ -79,6 +80,7 @@ jobs:
       - name: 🧪 Run Terraform CLI Tests
         shell: powershell
         run: |
+          # Use Get-Command to dynamically find Terraform path (PowerShell best practice)
           $env:MPF_TFPATH = (Get-Command terraform).Source
           Write-Host "Terraform path: $env:MPF_TFPATH"
           task testcli:terraform
