@@ -9,6 +9,9 @@ name: 🧪 windows-arm-bicep-e2e
 "on":
   merge_group:
   workflow_dispatch:
+  push:
+    branches:
+      - copilot/fix-37
 
   schedule:
     - cron: '0 19 * * *'
