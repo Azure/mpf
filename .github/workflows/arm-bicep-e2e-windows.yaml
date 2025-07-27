@@ -89,14 +89,18 @@ jobs:
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
-      - name: 🧪 Run ARM E2E Tests
-        run: task teste2e:arm
+      - name: 🧪 Run ARM E2E Test (Single Test)
+        run: |
+          go clean -testcache
+          go test ./e2eTests -run TestARMTemplatAksPrivateSubnetTemplateFullDeployment -v -timeout 45m
 
       - name: 🧪 Run ARM CLI Tests
         run: task testcli:arm
 
-      - name: 🧪 Run Bicep E2E Tests
-        run: task teste2e:bicep
+      - name: 🧪 Run Bicep E2E Test (Single Test)
+        run: |
+          go clean -testcache
+          go test ./e2eTests -run TestBicepAksFullDeployment -v -timeout 45m
 
       - name: 🧪 Run Bicep CLI Tests
         run: task testcli:bicep

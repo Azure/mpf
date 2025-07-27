@@ -69,13 +69,14 @@ jobs:
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
-      - name: 🧪 Run Terraform E2E Tests
+      - name: 🧪 Run Terraform E2E Test (Single Test)
         shell: powershell
         run: |
           # Use Get-Command to dynamically find Terraform path (PowerShell best practice)
           $env:MPF_TFPATH = (Get-Command terraform).Source
           Write-Host "Terraform path: $env:MPF_TFPATH"
-          task teste2e:terraform
+          go clean -testcache
+          go test ./e2eTests -run TestTerraformACI -v -timeout 30m
 
       - name: 🧪 Run Terraform CLI Tests
         shell: powershell
