@@ -66,7 +66,7 @@ jobs:
           skip-cache: true
           skip-save-cache: true
           args: --out-format=github-actions
-      
+
   linkMarkdowns:
     name: 📃 Lint Markdown
     runs-on: ubuntu-24.04
@@ -156,14 +156,12 @@ jobs:
       - name: 🧪 Run Tests
         run: task testunit
 
-
-
       - name: 📤 Upload unit test results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ format('{0}-{1}-test-results', matrix.cli, env.CLI_VERSION) }}
-          path: testresults.xml
+          path: testresults.json
           if-no-files-found: warn
           overwrite: true
 
@@ -186,8 +184,8 @@ jobs:
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
         with:
           name: 📜 Test results (${{ matrix.cli }} ${{ matrix.version }})
-          reporter: jest-junit
-          path: testresults.xml
+          reporter: golang-json
+          path: testresults.json
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: ⚙️ Get unit Coverage summary
@@ -213,7 +211,7 @@ jobs:
             code-coverage-results.md
           if-no-files-found: warn
           overwrite: true
-  
+
   check-test-matrix:
     if: always()
     name: 🧪 Check Unit Tests
