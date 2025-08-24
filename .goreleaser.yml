@@ -12,7 +12,7 @@ archives:
       - src: LICENSE
         dst: LICENSE.txt
     formats: [zip]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "az{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 builds:
   - dir: cmd
