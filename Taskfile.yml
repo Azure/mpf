@@ -4,7 +4,7 @@
 version: "3"
 
 vars:
-  PROJECT_NAME: az-mpf
+  PROJECT_NAME: azmpf
   BUILD_DEV_OUTPUT_DIR: "bin/{{OS}}-{{ARCH}}"
   BUILD_DEV_ARTIFACT: "{{.BUILD_DEV_OUTPUT_DIR}}/{{.PROJECT_NAME}}{{exeExt}}"
 
