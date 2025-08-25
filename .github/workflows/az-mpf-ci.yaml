@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ matrix.go-version }}
       - name: Install dependencies
@@ -48,13 +48,13 @@ jobs:
           go test -v ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils ./pkg/infrastructure/authorizationCheckers/terraform | go-junit-report -set-exit-code > TestResults-${{ matrix.go-version }}.xml
           # go test -json ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils > TestResults-${{ matrix.go-version }}.json
       - name: Upload Go test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: Go-results-${{ matrix.go-version }}
           path: TestResults-${{ matrix.go-version }}.xml
       
       - name: Test Summary
-        uses: test-summary/action@v2
+        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2
         with:
           paths: |
             TestResults-${{ matrix.go-version }}.xml  
