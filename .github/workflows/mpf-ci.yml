@@ -186,7 +186,7 @@ jobs:
           name: 📜 Test results (${{ matrix.cli }} ${{ matrix.version }})
           reporter: golang-json
           path: testresults.json
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
 
       - name: ⚙️ Get unit Coverage summary
         if: always()
