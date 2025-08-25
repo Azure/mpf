@@ -8,7 +8,7 @@ This utility finds the minimum permissions required for a given Azure deployment
 
 The overview of how this utility works is as follows:
 
-* The key parameters the utility needs are the **Service Principal details** (Client ID, Secret, and Object ID) and details needed for the specific deployment provider: 
+* The key parameters the utility needs are the **Service Principal details** (Client ID, Secret, and Object ID) and details needed for the specific deployment provider:
   * ARM: ARM template file and parameters file needed
   * Terraform: Terraform module directory and variables file needed
 * The utility **removes any existing Role Assignments for the provided Service Principal**
@@ -70,8 +70,6 @@ export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 make test-e2e-arm
 ```
 
-
-
 ### End to End Bicep Tests
 
 To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `make test-e2e-bicep`:
@@ -87,8 +85,6 @@ export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executabl
 make test-e2e-bicep
 ```
 
-
-
 ### End to End Terraform Tests
 
 The Terraform end-to-end tests can take a long time to execute, depending on the resources being created. To run the end-to-end tests for Terraform, you need to have the following environment variables set, and then execute `make test-e2e-terraform`:
@@ -103,8 +99,6 @@ export MPF_TFPATH=$(which terraform) # Path to the Terraform executable
 
 make test-e2e-terraform
 ```
-
-
 
 ## Permissions required by default Azure CLI credentials
 
@@ -136,7 +130,7 @@ This project is under an [MIT License](LICENSE).
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -148,8 +142,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos is subject to those third parties' policies.
