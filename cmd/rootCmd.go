@@ -52,6 +52,7 @@ var (
 	flgJSONOutput         bool
 	flgVerbose            bool
 	flgDebug              bool
+	flgPreserveResources  bool
 	// RootCmd            *cobra.Command
 )
 
@@ -85,6 +86,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&flgJSONOutput, "jsonOutput", "", false, "Output in JSON format")
 	rootCmd.PersistentFlags().BoolVarP(&flgVerbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&flgDebug, "debug", "d", false, "debug output")
+	rootCmd.PersistentFlags().BoolVarP(&flgPreserveResources, "preserveResources", "", false, "Preserve resources created including custom role definition (skip cleanup)")
 
 	err := rootCmd.MarkPersistentFlagRequired("subscriptionID")
 	if err != nil {
@@ -192,7 +194,8 @@ func getRootMPFConfig() domain.MPFConfig {
 			SPObjectID:     flgSPObjectID,
 			SPClientSecret: flgSPClientSecret,
 		},
-		Role: mpfRole,
+		Role:              mpfRole,
+		PreserveResources: flgPreserveResources,
 	}
 }
 
