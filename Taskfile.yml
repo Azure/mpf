@@ -3,6 +3,8 @@
 ---
 version: "3"
 
+dotenv: [dev.env]
+
 vars:
   PROJECT_NAME: azmpf
   BUILD_DEV_OUTPUT_DIR: "bin/{{OS}}-{{ARCH}}"
@@ -219,24 +221,27 @@ tasks:
 
   teste2e:arm:
     desc: Run E2E tests for ARM
+    vars:
+      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
       - go clean -testcache
-      - go test ./e2eTests -v -timeout 40m -run TestARM
-    dotenv: [dev.env]
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 40m -run TestARM
 
   teste2e:bicep:
     desc: Run E2E tests for Bicep
+    vars:
+      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
       - go clean -testcache
-      - go tet ./e2eTests -v -timeout 40m -run TestBicep
-    dotenv: [dev.env]
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 40m -run TestBicep
 
   teste2e:terraform:
     desc: Run E2E tests for Terraform
+    vars:
+      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
       - go clean -testcache
-      - go test ./e2eTests -v -timeout 40m -run TestTerraform
-    dotenv: [dev.env]
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 40m -run TestTerraform
 
   testacc:
     desc: Run acceptance tests
