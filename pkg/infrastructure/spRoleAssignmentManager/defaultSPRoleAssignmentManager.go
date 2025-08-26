@@ -304,7 +304,7 @@ func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscri
 		}
 
 		for _, roleAssignment := range page.Value {
-			_, err := r.azAPIClient.RoleAssignmentsClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
+			_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
 			if err != nil {
 				return err
 			}
