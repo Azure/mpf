@@ -242,7 +242,7 @@ tasks:
     desc: Run e2e tests for Terraform
     cmds:
       - go clean -testcache
-  - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestTerraform -timeout 45m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
+      - 'gotestsum --format-hivis --format {{.FORMAT}} --junitfile "testresults.xml" -- ./e2eTests -run TestTerraform -timeout 45m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
       - task: test:getcover
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
