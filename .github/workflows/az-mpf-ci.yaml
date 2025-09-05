@@ -1,17 +1,17 @@
 #     MIT License
-# 
+#
 #     Copyright (c) Microsoft Corporation.
-# 
+#
 #     Permission is hereby granted, free of charge, to any person obtaining a copy
 #     of this software and associated documentation files (the "Software"), to deal
 #     in the Software without restriction, including without limitation the rights
 #     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 #     copies of the Software, and to permit persons to whom the Software is
 #     furnished to do so, subject to the following conditions:
-# 
+#
 #     The above copyright notice and this permission notice shall be included in all
 #     copies or substantial portions of the Software.
-# 
+#
 #     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 #     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 #     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,16 +26,15 @@ on: [push]
 
 jobs:
   build-test:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.23' ]
+        go-version: ["1.25"]
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: Setup Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
           go-version: ${{ matrix.go-version }}
       - name: Install dependencies
@@ -52,10 +51,10 @@ jobs:
         with:
           name: Go-results-${{ matrix.go-version }}
           path: TestResults-${{ matrix.go-version }}.xml
-      
+
       - name: Test Summary
         uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2
         with:
           paths: |
-            TestResults-${{ matrix.go-version }}.xml  
+            TestResults-${{ matrix.go-version }}.xml
         if: always()
