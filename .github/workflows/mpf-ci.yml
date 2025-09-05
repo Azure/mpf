@@ -161,7 +161,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ format('{0}-{1}-test-results', matrix.cli, env.CLI_VERSION) }}
-          path: testresults.xml
+          path: testresults.json
           if-no-files-found: warn
           overwrite: true
 
