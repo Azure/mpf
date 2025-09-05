@@ -12,7 +12,7 @@ name: 🧪 windows-e2e-tests
     - cron: '0 19 * * *'
 
 concurrency:
-  group: shared_mpf_service_principal_workflow_group
+  group: windows_e2e_workflow_group
 
 permissions:
   id-token: write
@@ -22,12 +22,13 @@ jobs:
   teste2ewindows:
     name: 🧪 Run e2e Tests (Windows)
     runs-on: windows-latest
+    timeout-minutes: 45
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
       MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-      MPF_SPCLIENTID: ${{ secrets.MPF_SPCLIENTID }}
-      MPF_SPCLIENTSECRET: ${{ secrets.MPF_SPCLIENTSECRET }}
-      MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
+      MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
+      MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
+      MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
       MPF_BICEPEXECPATH: "C:\\Program Files\\Azure Bicep CLI\\bicep.exe"
     permissions:
       contents: read

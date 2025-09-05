@@ -11,7 +11,7 @@ on:
     - cron: '0 22 * * *'
 
 concurrency:
-  group: shared_mpf_service_principal_workflow_group
+  group: terraform_e2e_workflow_group
 
 permissions:
   id-token: write
@@ -21,12 +21,13 @@ jobs:
   testterraforme2e:
     name: 🧪 Run Terraform e2e Tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
       MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-      MPF_SPCLIENTID: ${{ secrets.MPF_SPCLIENTID }}
-      MPF_SPCLIENTSECRET: ${{ secrets.MPF_SPCLIENTSECRET }}
-      MPF_SPOBJECTID: ${{ secrets.MPF_SPOBJECTID }}
+      MPF_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_SPCLIENTID }}
+      MPF_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_SPCLIENTSECRET }}
+      MPF_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_SPOBJECTID }}
     permissions:
       contents: read
       pull-requests: write
