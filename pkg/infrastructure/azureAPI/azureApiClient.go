@@ -44,7 +44,6 @@ type AzureAPIClients struct {
 
 	// Default CLI Creds
 	CLICred                             *azidentity.AzureCLICredential
-	DefaultCred                         *azidentity.DefaultAzureCredential
 	defaultAPIBearerToken               string
 	defaultAPIBearerTokenLastCachedTime time.Time
 	// SPCred                *azidentity.ClientSecretCredential
@@ -89,13 +88,7 @@ func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
 		log.Fatalf("failed to create role assignments client: %v", err)
 	}
 
-	a.DefaultCred, err = azidentity.NewDefaultAzureCredential(nil)
-	if err != nil {
-		// log.Fatal(err)
-		log.Fatal(err)
-	}
-
-	a.RoleAssignmentsDeletionClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.DefaultCred, nil)
+	a.RoleAssignmentsDeletionClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.CLICred, nil)
 	if err != nil {
 		log.Fatalf("failed to create role assignments deletion client: %v", err)
 	}
@@ -104,7 +97,7 @@ func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
 	// a.RoleDefinitionsClient = authorization.NewRoleDefinitionsClient(subscriptionId)
 	// a.RoleDefinitionsClient.Authorizer = authorizer
 
-	resourcesClientFactory, err := armresources.NewClientFactory(subscriptionId, a.DefaultCred, nil)
+	resourcesClientFactory, err := armresources.NewClientFactory(subscriptionId, a.CLICred, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -113,7 +106,7 @@ func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
 	a.DeploymentsClient = resourcesClientFactory.NewDeploymentsClient()
 
 	// Set ResourceGroupsClient
-	a.ResourceGroupsClient, err = armresources.NewResourceGroupsClient(subscriptionId, a.DefaultCred, nil)
+	a.ResourceGroupsClient, err = armresources.NewResourceGroupsClient(subscriptionId, a.CLICred, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,7 +136,7 @@ func (a *AzureAPIClients) GetSPBearerToken(tenantID, spClientID, spClientSecret 
 func (a *AzureAPIClients) GetDefaultAPIBearerToken() (bearerToken string, err error) {
 
 	if a.defaultAPIBearerToken == "" || time.Since(a.defaultAPIBearerTokenLastCachedTime) > defaultTokenCacheDuration {
-		bearerToken, err = a.getBearerToken(a.DefaultCred)
+		bearerToken, err = a.getBearerToken(a.CLICred)
 		if err != nil {
 			return "", err
 		}
