@@ -306,7 +306,8 @@ func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscri
 		for _, roleAssignment := range page.Value {
 			_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
 			if err != nil {
-				return err
+				// This cleanup error is not an issue as each time the mpf executes it clears all role assignments
+				log.Infof("cleanup: failed to delete role assignment: %s\n", err)
 			}
 		}
 	}
