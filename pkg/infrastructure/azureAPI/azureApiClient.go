@@ -43,7 +43,6 @@ type AzureAPIClients struct {
 	ResourceGroupsClient *armresources.ResourceGroupsClient
 
 	// Default CLI Creds
-	CLICred                             *azidentity.AzureCLICredential
 	DefaultCred                         *azidentity.DefaultAzureCredential
 	defaultAPIBearerToken               string
 	defaultAPIBearerTokenLastCachedTime time.Time
@@ -78,21 +77,15 @@ func (a *AzureAPIClients) getBearerToken(tp TokenProvider) (bearerToken string, 
 func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
 	var err error
 
-	a.CLICred, err = azidentity.NewAzureCLICredential(nil)
-	if err != nil {
-		// log.Fatal(err)
-		log.Fatal(err)
-	}
-
-	a.RoleAssignmentsClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.CLICred, nil)
-	if err != nil {
-		log.Fatalf("failed to create role assignments client: %v", err)
-	}
-
 	a.DefaultCred, err = azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		// log.Fatal(err)
 		log.Fatal(err)
+	}
+
+	a.RoleAssignmentsClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.DefaultCred, nil)
+	if err != nil {
+		log.Fatalf("failed to create role assignments client: %v", err)
 	}
 
 	a.RoleAssignmentsDeletionClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.DefaultCred, nil)
