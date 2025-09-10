@@ -21,6 +21,8 @@
 #     SOFTWARE
 
 name: Build and Unit Test az-mpf
+permissions:
+  contents: read
 
 on: [push]
 
