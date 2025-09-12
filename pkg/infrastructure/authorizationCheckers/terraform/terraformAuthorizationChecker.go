@@ -25,6 +25,7 @@ package terraform
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/Azure/mpf/pkg/domain"
@@ -64,7 +65,7 @@ func NewTerraformAuthorizationChecker(workDir string, execPath string, varFilePa
 
 	return &terraformDeploymentConfig{
 		workingDir:                     workDir,
-		execPath:                       execPath,
+		execPath:                       filepath.Clean(execPath),
 		ctx:                            context.Background(),
 		varFilePath:                    varFilePath,
 		importExistingResourcesToState: importExistingResources,

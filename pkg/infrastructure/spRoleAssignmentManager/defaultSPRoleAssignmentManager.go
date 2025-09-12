@@ -31,6 +31,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization/v3"
 	"github.com/Azure/mpf/pkg/domain"
 	"github.com/Azure/mpf/pkg/infrastructure/azureAPI"
 	"github.com/google/uuid"
@@ -291,20 +293,21 @@ func (r *SPRoleAssignmentManager) AssignRoleToSP(subscription string, SPOBjectID
 
 // Initialise detachRolesFromSP detaches all roles from the SP
 func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscription string, SPOBjectID string, role domain.Role) error {
+	pager := r.azAPIClient.RoleAssignmentsClient.NewListForSubscriptionPager(&armauthorization.RoleAssignmentsClientListForSubscriptionOptions{
+		Filter: to.Ptr(fmt.Sprintf("assignedTo('%s')", SPOBjectID)),
+	})
 
-	filter := fmt.Sprintf("assignedTo('%s')", SPOBjectID)
-	resp, err := r.azAPIClient.RoleAssignmentsClient.List(ctx, filter)
-
-	if err != nil {
-		return err
-	}
-
-	roleAssignments := resp.Values()
-
-	for _, roleAssignment := range roleAssignments {
-		_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
+	for pager.More() {
+		page, err := pager.NextPage(ctx)
 		if err != nil {
 			return err
+		}
+
+		for _, roleAssignment := range page.Value {
+			_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
