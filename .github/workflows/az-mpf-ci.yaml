@@ -24,6 +24,9 @@ name: Build and Unit Test az-mpf
 
 on: [push]
 
+permissions:
+  contents: read
+
 jobs:
   build-test:
     runs-on: ubuntu-latest
