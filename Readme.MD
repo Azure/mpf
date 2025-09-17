@@ -30,6 +30,15 @@ The overview of how this utility works is as follows:
 * **Bicep**: The Bicep mode uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Internally, the utility converts the Bicep file to an ARM template and then uses the ARM deployment endpoint. Like ARM mode, resources are actually created and automatically cleaned up, so execution time can range from several minutes to longer depending on template complexity. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
 * **Terraform**: The Terraform mode finds the minimum permissions required for a deployment by getting the authorization errors from the Terraform plan/apply and destroy commands. All resources are cleaned up by the utility. Since Terraform calls the ARM APIs for one resource at a time, the authorization errors are not received in bulk, and as a result, it can take quite long to get the final result. The overall time is the time taken to run the Terraform plan/apply/destroy commands, plus the overhead of getting and parsing the authorization errors a few times.
 
+### Data Plane Permissions Support
+
+MPF now supports specifying default data plane permissions (dataActions) using the `--defaultDataActions` flag. This is particularly useful for Terraform scenarios where data plane access is required, such as creating Azure Search service indexes using local provisioners.
+
+Example usage:
+```bash
+azmpf terraform --subscriptionID <sub> --tenantID <tenant> --spClientID <client> --spObjectID <object> --spClientSecret <secret> --tfPath terraform --workingDir ./terraform --defaultDataActions "Microsoft.Search/searchServices/indexes/documents/read,Microsoft.Search/searchServices/indexes/documents/write"
+```
+
 ## Flags and Environment Variables
 
 The commands can be used with flags or environment variables. For details on the flags and environment variables, please refer to the [command line flags and environment variables](docs/commandline-flags-and-env-variables.md) document.
