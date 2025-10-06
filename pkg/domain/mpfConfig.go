@@ -42,11 +42,12 @@ type ServicePrincipal struct {
 }
 
 type MPFConfig struct {
-	ResourceGroup  ResourceGroup
-	SubscriptionID string
-	TenantID       string
-	SP             ServicePrincipal
-	Role           Role
+	ResourceGroup     ResourceGroup
+	SubscriptionID    string
+	TenantID          string
+	SP                ServicePrincipal
+	Role              Role
+	PreserveResources bool
 }
 
 type MPFResult struct {
