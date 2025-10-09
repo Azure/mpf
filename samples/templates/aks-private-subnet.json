@@ -76,7 +76,7 @@
                 "type": "SystemAssigned"
             },
             "properties": {
-                "kubernetesVersion": "1.29.9",
+                "kubernetesVersion": "1.32",
                 "dnsPrefix": "[parameters('clusterName')]",
                 "agentPoolProfiles": [
                     {
