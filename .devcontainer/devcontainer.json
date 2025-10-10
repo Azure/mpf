@@ -1,37 +1,37 @@
 {
-    "name": "MPF",
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu24.04",
-    // Features to add to the dev container. More info: https://containers.dev/features
-    "features": {
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            "configureZshAsDefaultShell": true
-        },
-        "ghcr.io/devcontainers/features/azure-cli:1": {
-            "version": "2.77.0",
-            "installBicep": true
-        },
-        "ghcr.io/devcontainers/features/terraform:1": {
-            "version": "1.13.1"
-        },
-        "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.25.1"
-        },
-        "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
+  "name": "MPF",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu24.04",
+  // Features to add to the dev container. More info: https://containers.dev/features
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
     },
-    "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
-    "workspaceFolder": "/workspace",
-    "remoteEnv": {
-        "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "2.77.0",
+      "installBicep": true
     },
-    "postCreateCommand": {
-        "git-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}"
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.13.3"
     },
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-azuretools.vscode-bicep",
-                "hashicorp.terraform"
-            ]
-        }
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.25.2"
+    },
+    "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "postCreateCommand": {
+    "git-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-bicep",
+        "hashicorp.terraform"
+      ]
     }
+  }
 }
