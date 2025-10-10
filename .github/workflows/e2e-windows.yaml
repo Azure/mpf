@@ -4,9 +4,10 @@
 
 name: 🧪 windows-e2e-tests
 
-# This GitHub action runs your tests on workflow dispatch and scheduled runs
+# This GitHub action runs your tests before merging a pull request via merge groups
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 "on":
+  merge_group:
   workflow_dispatch:
   schedule:
     - cron: '0 19 * * *'
