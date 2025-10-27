@@ -7,6 +7,7 @@ az-mpf-darwin-amd64
 az-mpf-darwin-arm64
 az-mpf-linux-amd64
 az-mpf-windows-amd64.exe
+azmpf
 .vscode/launch-local.json
 
 **/.terraform/
