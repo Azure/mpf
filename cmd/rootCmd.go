@@ -43,15 +43,16 @@ var (
 	envPrefix                  = "MPF"
 	replaceHyphenWithCamelCase = false
 
-	flgSubscriptionID     string
-	flgTenantID           string
-	flgSPClientID         string
-	flgSPObjectID         string
-	flgSPClientSecret     string
-	flgShowDetailedOutput bool
-	flgJSONOutput         bool
-	flgVerbose            bool
-	flgDebug              bool
+	flgSubscriptionID      string
+	flgTenantID            string
+	flgSPClientID          string
+	flgSPObjectID          string
+	flgSPClientSecret      string
+	flgShowDetailedOutput  bool
+	flgJSONOutput          bool
+	flgVerbose             bool
+	flgDebug               bool
+	flgDefaultDataActions  string
 	// RootCmd            *cobra.Command
 )
 
@@ -85,6 +86,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&flgJSONOutput, "jsonOutput", "", false, "Output in JSON format")
 	rootCmd.PersistentFlags().BoolVarP(&flgVerbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&flgDebug, "debug", "d", false, "debug output")
+	rootCmd.PersistentFlags().StringVarP(&flgDefaultDataActions, "defaultDataActions", "", "", "Comma-separated list of default data plane permissions (dataActions) to add to the custom role")
 
 	err := rootCmd.MarkPersistentFlagRequired("subscriptionID")
 	if err != nil {
@@ -182,7 +184,11 @@ func getRootMPFConfig() domain.MPFConfig {
 	mpfRole.RoleDefinitionID = roleDefUUID.String()
 	mpfRole.RoleDefinitionName = fmt.Sprintf("tmp-rol-%s", mpfSharedUtils.GenerateRandomString(7))
 	mpfRole.RoleDefinitionResourceID = fmt.Sprintf("/subscriptions/%s/providers/Microsoft.Authorization/roleDefinitions/%s", flgSubscriptionID, mpfRole.RoleDefinitionID)
+	mpfRole.DefaultDataActions = parseDefaultDataActions(flgDefaultDataActions)
 	log.Infoln("roleDefinitionResourceID:", mpfRole.RoleDefinitionResourceID)
+	if len(mpfRole.DefaultDataActions) > 0 {
+		log.Infof("Default data actions: %v", mpfRole.DefaultDataActions)
+	}
 
 	return domain.MPFConfig{
 		SubscriptionID: flgSubscriptionID,
@@ -207,4 +213,26 @@ func getAbsolutePath(path string) (string, error) {
 		absPath = absWorkingDir + "/" + absPath
 	}
 	return absPath, nil
+}
+
+func parseDefaultDataActions(dataActionsStr string) []string {
+	if dataActionsStr == "" {
+		return []string{}
+	}
+	
+	// Split by comma and trim whitespace
+	actions := strings.Split(dataActionsStr, ",")
+	var trimmedActions []string
+	for _, action := range actions {
+		trimmed := strings.TrimSpace(action)
+		if trimmed != "" {
+			trimmedActions = append(trimmedActions, trimmed)
+		}
+	}
+	
+	// Return empty slice instead of nil if no actions found
+	if trimmedActions == nil {
+		return []string{}
+	}
+	return trimmedActions
 }
