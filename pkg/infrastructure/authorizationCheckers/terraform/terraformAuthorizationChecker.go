@@ -77,6 +77,10 @@ func (a *terraformDeploymentConfig) GetDeploymentAuthorizationErrors(mpfConfig d
 }
 
 func (a *terraformDeploymentConfig) CleanDeployment(mpfConfig domain.MPFConfig) error {
+	if mpfConfig.PreserveResources {
+		log.Infoln("Preserving Terraform resources as requested - skipping terraform destroy")
+		return nil
+	}
 
 	err := deleteEnteredDestroyPhaseStateFile(a.workingDir, TFDestroyStateEnteredFileName)
 	if err != nil {
