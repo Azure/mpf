@@ -9,17 +9,19 @@ name: 🧪 windows-e2e-tests
 on:
   pull_request:
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   teste2ewindows:
     if: false # https://github.com/orgs/community/discussions/51120
     name: 🧪 Run e2e Tests (Windows)
-    runs-on: windows-latest
+    runs-on: windows-2025
+    permissions:
+      contents: read
+    timeout-minutes: 5
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false

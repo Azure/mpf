@@ -8,30 +8,20 @@ on:
   merge_group:
   workflow_dispatch:
   schedule:
-    - cron: '0 22 * * *'
+    - cron: 0 22 * * *
 
 concurrency:
   group: terraform_e2e_workflow_group
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   testterraforme2e:
     name: 🧪 Run Terraform e2e Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    env:
-      MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
-      MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-      MPF_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_SPCLIENTID }}
-      MPF_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_SPCLIENTSECRET }}
-      MPF_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_SPOBJECTID }}
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
       id-token: write
     steps:
       - name: ⤵️ Checkout
@@ -61,7 +51,7 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_wrapper: false
-          terraform_version: "1.10.4"
+          terraform_version: latest
 
       - name: 🔓 Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
@@ -75,9 +65,21 @@ jobs:
           export MPF_TFPATH=$(which terraform)
           echo "Terraform path: $MPF_TFPATH"
           task teste2e:terraform
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_SPOBJECTID }}
 
       - name: 🧪 Run Terraform CLI Tests
         run: |
           export MPF_TFPATH=$(which terraform)
           echo "Terraform path: $MPF_TFPATH"
           task testcli:terraform
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_SPOBJECTID }}

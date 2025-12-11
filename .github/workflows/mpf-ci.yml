@@ -20,12 +20,10 @@ on:
 #   group: ${{ format('{0}-{1}-{2}-{3}-{4}', github.workflow, github.event_name, github.ref, github.base_ref || null, github.head_ref || null) }}
 #   cancel-in-progress: true
 
-# env:
+env:
+  CLI_VERSION: ${{ github.sha }}
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: read
+permissions: {}
 
 jobs:
   lintGo:
@@ -38,6 +36,8 @@ jobs:
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -70,11 +70,14 @@ jobs:
   linkMarkdowns:
     name: 📃 Lint Markdown
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -97,11 +100,14 @@ jobs:
   build:
     name: 🏗️ Build
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -126,15 +132,17 @@ jobs:
   test:
     name: 🧪 Run Unit Tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
       checks: write
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -200,7 +208,7 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-          thresholds: "30 60"
+          thresholds: 30 60
 
       - name: 📤 Upload unit Coverage summary
         if: always()

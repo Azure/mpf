@@ -5,41 +5,33 @@ name: 🧪 windows-e2e-tests
 
 # This GitHub action runs your tests before merging a pull request via merge groups
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
-"on":
+on:
   merge_group:
   workflow_dispatch:
   schedule:
-    - cron: "0 19 * * *"
+    - cron: 0 19 * * *
 
 concurrency:
   group: windows_e2e_workflow_group
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   teste2ewindows:
     name: 🧪 Run e2e Tests (Windows)
-    runs-on: windows-latest
+    runs-on: windows-2025
     timeout-minutes: 45
     env:
-      MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
-      MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-      MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
-      MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
-      MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
-      MPF_BICEPEXECPATH: "C:\\Program Files\\Azure Bicep CLI\\bicep.exe"
+      MPF_BICEPEXECPATH: C:\\Program Files\\Azure Bicep CLI\\bicep.exe
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
       id-token: write
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c
@@ -85,7 +77,7 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
         with:
           terraform_wrapper: false
-          terraform_version: "1.10.4"
+          terraform_version: latest
 
       - name: Install Azure CLI
         shell: powershell
@@ -131,6 +123,12 @@ jobs:
             exit 1
           }
           Write-Host "Test passed: $lineCount lines"
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
 
       - name: 🧪 Run Bicep CLI Tests
         shell: powershell
@@ -147,6 +145,12 @@ jobs:
             exit 1
           }
           Write-Host "Test passed: $lineCount lines"
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
 
       - name: 🧪 Run Terraform CLI Tests
         shell: powershell
@@ -168,3 +172,9 @@ jobs:
             exit 1
           }
           Write-Host "Test passed: $lineCount lines"
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}

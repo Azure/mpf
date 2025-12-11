@@ -2,21 +2,20 @@
 ---
 name: 🧪 v2-arm-bicep-e2e
 
-# This GitHub action runs your tests before merging a pull request via merge groups
+# This GitHub action runs your tests before merging
+# a pull request via merge groups
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 on:
   merge_group:
   workflow_dispatch:
 
   schedule:
-    - cron: '0 21 * * *'
+    - cron: 0 21 * * *
 
 concurrency:
   group: arm_bicep_e2e_workflow_group
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   testarmbicepe2e:
@@ -24,22 +23,16 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
-      MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-      MPF_SPCLIENTID: ${{ secrets.MPF_ARM_BICEP_SPCLIENTID }}
-      MPF_SPCLIENTSECRET: ${{ secrets.MPF_ARM_BICEP_SPCLIENTSECRET }}
-      MPF_SPOBJECTID: ${{ secrets.MPF_ARM_BICEP_SPOBJECTID }}
-      MPF_BICEPEXECPATH: "/usr/local/bin/bicep"
+      MPF_BICEPEXECPATH: /usr/local/bin/bicep
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
       id-token: write
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -73,12 +66,36 @@ jobs:
 
       - name: 🧪 Run ARM E2E Tests
         run: task teste2e:arm
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_ARM_BICEP_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_ARM_BICEP_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_ARM_BICEP_SPOBJECTID }}
 
       - name: 🧪 Run ARM CLI Tests
         run: task testcli:arm
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_ARM_BICEP_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_ARM_BICEP_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_ARM_BICEP_SPOBJECTID }}
 
       - name: 🧪 Run Bicep E2E Tests
         run: task teste2e:bicep
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_ARM_BICEP_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_ARM_BICEP_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_ARM_BICEP_SPOBJECTID }}
 
       - name: 🧪 Run Bicep CLI Tests
         run: task testcli:bicep
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_ARM_BICEP_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_ARM_BICEP_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_ARM_BICEP_SPOBJECTID }}
