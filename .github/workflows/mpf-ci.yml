@@ -124,7 +124,7 @@ jobs:
       #   run: task build
 
   test:
-    name: 🧪 Run Unit Tests (${{ matrix.cli }} ${{ matrix.version }})
+    name: 🧪 Run Unit Tests
     runs-on: ubuntu-24.04
     permissions:
       contents: read
