@@ -1,10 +1,10 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
 # Terraform Provider testing workflow.
 name: 🧪 v2-terraform-e2e
 
 # This workflow jobs never run. terraform-e2e-v2.yaml has the terraform e2e workflow which gets executed when PR is added to a merge queue, before merge to main.
-# This workflow is created as a workaround, as mentioned in the discussion linked below. 
+# This workflow is created as a workaround, as mentioned in the discussion linked below.
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 on:
   pull_request:

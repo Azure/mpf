@@ -1,6 +1,5 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
-
 name: 🧪 v2-arm-bicep-e2e
 
 # This GitHub action runs your tests before merging a pull request via merge groups
@@ -65,8 +64,8 @@ jobs:
           chmod +x ./bicep
           sudo mv ./bicep /usr/local/bin/bicep
 
-      - name: 'Az CLI login - federated'
-        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2
+      - name: Azure Login
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
           tenant-id: ${{ secrets.MPF_TENANTID }}
@@ -81,5 +80,5 @@ jobs:
       - name: 🧪 Run Bicep E2E Tests
         run: task teste2e:bicep
 
-      - name: 🧪 Run Bicep CLI Tests 
+      - name: 🧪 Run Bicep CLI Tests
         run: task testcli:bicep

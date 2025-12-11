@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
-
 name: 🧪 v2-arm-bicep-e2e
 
 # This workflow jobs never run. arm-bicep-e2e-v2.yaml has the arm / bicep e2e workflow which gets executed when PR is added to a merge queue, before merge to main.
-# This workflow is created as a workaround, as mentioned in the discussion linked below. 
+# This workflow is created as a workaround, as mentioned in the discussion linked below.
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 on:
   pull_request:

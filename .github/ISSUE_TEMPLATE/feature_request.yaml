@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+# yaml-language-server: $schema=https://www.schemastore.org/github-issue-forms.json
 # https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-githubs-form-schema
 ---
 name: Feature Request

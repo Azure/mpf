@@ -1,22 +1,27 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
 name: 🕵️ Dependency Review
 
 on:
   pull_request:
+    branches:
+      - main
 
-permissions:
-  contents: read
-  pull-requests: write
-  checks: write
+permissions: {}
 
 jobs:
   main:
     name: 🕵️ Check Dependency
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
     steps:
       - name: ⤵️ Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1 # v6.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🕵️ Run Dependency Review
         uses: actions/dependency-review-action@3c4e3dcb1aa7874d2c16be7d79418e9b7efd6261 # v4.8.2
@@ -24,4 +29,4 @@ jobs:
           vulnerability-check: true
           license-check: true
           show-openssf-scorecard: true
-          comment-summary-in-pr: on-failure
+          comment-summary-in-pr: always
