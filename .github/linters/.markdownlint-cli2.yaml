@@ -3,5 +3,7 @@
 config:
   extends: ./.markdownlint.yml
 gitignore: true
-# ignores:
-#   - ./.changes/*.md
+ignores:
+  - .git
+  - "**/node_modules/**"
+  - .copilot-tracking/**

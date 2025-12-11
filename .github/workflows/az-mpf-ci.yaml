@@ -1,6 +1,8 @@
 #     MIT License
 #
+#
 #     Copyright (c) Microsoft Corporation.
+#
 #
 #     Permission is hereby granted, free of charge, to any person obtaining a copy
 #     of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +11,10 @@
 #     copies of the Software, and to permit persons to whom the Software is
 #     furnished to do so, subject to the following conditions:
 #
+#
 #     The above copyright notice and this permission notice shall be included in all
 #     copies or substantial portions of the Software.
+#
 #
 #     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 #     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,35 +33,39 @@ permissions:
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: ["1.25"]
-
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
       - name: Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version-file: go.mod
+
       - name: Install dependencies
         run: go get ./...
+
       - name: Build
         run: go build -v ./...
+
       - name: Test with Go
         run: |
-          go install github.com/jstemmer/go-junit-report@latest
-          go test -v ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils ./pkg/infrastructure/authorizationCheckers/terraform | go-junit-report -set-exit-code > TestResults-${{ matrix.go-version }}.xml
-          # go test -json ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils > TestResults-${{ matrix.go-version }}.json
-      - name: Upload Go test results
+          go test -json ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils > testresults.json
+
+      - name: Upload test results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: Go-results-${{ matrix.go-version }}
-          path: TestResults-${{ matrix.go-version }}.xml
+          name: Test results
+          path: testresults.json
 
-      - name: Test Summary
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2
-        with:
-          paths: |
-            TestResults-${{ matrix.go-version }}.xml
+      - name: Publish test results
         if: always()
+        uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
+        with:
+          name: Test results
+          reporter: golang-json
+          path: testresults.json
+          token: ${{ github.token }}

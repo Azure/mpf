@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
 # Terraform Provider testing workflow.
 name: 🧪 mpf-ci
@@ -124,7 +124,7 @@ jobs:
       #   run: task build
 
   test:
-    name: 🧪 Run Unit Tests (${{ matrix.cli }} ${{ matrix.version }})
+    name: 🧪 Run Unit Tests
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -160,8 +160,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: ${{ format('{0}-{1}-test-results', matrix.cli, env.CLI_VERSION) }}
-          path: testresults.xml
+          name: ${{ format('{0}-test-results', env.CLI_VERSION) }}
+          path: testresults.json
           if-no-files-found: warn
           overwrite: true
 
@@ -169,7 +169,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: ${{ format('{0}-{1}-test-coverage-results', matrix.cli, env.CLI_VERSION) }}
+          name: ${{ format('{0}-test-coverage-results', env.CLI_VERSION) }}
           path: |
             coverage.html
             coverage.json
@@ -183,7 +183,7 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
         uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
         with:
-          name: 📜 Test results (${{ matrix.cli }} ${{ matrix.version }})
+          name: 📜 Test results
           reporter: golang-json
           path: testresults.json
           token: ${{ github.token }}
@@ -206,21 +206,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: ${{ format('{0}-{1}-test-coverage-summary', matrix.cli, env.CLI_VERSION) }}
+          name: ${{ format('{0}-test-coverage-summary', env.CLI_VERSION) }}
           path: |
             code-coverage-results.md
           if-no-files-found: warn
           overwrite: true
-
-  check-test-matrix:
-    if: always()
-    name: 🧪 Check Unit Tests
-    needs: test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: ✅ OK
-        if: ${{ !(contains(needs.*.result, 'failure')) }}
-        run: exit 0
-      - name: 🛑 Failure
-        if: ${{ contains(needs.*.result, 'failure') }}
-        run: exit 1

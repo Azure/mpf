@@ -26,25 +26,24 @@ import (
 	"context"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/profiles/latest/authorization/mgmt/authorization"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization/v3"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
-	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure/auth"
+
 	log "github.com/sirupsen/logrus"
 )
 
 type AzureAPIClients struct {
-	RoleAssignmentsClient         authorization.RoleAssignmentsClient
+	RoleAssignmentsClient         *armauthorization.RoleAssignmentsClient
 	RoleAssignmentsDeletionClient *armauthorization.RoleAssignmentsClient
 	// RoleDefinitionsClient authorization.RoleDefinitionsClient
 	DeploymentsClient    *armresources.DeploymentsClient
 	ResourceGroupsClient *armresources.ResourceGroupsClient
 
 	// Default CLI Creds
+	CLICred                             *azidentity.AzureCLICredential
 	DefaultCred                         *azidentity.DefaultAzureCredential
 	defaultAPIBearerToken               string
 	defaultAPIBearerTokenLastCachedTime time.Time
@@ -62,15 +61,6 @@ func NewAzureAPIClients(subscriptionID string) *AzureAPIClients {
 	return a
 }
 
-func getAuthorizer() (authorizer autorest.Authorizer, err error) {
-	// Use the default Azure environment for authentication
-	authorizer, err = auth.NewAuthorizerFromCLI()
-	if err != nil {
-		return nil, err
-	}
-	return authorizer, nil
-}
-
 type TokenProvider interface {
 	GetToken(ctx context.Context, opts policy.TokenRequestOptions) (azcore.AccessToken, error)
 }
@@ -86,9 +76,17 @@ func (a *AzureAPIClients) getBearerToken(tp TokenProvider) (bearerToken string, 
 }
 
 func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
-	authorizer, err := getAuthorizer()
+	var err error
+
+	a.CLICred, err = azidentity.NewAzureCLICredential(nil)
 	if err != nil {
-		return err
+		// log.Fatal(err)
+		log.Fatal(err)
+	}
+
+	a.RoleAssignmentsClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.CLICred, nil)
+	if err != nil {
+		log.Fatalf("failed to create role assignments client: %v", err)
 	}
 
 	a.DefaultCred, err = azidentity.NewDefaultAzureCredential(nil)
@@ -97,19 +95,10 @@ func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
 		log.Fatal(err)
 	}
 
-	// Set RoleAssignmentsClient
-	a.RoleAssignmentsClient = authorization.NewRoleAssignmentsClient(subscriptionId)
-	a.RoleAssignmentsClient.Authorizer = authorizer
+	a.RoleAssignmentsDeletionClient, err = armauthorization.NewRoleAssignmentsClient(subscriptionId, a.DefaultCred, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to create role assignments deletion client: %v", err)
 	}
-
-	roleAssignmentsDeletionClientFactory, err := armauthorization.NewClientFactory(subscriptionId, a.DefaultCred, nil)
-	if err != nil {
-		log.Fatalf("failed to create role assignments deletion client factory: %v", err)
-	}
-
-	a.RoleAssignmentsDeletionClient = roleAssignmentsDeletionClientFactory.NewRoleAssignmentsClient()
 
 	// Set RoleDefinitionsClient
 	// a.RoleDefinitionsClient = authorization.NewRoleDefinitionsClient(subscriptionId)

@@ -1,7 +1,6 @@
 # yaml-language-server:
-# $schema=https://json.schemastore.org/github-workflow.json
+# $schema=https://www.schemastore.org/github-workflow.json
 ---
-
 name: 🧪 windows-e2e-tests
 
 # This GitHub action runs your tests before merging a pull request via merge groups
@@ -10,7 +9,7 @@ name: 🧪 windows-e2e-tests
   merge_group:
   workflow_dispatch:
   schedule:
-    - cron: '0 19 * * *'
+    - cron: "0 19 * * *"
 
 concurrency:
   group: windows_e2e_workflow_group
@@ -110,8 +109,8 @@ jobs:
           # Verify installation
           az --version
 
-      - name: 'Az CLI login - federated'
-        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2
+      - name: Azure Login
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
           tenant-id: ${{ secrets.MPF_TENANTID }}
