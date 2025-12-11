@@ -291,7 +291,7 @@ func (r *SPRoleAssignmentManager) AssignRoleToSP(subscription string, SPOBjectID
 // 	return nil
 // }z
 
-// Initialise detachRolesFromSP detaches all roles from the SP
+// DetachRolesFromSP detaches the specified role from the SP
 func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscription string, SPOBjectID string, role domain.Role) error {
 	pager := r.azAPIClient.RoleAssignmentsClient.NewListForSubscriptionPager(&armauthorization.RoleAssignmentsClientListForSubscriptionOptions{
 		Filter: to.Ptr(fmt.Sprintf("assignedTo('%s')", SPOBjectID)),
@@ -304,9 +304,11 @@ func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscri
 		}
 
 		for _, roleAssignment := range page.Value {
-			_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
-			if err != nil {
-				return err
+			if roleAssignment.Properties != nil && roleAssignment.Properties.RoleDefinitionID != nil && strings.EqualFold(*roleAssignment.Properties.RoleDefinitionID, role.RoleDefinitionResourceID) {
+				_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
