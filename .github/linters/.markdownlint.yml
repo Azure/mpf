@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/DavidAnson/markdownlint/main/schema/markdownlint-config-schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/DavidAnson/markdownlint/refs/heads/main/schema/markdownlint-config-schema-strict.json
 ---
 # Markdownlint YAML configuration
 # Default source: https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml
@@ -9,7 +9,9 @@ default: true
 # Path to configuration file to extend
 # extends: null
 
-ignore_front_matter: true
+# MD004/ul-style : Unordered list style : https://github.com/DavidAnson/markdownlint/blob/main/doc/md004.md
+MD004:
+  style: dash
 
 # MD013/line-length - Line length
 MD013: false
@@ -17,21 +19,26 @@ MD013: false
 # MD024/no-duplicate-heading
 MD024: false
 
-# MD025/single-title - Multiple top level headings in the same document
-MD025: false
+# MD025/single-title - Single title
+MD025:
+  front_matter_title: ""
+
+# MD029/ol-prefix - Ordered list item prefix
+MD029:
+  style: one_or_ordered
 
 # MD033/no-inline-html - Inline HTML
 MD033:
   # Allowed elements
-  allowed_elements: ["br", "a"]
+  allowed_elements: [br, pre, a]
+
+# MD036/no-emphasis-as-heading - Emphasis used instead of a heading
+MD036: false
+
+# MD041/first-line-heading/first-line-h1
+MD041: false
 
 # MD046/code-block-style - Code block style
 MD046:
   # Block style
-  style: "fenced"
-
-# MD041/first-line-heading
-MD041: false
-# MD041:
-#   level: 1
-#   front_matter_title: ^\s*(title|page_title)\s*[:=]
+  style: fenced
