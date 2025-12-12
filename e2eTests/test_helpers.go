@@ -31,13 +31,13 @@ func copyDir(t *testing.T, src, dst string) error {
 		if err != nil {
 			return err
 		}
-		defer srcFile.Close()
+		defer srcFile.Close() //nolint:errcheck
 
 		dstFile, err := os.Create(dstPath)
 		if err != nil {
 			return err
 		}
-		defer dstFile.Close()
+		defer dstFile.Close() //nolint:errcheck
 
 		_, err = io.Copy(dstFile, srcFile)
 		return err
@@ -51,15 +51,15 @@ func updateJSONParamFile(t *testing.T, filePath string, updates map[string]strin
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
-	var data map[string]interface{}
+	var data map[string]any
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&data); err != nil {
 		return err
 	}
 
-	parameters, ok := data["parameters"].(map[string]interface{})
+	parameters, ok := data["parameters"].(map[string]any)
 	if !ok {
 		// Handle case where parameters might be at root or different structure
 		// For ARM params, it's usually { "parameters": { ... } }
@@ -79,11 +79,11 @@ func updateJSONParamFile(t *testing.T, filePath string, updates map[string]strin
 	}
 
 	for key, value := range updates {
-		if param, exists := parameters[key].(map[string]interface{}); exists {
+		if param, exists := parameters[key].(map[string]any); exists {
 			param["value"] = value
 		} else {
 			// If param doesn't exist, create it
-			parameters[key] = map[string]interface{}{
+			parameters[key] = map[string]any{
 				"value": value,
 			}
 		}

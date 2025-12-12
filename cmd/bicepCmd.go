@@ -172,7 +172,7 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
 	// Always auto-create resource group since only resource group scoped deployments are supported
-	var autoCreateResourceGroup bool = true
+	var autoCreateResourceGroup = true
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, autoCreateResourceGroup)
 
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
