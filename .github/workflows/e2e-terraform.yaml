@@ -1,10 +1,11 @@
 # yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
-name: 🧪 v2-terraform-e2e
+name: 🧪 E2E Terraform
 
 # This GitHub action runs your tests before merging a pull request via merge groups
 # Merge Group Discussions: https://github.com/orgs/community/discussions/51120
 on:
+  pull_request:
   merge_group:
   workflow_dispatch:
   schedule:
@@ -17,6 +18,7 @@ permissions: {}
 
 jobs:
   testterraforme2e:
+    if: github.event_name != 'pull_request'
     name: 🧪 Run Terraform e2e Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 45
