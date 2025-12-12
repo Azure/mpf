@@ -304,11 +304,12 @@ func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscri
 		}
 
 		for _, roleAssignment := range page.Value {
-			if roleAssignment.Properties != nil && roleAssignment.Properties.RoleDefinitionID != nil && strings.EqualFold(*roleAssignment.Properties.RoleDefinitionID, role.RoleDefinitionResourceID) {
-				_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
-				if err != nil {
-					return err
-				}
+			if roleAssignment.ID == nil {
+				continue
+			}
+			_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
+			if err != nil {
+				return err
 			}
 		}
 	}

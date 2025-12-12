@@ -10,7 +10,7 @@ on:
 permissions: {}
 
 jobs:
-  main:
+  dependency-review:
     name: 🕵️ Check Dependency
     runs-on: ubuntu-24.04
     timeout-minutes: 10
