@@ -309,7 +309,7 @@ func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscri
 			}
 			// Only delete the role assignment if it matches the specified role
 			if roleAssignment.Properties != nil && roleAssignment.Properties.RoleDefinitionID != nil &&
-				*roleAssignment.Properties.RoleDefinitionID == role.RoleDefinitionResourceID {
+				strings.EqualFold(*roleAssignment.Properties.RoleDefinitionID, role.RoleDefinitionResourceID) {
 				_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
 				if err != nil {
 					return err
