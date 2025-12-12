@@ -91,3 +91,17 @@ jobs:
           MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPCLIENTID || secrets.MPF_ARM_BICEP_SPCLIENTID }}
           MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPCLIENTSECRET || secrets.MPF_ARM_BICEP_SPCLIENTSECRET }}
           MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPOBJECTID || secrets.MPF_ARM_BICEP_SPOBJECTID }}
+
+  check-e2e-linux:
+    if: always()
+    name: 🧪 Check E2E Test
+    needs: test-e2e-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: ✅ OK
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: exit 0
+      - name: 🛑 Failure
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1

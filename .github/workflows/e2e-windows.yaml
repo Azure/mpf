@@ -99,3 +99,17 @@ jobs:
           MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
           MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
           MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
+
+  check-e2e-windows:
+    if: always()
+    name: 🧪 Check E2E Tests (Windows)
+    needs: test-e2e-windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: ✅ OK
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: exit 0
+      - name: 🛑 Failure
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1
