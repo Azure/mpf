@@ -95,19 +95,7 @@ jobs:
       - name: 🧪 Run ARM CLI Tests
         if: matrix.type == 'arm'
         shell: powershell
-        run: |
-          $templatePath = "./samples/templates/aks-private-subnet.json"
-          $paramsPath = "./samples/templates/aks-private-subnet-parameters.json"
-          $output = go run ./cmd arm --templateFilePath $templatePath `
-            --parametersFilePath $paramsPath
-          Write-Host $output
-          $lineCount = ($output | Measure-Object -Line).Lines
-          Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 13) {
-            Write-Host "Expected 13 lines, got $lineCount"
-            exit 1
-          }
-          Write-Host "Test passed: $lineCount lines"
+        run: task testcli:arm
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
           MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
@@ -118,19 +106,7 @@ jobs:
       - name: 🧪 Run Bicep CLI Tests
         if: matrix.type == 'bicep'
         shell: powershell
-        run: |
-          $bicepPath = "./samples/bicep/aks-private-subnet.bicep"
-          $paramsPath = "./samples/bicep/aks-private-subnet-params.json"
-          $output = go run ./cmd bicep --bicepFilePath $bicepPath `
-            --parametersFilePath $paramsPath
-          Write-Host $output
-          $lineCount = ($output | Measure-Object -Line).Lines
-          Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 13) {
-            Write-Host "Expected 13 lines, got $lineCount"
-            exit 1
-          }
-          Write-Host "Test passed: $lineCount lines"
+        run: task testcli:bicep
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
           MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
@@ -141,29 +117,7 @@ jobs:
       - name: 🧪 Run Terraform CLI Tests
         if: matrix.type == 'terraform'
         shell: powershell
-        run: |
-          # Ensure HOME environment variables are set for Terraform provider installation
-          if (-not $env:USERPROFILE) { $env:USERPROFILE = "C:\Users\runneradmin" }
-          if (-not $env:HOMEDRIVE) { $env:HOMEDRIVE = "C:" }
-          if (-not $env:HOMEPATH) { $env:HOMEPATH = "\Users\runneradmin" }
-
-          # Use Get-Command to dynamically find Terraform path
-          # (PowerShell best practice)
-          $env:MPF_TFPATH = (Get-Command terraform).Source
-          Write-Host "Terraform path: $env:MPF_TFPATH"
-
-          $workingDir = "./samples/terraform/aci"
-          $varFilePath = "./samples/terraform/aci/dev.vars.tfvars"
-          $output = go run ./cmd terraform --workingDir $workingDir `
-            --varFilePath $varFilePath
-          Write-Host $output
-          $lineCount = ($output | Measure-Object -Line).Lines
-          Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 12) {
-            Write-Host "Expected 12 lines, got $lineCount"
-            exit 1
-          }
-          Write-Host "Test passed: $lineCount lines"
+        run: task testcli:terraform
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
           MPF_TENANTID: ${{ secrets.MPF_TENANTID }}

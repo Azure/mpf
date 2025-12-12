@@ -48,15 +48,20 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Install dependencies
-        run: go get ./...
+      - name: 🚧 Setup Task
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
+
+      - name: 🔀 Download Go dependencies
+        run: task deps:download
+
+      - name: 🔨 Setup Test tools
+        run: task test:tools
 
       - name: Build
-        run: go build -v ./...
+        run: task build:verify
 
       - name: Test with Go
-        run: |
-          go test -json ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils > testresults.json
+        run: task testunit
 
       - name: Upload test results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0

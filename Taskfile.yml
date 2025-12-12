@@ -126,6 +126,11 @@ tasks:
     generates:
       - "{{.BUILD_DEV_ARTIFACT}}"
 
+  build:verify:
+    desc: Verify build of all packages
+    cmds:
+      - go build -v ./...
+
   build:
     desc: Build development binary with GoReleaser
     deps: [_build:clean]
@@ -189,38 +194,92 @@ tasks:
   testcli:arm:
     desc: Run CLI tests for ARM
     cmds:
-      - |
-        RESULT_LINE_COUNT=$(go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json | wc -l)
-        echo "Result line count: $RESULT_LINE_COUNT"
-        if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
-          echo "Expected 14 lines, got $RESULT_LINE_COUNT"
-          exit 1
-        fi
-        echo "Test passed: $RESULT_LINE_COUNT lines"
+      - cmd: |
+          RESULT_LINE_COUNT=$(go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json | wc -l)
+          echo "Result line count: $RESULT_LINE_COUNT"
+          if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
+            echo "Expected 14 lines, got $RESULT_LINE_COUNT"
+            exit 1
+          fi
+          echo "Test passed: $RESULT_LINE_COUNT lines"
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} '
+          $output = go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
+          Write-Host $output
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 13) {
+            Write-Host "Expected 13 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
+          '
+        platforms: [windows]
 
   testcli:bicep:
     desc: Run CLI tests for Bicep
     cmds:
-      - |
-        RESULT_LINE_COUNT=$(go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json | wc -l)
-        echo "Result line count: $RESULT_LINE_COUNT"
-        if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
-          echo "Expected 14 lines, got $RESULT_LINE_COUNT"
-          exit 1
-        fi
-        echo "Test passed: $RESULT_LINE_COUNT lines"
+      - cmd: |
+          RESULT_LINE_COUNT=$(go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json | wc -l)
+          echo "Result line count: $RESULT_LINE_COUNT"
+          if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
+            echo "Expected 14 lines, got $RESULT_LINE_COUNT"
+            exit 1
+          fi
+          echo "Test passed: $RESULT_LINE_COUNT lines"
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} '
+          $output = go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
+          Write-Host $output
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 13) {
+            Write-Host "Expected 13 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
+          '
+        platforms: [windows]
 
   testcli:terraform:
     desc: Run CLI tests for Terraform
+    vars:
+      MPF_TFPATH:
+        sh: |
+          {{if eq OS "windows"}}
+            {{.PWSH}} '(Get-Command terraform).Source'
+          {{else}}
+            which terraform
+          {{end}}
+    env:
+      MPF_TFPATH: "{{.MPF_TFPATH}}"
     cmds:
-      - |
-        RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
-        echo "Result line count: $RESULT_LINE_COUNT"
-        if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
-          echo "Expected 13 lines, got $RESULT_LINE_COUNT"
-          exit 1
-        fi
-        echo "Test passed: $RESULT_LINE_COUNT lines"
+      - cmd: |
+          echo "Terraform path: $MPF_TFPATH"
+          RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
+          echo "Result line count: $RESULT_LINE_COUNT"
+          if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
+            echo "Expected 13 lines, got $RESULT_LINE_COUNT"
+            exit 1
+          fi
+          echo "Test passed: $RESULT_LINE_COUNT lines"
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} '
+          Write-Host "Terraform path: $env:MPF_TFPATH"
+          $output = go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars
+          Write-Host $output
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne 12) {
+            Write-Host "Expected 12 lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
+          '
+        platforms: [windows]
 
   teste2e:arm:
     desc: Run E2E tests for ARM
@@ -242,6 +301,15 @@ tasks:
     desc: Run E2E tests for Terraform
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
+      MPF_TFPATH:
+        sh: |
+          {{if eq OS "windows"}}
+            {{.PWSH}} '(Get-Command terraform).Source'
+          {{else}}
+            which terraform
+          {{end}}
+    env:
+      MPF_TFPATH: "{{.MPF_TFPATH}}"
     cmds:
       - go clean -testcache
       - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestTerraform
