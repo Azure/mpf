@@ -213,6 +213,9 @@ tasks:
     internal: true
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
+    env:
+      MPF_TFPATH: "{{.MPF_TFPATH}}"
+      MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
       - go clean -testcache
       - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run {{.TEST_RUN}}
@@ -303,11 +306,11 @@ tasks:
           {{else}}
             which bicep
           {{end}}
-    env:
-      MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
       - task: _teste2e:run
-        vars: { TEST_RUN: TestBicep }
+        vars:
+          TEST_RUN: TestBicep
+          MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
 
   teste2e:terraform:
     desc: Run E2E tests for Terraform
@@ -319,11 +322,11 @@ tasks:
           {{else}}
             which terraform
           {{end}}
-    env:
-      MPF_TFPATH: "{{.MPF_TFPATH}}"
     cmds:
       - task: _teste2e:run
-        vars: { TEST_RUN: TestTerraform }
+        vars:
+          TEST_RUN: TestTerraform
+          MPF_TFPATH: "{{.MPF_TFPATH}}"
 
   testacc:
     desc: Run acceptance tests

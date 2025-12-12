@@ -50,7 +50,7 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 
 	var tfpath string
 	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 	}
 	tfpath = os.Getenv("MPF_TFPATH")
 
