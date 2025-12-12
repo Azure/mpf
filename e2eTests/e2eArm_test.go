@@ -86,9 +86,7 @@ func getMPFConfig(mpfArgs MpfCLIArgs) domain.MPFConfig {
 	return mpfConfig
 }
 
-func getTestingMPFArgs(t *testing.T) (MpfCLIArgs, error) {
-	ensureAzureEnvForE2E(t)
-
+func getTestingMPFArgs() (MpfCLIArgs, error) {
 	subscriptionID := os.Getenv("MPF_SUBSCRIPTIONID")
 	servicePrincipalClientID := os.Getenv("MPF_SPCLIENTID")
 	servicePrincipalObjectID := os.Getenv("MPF_SPOBJECTID")
@@ -214,7 +212,7 @@ func getTestingMPFArgs(t *testing.T) (MpfCLIArgs, error) {
 // }
 
 func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs(t)
+	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -442,7 +440,7 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 
 func TestARMTemplatAksPrivateSubnetTemplateFullDeployment(t *testing.T) {
 
-	mpfArgs, err := getTestingMPFArgs(t)
+	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}

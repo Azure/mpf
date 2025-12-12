@@ -37,7 +37,7 @@ import (
 )
 
 func TestTerraformACI(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs(t)
+	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -90,7 +90,7 @@ func TestTerraformACI(t *testing.T) {
 }
 
 func TestTerraformACINoTfvarsFile(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs(t)
+	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -140,7 +140,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 }
 
 func TestTerraformModuleTest(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs(t)
+	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}

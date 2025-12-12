@@ -105,7 +105,7 @@ import (
 // }
 
 func TestBicepInvalidResourceFile(t *testing.T) {
-	_, err := getTestingMPFArgs(t)
+	_, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -137,7 +137,7 @@ func TestBicepInvalidResourceFile(t *testing.T) {
 }
 
 func TestBicepInvalidParamsFullDeployment(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs(t)
+	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
