@@ -48,17 +48,17 @@ To view details of the display options the utility provides, please refer to the
 
 ## Building Locally
 
-You can also build locally by cloning this repo and running `make build`.
+You can also build locally by cloning this repo and running `task build`.
 
 ## Testing Locally
 
 ### Unit Tests
 
-To run the unit tests, run `make test`.
+To run the unit tests, run `task testunit`.
 
 ### End to End ARM Tests
 
-To run the end-to-end tests for ARM, you need to have the following environment variables set, and then execute `make test-e2e-arm`:
+To run the end-to-end tests for ARM, you need to have the following environment variables set, and then execute `task teste2e:arm`:
 
 ```shell
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -67,12 +67,12 @@ export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
 export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 
-make test-e2e-arm
+task teste2e:arm
 ```
 
 ### End to End Bicep Tests
 
-To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `make test-e2e-bicep`:
+To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `task teste2e:bicep`:
 
 ```shell
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -82,12 +82,12 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
 
-make test-e2e-bicep
+task teste2e:bicep
 ```
 
 ### End to End Terraform Tests
 
-The Terraform end-to-end tests can take a long time to execute, depending on the resources being created. To run the end-to-end tests for Terraform, you need to have the following environment variables set, and then execute `make test-e2e-terraform`:
+The Terraform end-to-end tests can take a long time to execute, depending on the resources being created. To run the end-to-end tests for Terraform, you need to have the following environment variables set, and then execute `task teste2e:terraform`:
 
 ```shell
 export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
@@ -97,7 +97,7 @@ export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
 export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
 export MPF_TFPATH=$(which terraform) # Path to the Terraform executable
 
-make test-e2e-terraform
+task teste2e:terraform
 ```
 
 ## Permissions required by default Azure CLI credentials

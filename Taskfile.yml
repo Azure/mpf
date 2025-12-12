@@ -180,11 +180,48 @@ tasks:
   # ----------------------
   # Test
   # ----------------------
+  _testcli:validate:
+    internal: true
+    desc: Run CLI test generic logic
+    cmds:
+      - cmd: |
+          {{.PRE_CMD}}
+          RESULT_LINE_COUNT=$({{.CMD}} | wc -l)
+          echo "Result line count: $RESULT_LINE_COUNT"
+          if [ "$RESULT_LINE_COUNT" -ne {{.EXPECTED}} ]; then
+            echo "Expected {{.EXPECTED}} lines, got $RESULT_LINE_COUNT"
+            exit 1
+          fi
+          echo "Test passed: $RESULT_LINE_COUNT lines"
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} '
+          {{.PRE_CMD}}
+          $output = {{.CMD}}
+          Write-Host $output
+          $lineCount = ($output | Measure-Object -Line).Lines
+          Write-Host "Result line count: $lineCount"
+          if ($lineCount -ne {{.EXPECTED}}) {
+            Write-Host "Expected {{.EXPECTED}} lines, got $lineCount"
+            exit 1
+          }
+          Write-Host "Test passed: $lineCount lines"
+          '
+        platforms: [windows]
+
+  _teste2e:run:
+    internal: true
+    vars:
+      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
+    cmds:
+      - go clean -testcache
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run {{.TEST_RUN}}
+
   testunit:
     desc: Run unit tests
     cmds:
       - 'gotestsum --format-hivis --format {{.FORMAT}} --jsonfile "testresults.json" ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils ./pkg/infrastructure/authorizationCheckers/terraform -p {{numCPU}} -timeout 5m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
-      - task: test:getcover
+      - task: _test:getcover
     vars:
       TEST_NAME: "{{if gt (len (splitArgs .CLI_ARGS)) 0}}{{index (splitArgs .CLI_ARGS) 0}}{{end}}"
       TEST_PATH: "{{if gt (len (splitArgs .CLI_ARGS)) 1}}{{index (splitArgs .CLI_ARGS) 1}}{{else}}./...{{end}}"
@@ -193,33 +230,19 @@ tasks:
 
   testcli:arm:
     desc: Run CLI tests for ARM
+    vars:
+      EXPECTED: '{{if eq OS "windows"}}13{{else}}14{{end}}'
     cmds:
-      - cmd: |
-          RESULT_LINE_COUNT=$(go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json | wc -l)
-          echo "Result line count: $RESULT_LINE_COUNT"
-          if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
-            echo "Expected 14 lines, got $RESULT_LINE_COUNT"
-            exit 1
-          fi
-          echo "Test passed: $RESULT_LINE_COUNT lines"
-        platforms: [linux, darwin]
-      - cmd: |
-          {{.PWSH}} '
-          $output = go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
-          Write-Host $output
-          $lineCount = ($output | Measure-Object -Line).Lines
-          Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 13) {
-            Write-Host "Expected 13 lines, got $lineCount"
-            exit 1
-          }
-          Write-Host "Test passed: $lineCount lines"
-          '
-        platforms: [windows]
+      - task: _testcli:validate
+        vars:
+          CMD: "go run ./cmd arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json"
+          EXPECTED: "{{.EXPECTED}}"
+          PRE_CMD: ""
 
   testcli:bicep:
     desc: Run CLI tests for Bicep
     vars:
+      EXPECTED: '{{if eq OS "windows"}}13{{else}}14{{end}}'
       MPF_BICEPEXECPATH:
         sh: |
           {{if eq OS "windows"}}
@@ -230,32 +253,16 @@ tasks:
     env:
       MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
-      - cmd: |
-          RESULT_LINE_COUNT=$(go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json | wc -l)
-          echo "Result line count: $RESULT_LINE_COUNT"
-          if [ "$RESULT_LINE_COUNT" -ne 14 ]; then
-            echo "Expected 14 lines, got $RESULT_LINE_COUNT"
-            exit 1
-          fi
-          echo "Test passed: $RESULT_LINE_COUNT lines"
-        platforms: [linux, darwin]
-      - cmd: |
-          {{.PWSH}} '
-          $output = go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json
-          Write-Host $output
-          $lineCount = ($output | Measure-Object -Line).Lines
-          Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 13) {
-            Write-Host "Expected 13 lines, got $lineCount"
-            exit 1
-          }
-          Write-Host "Test passed: $lineCount lines"
-          '
-        platforms: [windows]
+      - task: _testcli:validate
+        vars:
+          CMD: "go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json"
+          EXPECTED: "{{.EXPECTED}}"
+          PRE_CMD: ""
 
   testcli:terraform:
     desc: Run CLI tests for Terraform
     vars:
+      EXPECTED: '{{if eq OS "windows"}}12{{else}}13{{end}}'
       MPF_TFPATH:
         sh: |
           {{if eq OS "windows"}}
@@ -266,43 +273,29 @@ tasks:
     env:
       MPF_TFPATH: "{{.MPF_TFPATH}}"
     cmds:
-      - cmd: |
-          echo "Terraform path: $MPF_TFPATH"
-          RESULT_LINE_COUNT=$(go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars | wc -l)
-          echo "Result line count: $RESULT_LINE_COUNT"
-          if [ "$RESULT_LINE_COUNT" -ne 13 ]; then
-            echo "Expected 13 lines, got $RESULT_LINE_COUNT"
-            exit 1
-          fi
-          echo "Test passed: $RESULT_LINE_COUNT lines"
-        platforms: [linux, darwin]
-      - cmd: |
-          {{.PWSH}} '
-          Write-Host "Terraform path: $env:MPF_TFPATH"
-          $output = go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars
-          Write-Host $output
-          $lineCount = ($output | Measure-Object -Line).Lines
-          Write-Host "Result line count: $lineCount"
-          if ($lineCount -ne 12) {
-            Write-Host "Expected 12 lines, got $lineCount"
-            exit 1
-          }
-          Write-Host "Test passed: $lineCount lines"
-          '
-        platforms: [windows]
+      - task: _testcli:validate
+        vars:
+          CMD: "go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars"
+          EXPECTED: "{{.EXPECTED}}"
+          PRE_CMD: |
+            {{if eq OS "windows"}}
+            if (-not $env:USERPROFILE) { $env:USERPROFILE = "C:\Users\runneradmin" }
+            if (-not $env:HOMEDRIVE) { $env:HOMEDRIVE = "C:" }
+            if (-not $env:HOMEPATH) { $env:HOMEPATH = "\Users\runneradmin" }
+            Write-Host "Terraform path: $env:MPF_TFPATH"
+            {{else}}
+            echo "Terraform path: $MPF_TFPATH"
+            {{end}}
 
   teste2e:arm:
     desc: Run E2E tests for ARM
-    vars:
-      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
-      - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestARM
+      - task: _teste2e:run
+        vars: { TEST_RUN: TestARM }
 
   teste2e:bicep:
     desc: Run E2E tests for Bicep
     vars:
-      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
       MPF_BICEPEXECPATH:
         sh: |
           {{if eq OS "windows"}}
@@ -313,13 +306,12 @@ tasks:
     env:
       MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
-      - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestBicep
+      - task: _teste2e:run
+        vars: { TEST_RUN: TestBicep }
 
   teste2e:terraform:
     desc: Run E2E tests for Terraform
     vars:
-      FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
       MPF_TFPATH:
         sh: |
           {{if eq OS "windows"}}
@@ -330,15 +322,15 @@ tasks:
     env:
       MPF_TFPATH: "{{.MPF_TFPATH}}"
     cmds:
-      - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestTerraform
+      - task: _teste2e:run
+        vars: { TEST_RUN: TestTerraform }
 
   testacc:
     desc: Run acceptance tests
     cmds:
       - go clean -testcache
       - 'gotestsum --format-hivis --format {{.FORMAT}} --jsonfile "testresults.json" -- {{.TEST_PATH}} -run "^TestAcc_{{.TEST_NAME}}" -p {{numCPU}} -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
-      - task: test:getcover
+      - task: _test:getcover
     vars:
       TEST_NAME: "{{if gt (len (splitArgs .CLI_ARGS)) 0}}{{index (splitArgs .CLI_ARGS) 0}}{{end}}"
       TEST_PATH: "{{if gt (len (splitArgs .CLI_ARGS)) 1}}{{index (splitArgs .CLI_ARGS) 1}}{{else}}./...{{end}}"
@@ -351,7 +343,7 @@ tasks:
       - go clean -testcache
       - go test -failfast -run ^TestDevEnv_WellKnown$ ./internal/testhelp
       - 'gotestsum --format-hivis --format {{.FORMAT}} --jsonfile "testresults.json" -- {{.TEST_PATH}} -run "^Test(Acc|Unit)_{{.TEST_NAME}}" -p {{numCPU}} -timeout 30m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic -coverpkg={{.GO_PKGS}}'
-      - task: test:getcover
+      - task: _test:getcover
     vars:
       TEST_NAME: "{{if gt (len (splitArgs .CLI_ARGS)) 0}}{{index (splitArgs .CLI_ARGS) 0}}{{end}}"
       TEST_PATH: "{{if gt (len (splitArgs .CLI_ARGS)) 1}}{{index (splitArgs .CLI_ARGS) 1}}{{else}}./...{{end}}"
@@ -388,7 +380,7 @@ tasks:
       - for: [gotestsum, gocover-cobertura]
         task: install:{{.ITEM}}
 
-  test:getcover:
+  _test:getcover:
     desc: Get coverage results
     internal: true
     cmds:
@@ -427,6 +419,35 @@ tasks:
   # ----------------------
   # Install Helpers
   # ----------------------
+  install:bicep:
+    desc: Install Bicep
+    cmds:
+      - cmd: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+        platforms: [linux]
+      - cmd: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-osx-x64
+          chmod +x ./bicep
+          sudo spctl --add ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+        platforms: [darwin]
+      - cmd: |
+          {{.PWSH}} '
+          $installPath = "$env:USERPROFILE\.bicep"
+          $installDir = New-Item -ItemType Directory -Path $installPath -Force
+          $installDir.Attributes += "Hidden"
+          (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "$installPath\bicep.exe")
+          $currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue("Path", "", "DoNotExpandEnvironmentNames")
+          if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
+          if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
+          if ($env:GITHUB_PATH) {
+            echo "$installPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+          '
+        platforms: [windows]
+
   install:semver:
     desc: Install semver
     cmds:
