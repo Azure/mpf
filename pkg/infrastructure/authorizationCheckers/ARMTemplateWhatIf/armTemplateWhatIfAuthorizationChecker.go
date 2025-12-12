@@ -122,7 +122,7 @@ func (a *armWhatIfConfig) CreateEmptyDeployment(client *http.Client, deploymentN
 		return err
 	}
 	log.Debugf("%v", deploymentResp)
-	defer deploymentResp.Body.Close()
+	defer deploymentResp.Body.Close() //nolint:errcheck
 
 	return nil
 }
@@ -204,7 +204,7 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -290,7 +290,7 @@ func (a *armWhatIfConfig) GetWhatIfResp(whatIfRespLoc string, bearerToken string
 		if err != nil {
 			return "", err
 		}
-		defer resp.Body.Close()
+		defer resp.Body.Close() //nolint:errcheck
 
 		// read response body
 		body, err := io.ReadAll(resp.Body)

@@ -55,7 +55,7 @@ func NewSPRoleAssignmentManager(subscriptionID string) *SPRoleAssignmentManager 
 // It retries up to 5 times if it encounters an InvalidActionOrNotAction error
 // It returns an error if it fails to create or update the role
 // It returns a list of invalid actions that were removed from the role
-func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) (error, []string) {
+func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) (error, []string) { //nolint:staticcheck
 	retryCount := 5
 	permissionsToAdd := permissions
 	var invalidActions []string

@@ -93,7 +93,7 @@ func updateJSONParamFile(t *testing.T, filePath string, updates map[string]strin
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")

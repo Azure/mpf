@@ -33,7 +33,7 @@ import (
 func GetAddressAndResourceIDFromExistingResourceError(existingResourceErr string) (map[string]string, error) {
 	if existingResourceErr != "" && !strings.Contains(existingResourceErr, TFExistingResourceErrorMsg) {
 		log.Infoln("Non existing resource error :", existingResourceErr)
-		return nil, errors.New("Non existing resource error")
+		return nil, errors.New("non existing resource error")
 	}
 
 	var resMap = make(map[string]string)
@@ -44,7 +44,7 @@ func GetAddressAndResourceIDFromExistingResourceError(existingResourceErr string
 	matches := re.FindAllStringSubmatch(existingResourceErr, -1)
 
 	if len(matches) == 0 {
-		return nil, errors.New("No matches found in 'existingResourceErrorMessage' error message")
+		return nil, errors.New("no matches found in 'existingResourceErrorMessage' error message")
 	}
 
 	for _, match := range matches {
