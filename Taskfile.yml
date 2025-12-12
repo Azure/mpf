@@ -246,7 +246,7 @@ tasks:
       MPF_BICEPEXECPATH:
         sh: |
           {{if eq OS "windows"}}
-            {{.PWSH}} '(Get-Command bicep).Source'
+            {{.PWSH}} '$c = Get-Command bicep -ErrorAction SilentlyContinue; if ($c) { $c.Source } else { Write-Error "Bicep executable not found. Please install Bicep."; exit 1 }'
           {{else}}
             which bicep
           {{end}}
@@ -255,7 +255,7 @@ tasks:
     cmds:
       - task: _testcli:validate
         vars:
-          CMD: "go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json"
+          CMD: "go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --bicepExecPath \"{{.MPF_BICEPEXECPATH}}\""
           EXPECTED: "{{.EXPECTED}}"
           PRE_CMD: ""
 
@@ -266,7 +266,7 @@ tasks:
       MPF_TFPATH:
         sh: |
           {{if eq OS "windows"}}
-            {{.PWSH}} '(Get-Command terraform).Source'
+            {{.PWSH}} '$c = Get-Command terraform -ErrorAction SilentlyContinue; if ($c) { $c.Source } else { Write-Error "Terraform executable not found. Please install Terraform."; exit 1 }'
           {{else}}
             which terraform
           {{end}}
@@ -275,7 +275,7 @@ tasks:
     cmds:
       - task: _testcli:validate
         vars:
-          CMD: "go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars"
+          CMD: "go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars --tfPath \"{{.MPF_TFPATH}}\""
           EXPECTED: "{{.EXPECTED}}"
           PRE_CMD: |
             {{if eq OS "windows"}}
@@ -299,7 +299,7 @@ tasks:
       MPF_BICEPEXECPATH:
         sh: |
           {{if eq OS "windows"}}
-            {{.PWSH}} '(Get-Command bicep).Source'
+            {{.PWSH}} '$c = Get-Command bicep -ErrorAction SilentlyContinue; if ($c) { $c.Source } else { Write-Error "Bicep executable not found. Please install Bicep."; exit 1 }'
           {{else}}
             which bicep
           {{end}}
@@ -315,7 +315,7 @@ tasks:
       MPF_TFPATH:
         sh: |
           {{if eq OS "windows"}}
-            {{.PWSH}} '(Get-Command terraform).Source'
+            {{.PWSH}} '$c = Get-Command terraform -ErrorAction SilentlyContinue; if ($c) { $c.Source } else { Write-Error "Terraform executable not found. Please install Terraform."; exit 1 }'
           {{else}}
             which terraform
           {{end}}
