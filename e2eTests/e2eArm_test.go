@@ -89,7 +89,6 @@ func getMPFConfig(mpfArgs MpfCLIArgs) domain.MPFConfig {
 func getTestingMPFArgs(t *testing.T) (MpfCLIArgs, error) {
 	ensureAzureEnvForE2E(t)
 
-
 	subscriptionID := os.Getenv("MPF_SUBSCRIPTIONID")
 	servicePrincipalClientID := os.Getenv("MPF_SPCLIENTID")
 	servicePrincipalObjectID := os.Getenv("MPF_SPOBJECTID")
