@@ -9,6 +9,8 @@ vars:
   PROJECT_NAME: azmpf
   BUILD_DEV_OUTPUT_DIR: "bin/{{OS}}-{{ARCH}}"
   BUILD_DEV_ARTIFACT: "{{.BUILD_DEV_OUTPUT_DIR}}/{{.PROJECT_NAME}}{{exeExt}}"
+  PWSH: pwsh -NoProfile -NonInteractive -NoLogo -Command
+  PWSH_SCRIPT: pwsh -NoProfile -NonInteractive -NoLogo -ExecutionPolicy Bypass -File
 
 tasks:
   deps:
@@ -126,7 +128,7 @@ tasks:
 
   build:
     desc: Build development binary with GoReleaser
-    deps: [build:clean]
+    deps: [_build:clean]
     cmds:
       - goreleaser build --snapshot --single-target --clean --output {{.BUILD_DEV_ARTIFACT}}
     sources:
@@ -138,6 +140,7 @@ tasks:
 
   build:all:
     desc: Build snapshot binaries with GoReleaser
+    deps: [_build:clean]
     cmds:
       - goreleaser build --snapshot --clean
     sources:
@@ -145,7 +148,7 @@ tasks:
       - go.mod
       - go.sum
 
-  build:clean:
+  _build:clean:
     desc: Cleanup build workspace
     cmds:
       - cmd: |
@@ -154,11 +157,11 @@ tasks:
       - cmd: rm -rf {{.BUILD_DEV_OUTPUT_DIR}}
         platforms: [linux, darwin]
       - defer:
-          task: build:output
+          task: _build:output
     silent: true
     internal: true
 
-  build:output:
+  _build:output:
     desc: Create build output directories
     cmds:
       - cmd: |

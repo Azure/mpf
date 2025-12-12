@@ -46,9 +46,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔀 Get dependencies
         run: task deps
@@ -86,9 +84,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔨 Setup tools
         run: |
@@ -116,18 +112,16 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔀 Get dependencies
         run: task deps:download
 
       - name: 🔨 Setup Build tools
-        run: task build:mpf
+        run: task install:goreleaser
 
-      # - name: 🏗️ Build
-      #   run: task build
+      - name: 🏗️ Build
+        run: task build
 
   test:
     name: 🧪 Run Unit Tests
@@ -151,9 +145,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔀 Download Go dependencies
         run: task deps:download
