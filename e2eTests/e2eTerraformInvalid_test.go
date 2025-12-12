@@ -37,6 +37,7 @@ import (
 )
 
 func TestTerraformACIInvalidVarFile(t *testing.T) {
+	t.Parallel()
 
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
@@ -53,9 +54,14 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars")
+	srcDir := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars")
+	wrkDir := t.TempDir()
+	err = copyDir(t, srcDir, wrkDir)
+	if err != nil {
+		t.Fatal(err)
+	}
 	log.Infof("wrkDir: %s", wrkDir)
-	varsFile := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars/dev.vars.tfvars")
+	varsFile := path.Join(wrkDir, "dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
 	ctx := t.Context()

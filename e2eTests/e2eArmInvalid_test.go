@@ -125,6 +125,7 @@ import (
 // }
 
 func TestARMTemplatDeploymentInvalidParams(t *testing.T) {
+	t.Parallel()
 
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
@@ -167,6 +168,7 @@ func TestARMTemplatDeploymentInvalidParams(t *testing.T) {
 }
 
 func TestARMTemplatDeploymentInvalidTemplate(t *testing.T) {
+	t.Parallel()
 
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
@@ -209,6 +211,7 @@ func TestARMTemplatDeploymentInvalidTemplate(t *testing.T) {
 }
 
 func TestARMTemplatDeploymentBlankTemplateAndParams(t *testing.T) {
+	t.Parallel()
 
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {

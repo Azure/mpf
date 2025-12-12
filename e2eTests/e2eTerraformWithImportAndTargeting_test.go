@@ -37,6 +37,7 @@ import (
 )
 
 func TestTerraformWithImport(t *testing.T) {
+	t.Parallel()
 
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
@@ -55,7 +56,12 @@ func TestTerraformWithImport(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := path.Join(curDir, "../samples/terraform/existing-resource-import")
+	srcDir := path.Join(curDir, "../samples/terraform/existing-resource-import")
+	wrkDir := t.TempDir()
+	err = copyDir(t, srcDir, wrkDir)
+	if err != nil {
+		t.Fatal(err)
+	}
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
@@ -84,6 +90,7 @@ func TestTerraformWithImport(t *testing.T) {
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
+	t.Parallel()
 
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
@@ -102,7 +109,12 @@ func TestTerraformWithTargetting(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := path.Join(curDir, "../samples/terraform/module-test-with-targetting")
+	srcDir := path.Join(curDir, "../samples/terraform/module-test-with-targetting")
+	wrkDir := t.TempDir()
+	err = copyDir(t, srcDir, wrkDir)
+	if err != nil {
+		t.Fatal(err)
+	}
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 

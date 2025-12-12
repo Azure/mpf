@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/Azure/mpf/pkg/domain"
@@ -212,6 +213,7 @@ func getTestingMPFArgs() (MpfCLIArgs, error) {
 // }
 
 func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
+	t.Parallel()
 
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
@@ -224,10 +226,31 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
+	// Copy params to temp dir and update
+	tempDir := t.TempDir()
+	newParamsPath := filepath.Join(tempDir, "params.json")
+	input, err := os.ReadFile(mpfArgs.ParametersFilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.WriteFile(newParamsPath, input, 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	uniqueSuffix := mpfSharedUtils.GenerateRandomString(5)
+	updates := map[string]string{
+		"logAnalyticsWorkspaceName": fmt.Sprintf("law-%s", uniqueSuffix),
+	}
+	err = updateJSONParamFile(t, newParamsPath, updates)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	deploymentName := fmt.Sprintf("%s-%s", mpfArgs.DeploymentNamePfx, mpfSharedUtils.GenerateRandomString(7))
 	armConfig := &ARMTemplateShared.ArmTemplateAdditionalConfig{
 		TemplateFilePath:   mpfArgs.TemplateFilePath,
-		ParametersFilePath: mpfArgs.ParametersFilePath,
+		ParametersFilePath: newParamsPath,
 		DeploymentName:     deploymentName,
 	}
 
