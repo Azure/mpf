@@ -79,27 +79,27 @@ jobs:
           terraform_wrapper: false
           terraform_version: latest
 
-      - name: Install Azure CLI
-        shell: powershell
-        run: |
-          # Download and install Azure CLI for Windows
-          $azCliUrl = "https://aka.ms/installazurecliwindows"
-          $azCliPath = "$env:TEMP\AzureCLI.msi"
+      # - name: Install Azure CLI
+      #   shell: powershell
+      #   run: |
+      #     # Download and install Azure CLI for Windows
+      #     $azCliUrl = "https://aka.ms/installazurecliwindows"
+      #     $azCliPath = "$env:TEMP\AzureCLI.msi"
 
-          # Download Azure CLI MSI
-          Invoke-WebRequest -Uri $azCliUrl -OutFile $azCliPath
+      #     # Download Azure CLI MSI
+      #     Invoke-WebRequest -Uri $azCliUrl -OutFile $azCliPath
 
-          # Install Azure CLI
-          Start-Process msiexec.exe -Wait -ArgumentList "/I $azCliPath /quiet"
+      #     # Install Azure CLI
+      #     Start-Process msiexec.exe -Wait -ArgumentList "/I $azCliPath /quiet"
 
-          # Add Azure CLI to PATH for this session
-          $cliPath = "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
-          $env:PATH += ";$cliPath"
-          echo "$cliPath" | Out-File -FilePath $env:GITHUB_PATH `
-            -Encoding utf8 -Append
+      #     # Add Azure CLI to PATH for this session
+      #     $cliPath = "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+      #     $env:PATH += ";$cliPath"
+      #     echo "$cliPath" | Out-File -FilePath $env:GITHUB_PATH `
+      #       -Encoding utf8 -Append
 
-          # Verify installation
-          az --version
+      #     # Verify installation
+      #     az --version
 
       - name: Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
@@ -155,6 +155,11 @@ jobs:
       - name: 🧪 Run Terraform CLI Tests
         shell: powershell
         run: |
+          # Ensure HOME environment variables are set for Terraform provider installation
+          if (-not $env:USERPROFILE) { $env:USERPROFILE = "C:\Users\runneradmin" }
+          if (-not $env:HOMEDRIVE) { $env:HOMEDRIVE = "C:" }
+          if (-not $env:HOMEPATH) { $env:HOMEPATH = "\Users\runneradmin" }
+
           # Use Get-Command to dynamically find Terraform path
           # (PowerShell best practice)
           $env:MPF_TFPATH = (Get-Command terraform).Source
