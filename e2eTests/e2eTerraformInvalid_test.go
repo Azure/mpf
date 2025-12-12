@@ -85,7 +85,6 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 }
 
 func TestTerraformACIInvalidTfFile(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -101,7 +100,12 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tf-file")
+	srcDir := path.Join(curDir, "../samples/terraform/rg-invalid-tf-file")
+	wrkDir := t.TempDir()
+	err = copyDir(t, srcDir, wrkDir)
+	if err != nil {
+		t.Fatal(err)
+	}
 	log.Infof("wrkDir: %s", wrkDir)
 
 	ctx := t.Context()
@@ -127,7 +131,6 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 }
 
 func TestTerraformACIInvalidTfExec(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -139,7 +142,12 @@ func TestTerraformACIInvalidTfExec(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
+	srcDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
+	wrkDir := t.TempDir()
+	err = copyDir(t, srcDir, wrkDir)
+	if err != nil {
+		t.Fatal(err)
+	}
 	log.Infof("wrkDir: %s", wrkDir)
 
 	ctx := t.Context()
