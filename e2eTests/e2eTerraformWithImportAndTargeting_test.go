@@ -37,8 +37,6 @@ import (
 )
 
 func TestTerraformWithImport(t *testing.T) {
-	t.Parallel()
-
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
 	mpfArgs, err := getTestingMPFArgs()
@@ -90,8 +88,6 @@ func TestTerraformWithImport(t *testing.T) {
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
-	t.Parallel()
-
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
 	mpfArgs, err := getTestingMPFArgs()
