@@ -1,11 +1,14 @@
 # yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
 # Terraform Provider testing workflow.
-name: 🧪 mpf-ci
+name: CI
 
 # This GitHub action runs your tests for each pull request.
 # Optionally, you can turn it on using a schedule for regular testing.
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -16,9 +19,9 @@ on:
   #   - cron: "0 2 * * *"
   workflow_dispatch:
 
-# concurrency:
-#   group: ${{ format('{0}-{1}-{2}-{3}-{4}', github.workflow, github.event_name, github.ref, github.base_ref || null, github.head_ref || null) }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   CLI_VERSION: ${{ github.sha }}
