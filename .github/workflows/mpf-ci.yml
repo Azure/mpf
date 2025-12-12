@@ -26,8 +26,8 @@ env:
 permissions: {}
 
 jobs:
-  lintGo:
-    name: Go lint
+  lint-go:
+    name: Lint Go
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -65,7 +65,7 @@ jobs:
           skip-save-cache: true
           problem-matchers: true
 
-  linkMarkdowns:
+  lint-markdown:
     name: 📃 Lint Markdown
     runs-on: ubuntu-24.04
     timeout-minutes: 10

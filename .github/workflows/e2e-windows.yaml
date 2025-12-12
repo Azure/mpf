@@ -83,7 +83,7 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
         with:
           terraform_wrapper: false
-          terraform_version: 1.10.4
+          terraform_version: latest
 
       - name: Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
@@ -92,32 +92,9 @@ jobs:
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
-      - name: 🧪 Run ARM CLI Tests
-        if: matrix.type == 'arm'
+      - name: 🧪 Run ${{ matrix.type }} CLI Tests
         shell: powershell
-        run: task testcli:arm
-        env:
-          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
-          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-          MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
-          MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
-          MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
-
-      - name: 🧪 Run Bicep CLI Tests
-        if: matrix.type == 'bicep'
-        shell: powershell
-        run: task testcli:bicep
-        env:
-          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
-          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-          MPF_SPCLIENTID: ${{ secrets.MPF_WINDOWS_SPCLIENTID }}
-          MPF_SPCLIENTSECRET: ${{ secrets.MPF_WINDOWS_SPCLIENTSECRET }}
-          MPF_SPOBJECTID: ${{ secrets.MPF_WINDOWS_SPOBJECTID }}
-
-      - name: 🧪 Run Terraform CLI Tests
-        if: matrix.type == 'terraform'
-        shell: powershell
-        run: task testcli:terraform
+        run: task testcli:${{ matrix.type }}
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
           MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
