@@ -19,9 +19,9 @@ concurrency:
 permissions: {}
 
 jobs:
-  testarmbicepe2e:
+  test-e2e-arm-bicep:
     if: github.event_name != 'pull_request'
-    name: 🧪 Run ${{ matrix.type }} e2e Tests
+    name: 🧪 ${{ matrix.type }} E2E Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:

@@ -17,9 +17,9 @@ concurrency:
 permissions: {}
 
 jobs:
-  testterraforme2e:
+  test-e2e-terraform:
     if: github.event_name != 'pull_request'
-    name: 🧪 Run Terraform e2e Tests
+    name: 🧪 Terraform E2E Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
