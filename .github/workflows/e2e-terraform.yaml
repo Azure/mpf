@@ -19,7 +19,7 @@ permissions: {}
 jobs:
   test-e2e-terraform:
     if: github.event_name != 'pull_request'
-    name: 🧪 Terraform E2E Tests
+    name: 🧪 E2E Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:

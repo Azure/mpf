@@ -20,7 +20,7 @@ permissions: {}
 jobs:
   test-e2e-windows:
     if: github.event_name != 'pull_request'
-    name: 🧪 ${{ matrix.type }} E2E Tests (Windows)
+    name: 🧪 E2E Tests
     runs-on: windows-2025
     timeout-minutes: 45
     strategy:
