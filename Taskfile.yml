@@ -219,6 +219,16 @@ tasks:
 
   testcli:bicep:
     desc: Run CLI tests for Bicep
+    vars:
+      MPF_BICEPEXECPATH:
+        sh: |
+          {{if eq OS "windows"}}
+            {{.PWSH}} '(Get-Command bicep).Source'
+          {{else}}
+            which bicep
+          {{end}}
+    env:
+      MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
       - cmd: |
           RESULT_LINE_COUNT=$(go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json | wc -l)
@@ -293,6 +303,15 @@ tasks:
     desc: Run E2E tests for Bicep
     vars:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
+      MPF_BICEPEXECPATH:
+        sh: |
+          {{if eq OS "windows"}}
+            {{.PWSH}} '(Get-Command bicep).Source'
+          {{else}}
+            which bicep
+          {{end}}
+    env:
+      MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
       - go clean -testcache
       - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestBicep

@@ -28,8 +28,6 @@ jobs:
       fail-fast: false
       matrix:
         type: [arm, bicep, terraform]
-    env:
-      MPF_BICEPEXECPATH: /usr/local/bin/bicep
     permissions:
       contents: read
       id-token: write

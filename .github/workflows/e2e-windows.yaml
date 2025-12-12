@@ -27,8 +27,6 @@ jobs:
       fail-fast: false
       matrix:
         type: [arm, bicep, terraform]
-    env:
-      MPF_BICEPEXECPATH: C:\\Program Files\\Azure Bicep CLI\\bicep.exe
     permissions:
       contents: read
       id-token: write
