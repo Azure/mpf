@@ -467,7 +467,15 @@ tasks:
   install:goreleaser:
     desc: Install goreleaser
     cmds:
-      - go install github.com/goreleaser/goreleaser/v2@latest
+      - cmd: |
+          echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | sudo tee /etc/apt/sources.list.d/goreleaser.list
+          sudo apt update
+          sudo apt install goreleaser
+        platforms: [linux]
+      - cmd: brew install goreleaser
+        platforms: [darwin]
+      - cmd: winget install goreleaser.goreleaser
+        platforms: [windows]
 
   install:tfproviderlintx:
     desc: Install tfproviderlintx
