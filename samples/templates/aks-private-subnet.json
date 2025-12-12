@@ -82,7 +82,7 @@
                     {
                         "name": "agentpool",
                         "count": 1,
-                        "vmSize": "Standard_D2s_v3",
+                        "vmSize": "Standard_D2s_v6",
                         "osType": "Linux",
                         "osDiskSizeGB": 30,
                         "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",

@@ -32,7 +32,7 @@ data "azurerm_client_config" "current" {
 
 variable "location" {
   type    = string
-  default = "eastus"
+  default = "eastus2"
 }
 
 resource "azurerm_storage_account" "st" {

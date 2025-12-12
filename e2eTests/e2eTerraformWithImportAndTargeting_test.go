@@ -39,7 +39,7 @@ import (
 func TestTerraformWithImport(t *testing.T) {
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -90,7 +90,7 @@ func TestTerraformWithImport(t *testing.T) {
 func TestTerraformWithTargetting(t *testing.T) {
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
