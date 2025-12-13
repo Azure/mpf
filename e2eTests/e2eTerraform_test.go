@@ -52,12 +52,7 @@ func TestTerraformACI(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	srcDir := path.Join(curDir, "../samples/terraform/aci")
-	wrkDir := t.TempDir()
-	err = copyDir(t, srcDir, wrkDir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wrkDir := path.Join(curDir, "../samples/terraform/aci")
 	log.Infof("wrkDir: %s", wrkDir)
 	varsFile := path.Join(wrkDir, "dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
@@ -105,12 +100,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	srcDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
-	wrkDir := t.TempDir()
-	err = copyDir(t, srcDir, wrkDir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
@@ -155,12 +145,7 @@ func TestTerraformModuleTest(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	srcDir := path.Join(curDir, "../samples/terraform/module-test")
-	wrkDir := t.TempDir()
-	err = copyDir(t, srcDir, wrkDir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wrkDir := path.Join(curDir, "../samples/terraform/module-test")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 

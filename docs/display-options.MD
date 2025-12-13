@@ -42,34 +42,34 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
-INFO[0000] Executing MPF for ARM                        
+```text
+INFO[0000] Executing MPF for ARM
 INFO[0000] TemplateFilePath: .\samples\templates\aks-private-subnet.json
-INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json 
-INFO[0000] Location: eastus2                            
-INFO[0001] Creating Resource Group: testdeployrg-OJ2zCNA  
-INFO[0007] Resource Group: testdeployrg-OJ2zCNA created successfully  
-INFO[0008] Deleted all existing role assignments for service principal  
-INFO[0008] Initializing Custom Role                     
-INFO[0014] Custom role initialized successfully         
-INFO[0014] Assigning new custom role to service principal 
-INFO[0018] New Custom Role assigned to service principal successfully 
-INFO[0023] Iteration Number: 0                          
-INFO[0023] Successfully Parsed Deployment Authorization Error 
-INFO[0023] Adding mising scopes/permissions to final result map... 
-INFO[0023] Adding permission/scope to role...........   
-INFO[0027] Permission/scope added to role successfully  
-INFO[0082] Iteration Number: 1                          
-INFO[0082] Successfully Parsed Deployment Authorization Error 
-INFO[0082] Adding mising scopes/permissions to final result map... 
-INFO[0082] Adding permission/scope to role...........   
-INFO[0085] Permission/scope added to role successfully  
-INFO[0560] Iteration Number: 2                          
-INFO[0560] Authorization Successful                     
-INFO[0560] Cleaning up resources...                     
-INFO[0560] *************************                    
-INFO[0573] Role definition deleted successfully         
-INFO[0577] Resource group deletion initiated successfully... 
+INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json
+INFO[0000] Location: eastus2
+INFO[0001] Creating Resource Group: testdeployrg-OJ2zCNA
+INFO[0007] Resource Group: testdeployrg-OJ2zCNA created successfully
+INFO[0008] Deleted all existing role assignments for service principal
+INFO[0008] Initializing Custom Role
+INFO[0014] Custom role initialized successfully
+INFO[0014] Assigning new custom role to service principal
+INFO[0018] New Custom Role assigned to service principal successfully
+INFO[0023] Iteration Number: 0
+INFO[0023] Successfully Parsed Deployment Authorization Error
+INFO[0023] Adding mising scopes/permissions to final result map...
+INFO[0023] Adding permission/scope to role...........
+INFO[0027] Permission/scope added to role successfully
+INFO[0082] Iteration Number: 1
+INFO[0082] Successfully Parsed Deployment Authorization Error
+INFO[0082] Adding mising scopes/permissions to final result map...
+INFO[0082] Adding permission/scope to role...........
+INFO[0085] Permission/scope added to role successfully
+INFO[0560] Iteration Number: 2
+INFO[0560] Authorization Successful
+INFO[0560] Cleaning up resources...
+INFO[0560] *************************
+INFO[0573] Role definition deleted successfully
+INFO[0577] Resource group deletion initiated successfully...
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,20 +87,20 @@ Microsoft.Resources/deployments/write
 
 Break down of permissions by different resource types:
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet:
 Microsoft.Network/virtualNetworks/read
 Microsoft.Network/virtualNetworks/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet:
 Microsoft.Network/virtualNetworks/subnets/join/action
 Microsoft.Network/virtualNetworks/subnets/read
 Microsoft.Network/virtualNetworks/subnets/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster:
 Microsoft.ContainerService/managedClusters/read
 Microsoft.ContainerService/managedClusters/write
 --------------
@@ -135,33 +135,33 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 Output:
 
 ```
-INFO[0000] Executing MPF for ARM                        
+INFO[0000] Executing MPF for ARM
 INFO[0000] TemplateFilePath: .\samples\templates\aks-private-subnet.json
-INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json 
-INFO[0000] Location: eastus2                            
-INFO[0001] Creating Resource Group: testdeployrg-Uqc4z3E  
-INFO[0007] Resource Group: testdeployrg-Uqc4z3E created successfully  
-INFO[0007] Deleted all existing role assignments for service principal  
-INFO[0007] Initializing Custom Role                     
-INFO[0014] Custom role initialized successfully         
-INFO[0014] Assigning new custom role to service principal 
-INFO[0018] New Custom Role assigned to service principal successfully 
-INFO[0024] Iteration Number: 0                          
-INFO[0024] Successfully Parsed Deployment Authorization Error 
-INFO[0024] Adding mising scopes/permissions to final result map... 
-INFO[0024] Adding permission/scope to role...........   
-INFO[0027] Permission/scope added to role successfully  
-INFO[0145] Iteration Number: 1                          
-INFO[0145] Successfully Parsed Deployment Authorization Error 
-INFO[0145] Adding mising scopes/permissions to final result map... 
-INFO[0145] Adding permission/scope to role...........   
-INFO[0148] Permission/scope added to role successfully  
-INFO[0434] Iteration Number: 2                          
-INFO[0434] Authorization Successful                     
-INFO[0434] Cleaning up resources...                     
-INFO[0434] *************************                    
-INFO[0447] Role definition deleted successfully         
-INFO[0452] Resource group deletion initiated successfully... 
+INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json
+INFO[0000] Location: eastus2
+INFO[0001] Creating Resource Group: testdeployrg-Uqc4z3E
+INFO[0007] Resource Group: testdeployrg-Uqc4z3E created successfully
+INFO[0007] Deleted all existing role assignments for service principal
+INFO[0007] Initializing Custom Role
+INFO[0014] Custom role initialized successfully
+INFO[0014] Assigning new custom role to service principal
+INFO[0018] New Custom Role assigned to service principal successfully
+INFO[0024] Iteration Number: 0
+INFO[0024] Successfully Parsed Deployment Authorization Error
+INFO[0024] Adding mising scopes/permissions to final result map...
+INFO[0024] Adding permission/scope to role...........
+INFO[0027] Permission/scope added to role successfully
+INFO[0145] Iteration Number: 1
+INFO[0145] Successfully Parsed Deployment Authorization Error
+INFO[0145] Adding mising scopes/permissions to final result map...
+INFO[0145] Adding permission/scope to role...........
+INFO[0148] Permission/scope added to role successfully
+INFO[0434] Iteration Number: 2
+INFO[0434] Authorization Successful
+INFO[0434] Cleaning up resources...
+INFO[0434] *************************
+INFO[0447] Role definition deleted successfully
+INFO[0452] Resource group deletion initiated successfully...
 {
   "permissions": [
     "Microsoft.ContainerService/managedClusters/read",
@@ -338,60 +338,60 @@ Microsoft.Storage/storageAccounts/write
 
 Break down of permissions by different resource types:
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/publicIPAddresses/aks-v7crf54zl65ugBastionPublicIp: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/publicIPAddresses/aks-v7crf54zl65ugBastionPublicIp:
 Microsoft.Network/publicIPAddresses/read
 Microsoft.Network/publicIPAddresses/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/networkSecurityGroups/VmSubnetNsg/providers/Microsoft.Insights/diagnosticSettings/default: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/networkSecurityGroups/VmSubnetNsg/providers/Microsoft.Insights/diagnosticSettings/default:
 Microsoft.Insights/diagnosticSettings/read
 Microsoft.Insights/diagnosticSettings/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Insights/activityLogAlerts/AllAzureAdvisorAlert: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Insights/activityLogAlerts/AllAzureAdvisorAlert:
 Microsoft.Insights/activityLogAlerts/read
 Microsoft.Insights/activityLogAlerts/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io/virtualNetworkLinks/link_to_aks-v7crf54zl65ugvnet: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io/virtualNetworkLinks/link_to_aks-v7crf54zl65ugvnet:
 Microsoft.Network/privateDnsZones/virtualNetworkLinks/read
 Microsoft.Network/privateDnsZones/virtualNetworkLinks/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net/virtualNetworkLinks/link_to_aks-v7crf54zl65ugvnet: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net/virtualNetworkLinks/link_to_aks-v7crf54zl65ugvnet:
 Microsoft.Network/privateDnsZones/virtualNetworkLinks/read
 Microsoft.Network/privateDnsZones/virtualNetworkLinks/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew:
 Microsoft.Resources/subscriptions/resourceGroups/read
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.OperationsManagement/solutions/ContainerInsights(mantmplawsp131): 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.OperationsManagement/solutions/ContainerInsights(mantmplawsp131):
 Microsoft.OperationsManagement/solutions/read
 Microsoft.OperationsManagement/solutions/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Authorization/roleAssignments/4ca965ad-af42-5996-80a4-6d589a2cae77: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Authorization/roleAssignments/4ca965ad-af42-5996-80a4-6d589a2cae77:
 Microsoft.Authorization/roleAssignments/read
 Microsoft.Authorization/roleAssignments/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/bastionHosts/aks-v7crf54zl65ugBastion: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Network/bastionHosts/aks-v7crf54zl65ugBastion:
 Microsoft.Network/bastionHosts/read
 Microsoft.Network/bastionHosts/write
 --------------
 
 
-Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Compute/virtualMachines/TestVm: 
+Permissions required for /subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-6Xr5Jew/providers/Microsoft.Compute/virtualMachines/TestVm:
 Microsoft.Compute/virtualMachines/read
 Microsoft.Compute/virtualMachines/write
 

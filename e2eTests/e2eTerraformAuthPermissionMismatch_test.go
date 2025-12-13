@@ -56,12 +56,7 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	srcDir := path.Join(curDir, "../samples/terraform/authorization-permission-mismatch")
-	wrkDir := t.TempDir()
-	err = copyDir(t, srcDir, wrkDir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wrkDir := path.Join(curDir, "../samples/terraform/authorization-permission-mismatch")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 

@@ -27,6 +27,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
@@ -132,30 +133,7 @@ func TestBicepAksFullDeployment(t *testing.T) {
 	bicepFilePath, _ = getAbsolutePath(bicepFilePath)
 	parametersFilePath, _ = getAbsolutePath(parametersFilePath)
 
-	tempDir := t.TempDir()
-	// Copy params file to temp dir
-	newParamsPath := filepath.Join(tempDir, "params.json")
-	// Read original params
-	input, err := os.ReadFile(parametersFilePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = os.WriteFile(newParamsPath, input, 0600)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Update clusterName to be unique
-	uniqueSuffix := mpfSharedUtils.GenerateRandomString(5)
-	updates := map[string]string{
-		"clusterName": fmt.Sprintf("aks-%s", uniqueSuffix),
-	}
-	err = updateJSONParamFile(t, newParamsPath, updates)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	armTemplatePath := filepath.Join(tempDir, "aks-private-subnet.json")
+	armTemplatePath := strings.TrimSuffix(bicepFilePath, ".bicep") + ".json"
 	bicepCmd := exec.Command(bicepExecPath, "build", bicepFilePath, "--outfile", armTemplatePath)
 	bicepCmd.Dir = filepath.Dir(bicepFilePath)
 
@@ -173,7 +151,7 @@ func TestBicepAksFullDeployment(t *testing.T) {
 	deploymentName := fmt.Sprintf("%s-%s", mpfArgs.DeploymentNamePfx, mpfSharedUtils.GenerateRandomString(7))
 	armConfig := &ARMTemplateShared.ArmTemplateAdditionalConfig{
 		TemplateFilePath:   armTemplatePath,
-		ParametersFilePath: newParamsPath,
+		ParametersFilePath: parametersFilePath,
 		DeploymentName:     deploymentName,
 	}
 

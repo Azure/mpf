@@ -26,7 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
+	"sort"
 	"testing"
 
 	"github.com/Azure/mpf/pkg/domain"
@@ -223,31 +223,10 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 
 	mpfConfig := getMPFConfig(mpfArgs)
 
-	// Copy params to temp dir and update
-	tempDir := t.TempDir()
-	newParamsPath := filepath.Join(tempDir, "params.json")
-	input, err := os.ReadFile(mpfArgs.ParametersFilePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = os.WriteFile(newParamsPath, input, 0600)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	uniqueSuffix := mpfSharedUtils.GenerateRandomString(5)
-	updates := map[string]string{
-		"logAnalyticsWorkspaceName": fmt.Sprintf("law-%s", uniqueSuffix),
-	}
-	err = updateJSONParamFile(t, newParamsPath, updates)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	deploymentName := fmt.Sprintf("%s-%s", mpfArgs.DeploymentNamePfx, mpfSharedUtils.GenerateRandomString(7))
 	armConfig := &ARMTemplateShared.ArmTemplateAdditionalConfig{
 		TemplateFilePath:   mpfArgs.TemplateFilePath,
-		ParametersFilePath: newParamsPath,
+		ParametersFilePath: mpfArgs.ParametersFilePath,
 		DeploymentName:     deploymentName,
 	}
 
@@ -268,6 +247,77 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
 	if err != nil {
 		t.Error(err)
+	}
+
+	expectedPermissions := []string{
+		"Microsoft.Authorization/roleAssignments/read",
+		"Microsoft.Authorization/roleAssignments/write",
+		"Microsoft.Compute/virtualMachines/extensions/read",
+		"Microsoft.Compute/virtualMachines/extensions/write",
+		"Microsoft.Compute/virtualMachines/read",
+		"Microsoft.Compute/virtualMachines/write",
+		"Microsoft.ContainerRegistry/registries/read",
+		"Microsoft.ContainerRegistry/registries/write",
+		"Microsoft.ContainerService/managedClusters/read",
+		"Microsoft.ContainerService/managedClusters/write",
+		"Microsoft.Insights/actionGroups/read",
+		"Microsoft.Insights/actionGroups/write",
+		"Microsoft.Insights/activityLogAlerts/read",
+		"Microsoft.Insights/activityLogAlerts/write",
+		"Microsoft.Insights/diagnosticSettings/read",
+		"Microsoft.Insights/diagnosticSettings/write",
+		"Microsoft.KeyVault/vaults/read",
+		"Microsoft.KeyVault/vaults/write",
+		"Microsoft.ManagedIdentity/userAssignedIdentities/read",
+		"Microsoft.ManagedIdentity/userAssignedIdentities/write",
+		"Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/read",
+		"Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/write",
+		"Microsoft.Network/applicationGateways/read",
+		"Microsoft.Network/applicationGateways/write",
+		"Microsoft.Network/bastionHosts/read",
+		"Microsoft.Network/bastionHosts/write",
+		"Microsoft.Network/natGateways/read",
+		"Microsoft.Network/natGateways/write",
+		"Microsoft.Network/networkInterfaces/read",
+		"Microsoft.Network/networkInterfaces/write",
+		"Microsoft.Network/networkSecurityGroups/read",
+		"Microsoft.Network/networkSecurityGroups/write",
+		"Microsoft.Network/privateDnsZones/read",
+		"Microsoft.Network/privateDnsZones/virtualNetworkLinks/read",
+		"Microsoft.Network/privateDnsZones/virtualNetworkLinks/write",
+		"Microsoft.Network/privateDnsZones/write",
+		"Microsoft.Network/privateEndpoints/privateDnsZoneGroups/read",
+		"Microsoft.Network/privateEndpoints/privateDnsZoneGroups/write",
+		"Microsoft.Network/privateEndpoints/read",
+		"Microsoft.Network/privateEndpoints/write",
+		"Microsoft.Network/publicIPAddresses/read",
+		"Microsoft.Network/publicIPAddresses/write",
+		"Microsoft.Network/publicIPPrefixes/read",
+		"Microsoft.Network/publicIPPrefixes/write",
+		"Microsoft.Network/virtualNetworks/read",
+		"Microsoft.Network/virtualNetworks/write",
+		"Microsoft.OperationalInsights/workspaces/listKeys/action",
+		"Microsoft.OperationalInsights/workspaces/read",
+		"Microsoft.OperationalInsights/workspaces/sharedKeys/action",
+		"Microsoft.OperationalInsights/workspaces/write",
+		"Microsoft.OperationsManagement/solutions/read",
+		"Microsoft.OperationsManagement/solutions/write",
+		"Microsoft.Resources/deployments/read",
+		"Microsoft.Resources/deployments/write",
+		"Microsoft.Resources/subscriptions/resourceGroups/read",
+		"Microsoft.Storage/storageAccounts/read",
+		"Microsoft.Storage/storageAccounts/write",
+	}
+
+	actualPermissions := mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]
+	if len(actualPermissions) != len(expectedPermissions) {
+		extra, missing := diffStringSets(actualPermissions, expectedPermissions)
+		if len(extra) > 0 {
+			t.Logf("Extra permissions (%d): %v", len(extra), extra)
+		}
+		if len(missing) > 0 {
+			t.Logf("Missing permissions (%d): %v", len(missing), missing)
+		}
 	}
 
 	//check if mpfResult.RequiredPermissions is not empty and has 57 permissions
@@ -330,6 +380,33 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 	// Microsoft.Storage/storageAccounts/write
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
 	assert.Equal(t, 57, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+}
+
+func diffStringSets(actual []string, expected []string) (extra []string, missing []string) {
+	actualSet := make(map[string]struct{}, len(actual))
+	for _, v := range actual {
+		actualSet[v] = struct{}{}
+	}
+
+	expectedSet := make(map[string]struct{}, len(expected))
+	for _, v := range expected {
+		expectedSet[v] = struct{}{}
+	}
+
+	for v := range actualSet {
+		if _, ok := expectedSet[v]; !ok {
+			extra = append(extra, v)
+		}
+	}
+	for v := range expectedSet {
+		if _, ok := actualSet[v]; !ok {
+			missing = append(missing, v)
+		}
+	}
+
+	sort.Strings(extra)
+	sort.Strings(missing)
+	return extra, missing
 }
 
 // func TestARMTemplatAksPrivateSubnetTemplate(t *testing.T) {

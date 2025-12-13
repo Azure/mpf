@@ -54,12 +54,7 @@ func TestTerraformWithImport(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	srcDir := path.Join(curDir, "../samples/terraform/existing-resource-import")
-	wrkDir := t.TempDir()
-	err = copyDir(t, srcDir, wrkDir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wrkDir := path.Join(curDir, "../samples/terraform/existing-resource-import")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
@@ -105,12 +100,7 @@ func TestTerraformWithTargetting(t *testing.T) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
 	log.Infof("curDir: %s", curDir)
-	srcDir := path.Join(curDir, "../samples/terraform/module-test-with-targetting")
-	wrkDir := t.TempDir()
-	err = copyDir(t, srcDir, wrkDir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	wrkDir := path.Join(curDir, "../samples/terraform/module-test-with-targetting")
 	log.Infof("wrkDir: %s", wrkDir)
 	ctx := t.Context()
 
