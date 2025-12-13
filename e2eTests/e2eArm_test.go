@@ -94,7 +94,7 @@ func getTestingMPFArgs() (MpfCLIArgs, error) {
 	tenantID := os.Getenv("MPF_TENANTID")
 	resourceGroupNamePfx := "e2eTest"
 	deploymentNamePfx := "e2eTest"
-	location := "eastus"
+	location := "eastus2"
 
 	if subscriptionID == "" || servicePrincipalClientID == "" || servicePrincipalObjectID == "" || servicePrincipalClientSecret == "" || tenantID == "" {
 		return MpfCLIArgs{}, errors.New("required environment variables not set")
