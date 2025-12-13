@@ -1,15 +1,15 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "vnetName": {
-            "value": "myVNet"
-        },
-        "subnetName": {
-            "value": "mySubnet"
-        },
-        "clusterName": {
-            "value": "myAKSCluster"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "myVNet"
+    },
+    "subnetName": {
+      "value": "mySubnet"
+    },
+    "clusterName": {
+      "value": "myAKSCluster"
     }
+  }
 }

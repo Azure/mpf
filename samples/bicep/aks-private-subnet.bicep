@@ -1,4 +1,3 @@
-
 param clusterName string
 param vnetName string
 param subnetName string

@@ -1,12 +1,11 @@
- {
-    "clusterName": {
-      "value": "azmpfakstestcluster"
-    },
-    "vnetName": {
-      "value": "azmpfakstestvnet"
-    },
-    "subnetName": {
-      "value": "azmpfakstestsubnet"
-    }
-    
+{
+  "clusterName": {
+    "value": "azmpfakstestcluster"
+  },
+  "vnetName": {
+    "value": "azmpfakstestvnet"
+  },
+  "subnetName": {
+    "value": "azmpfakstestsubnet"
   }
+}
