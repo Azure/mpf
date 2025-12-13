@@ -1,14 +1,11 @@
-
-
-
 resource "random_id" "rg" {
   byte_length = 8
 }
+
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${random_id.rg.hex}"
-  location = "uksouth"
+  location = "eastus2"
 }
-
 
 # create log analytics workspace
 resource "azurerm_log_analytics_workspace" "this" {

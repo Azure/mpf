@@ -37,7 +37,6 @@ import (
 )
 
 func TestTerraformWithImport(t *testing.T) {
-
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
 	mpfArgs, err := getTestingMPFArgs()
@@ -48,7 +47,7 @@ func TestTerraformWithImport(t *testing.T) {
 
 	var tfpath string
 	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 	}
 	tfpath = os.Getenv("MPF_TFPATH")
 
@@ -84,7 +83,6 @@ func TestTerraformWithImport(t *testing.T) {
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
-
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
 	mpfArgs, err := getTestingMPFArgs()
@@ -95,7 +93,7 @@ func TestTerraformWithTargetting(t *testing.T) {
 
 	var tfpath string
 	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 	}
 	tfpath = os.Getenv("MPF_TFPATH")
 

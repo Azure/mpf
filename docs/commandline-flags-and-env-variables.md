@@ -26,7 +26,7 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 | parametersFilePath   | MPF_PARAMETERSFILEPATH   | Required            | ARM template parameters file with path                                                                                                            |
 | resourceGroupNamePfx | MPF_RESOURCEGROUPNAMEPFX | Optional            | Prefix for the resource group name. If not provided, default prefix is testdeployrg. For ARM deployments this temporary resource group is created |
 | deploymentNamePfx    | MPF_DEPLOYMENTNAMEPFX    | Optional            | Prefix for the deployment name. If not provided, default prefix is testDeploy. For ARM deployments this temporary deployment is created           |
-| location             | MPF_LOCATION             | Optional            | Location for the resource group. If not provided, default location is eastus                                                                      |
+| location             | MPF_LOCATION             | Optional            | Location for the resource group. If not provided, default location is eastus2                                                                     |
 
 ### Bicep Flags
 
@@ -37,7 +37,7 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 | bicepExecPath        | MPF_BICEPEXECPATH        | Required            | Path to the Bicep executable                                                                                                                        |
 | resourceGroupNamePfx | MPF_RESOURCEGROUPNAMEPFX | Optional            | Prefix for the resource group name. If not provided, default prefix is testdeployrg. For Bicep deployments this temporary resource group is created |
 | deploymentNamePfx    | MPF_DEPLOYMENTNAMEPFX    | Optional            | Prefix for the deployment name. If not provided, default prefix is testDeploy. For Bicep deployments this temporary deployment is created           |
-| location             | MPF_LOCATION             | Optional            | Location for the resource group. If not provided, default location is eastus                                                                        |
+| location             | MPF_LOCATION             | Optional            | Location for the resource group. If not provided, default location is eastus2                                                                       |
 
 ## Terraform Flags
 

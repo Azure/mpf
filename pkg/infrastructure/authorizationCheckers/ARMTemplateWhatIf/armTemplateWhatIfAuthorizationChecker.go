@@ -122,7 +122,7 @@ func (a *armWhatIfConfig) CreateEmptyDeployment(client *http.Client, deploymentN
 		return err
 	}
 	log.Debugf("%v", deploymentResp)
-	defer deploymentResp.Body.Close()
+	defer deploymentResp.Body.Close() //nolint:errcheck
 
 	return nil
 }
@@ -204,7 +204,7 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -228,14 +228,14 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 	if err != nil {
 		// return "", err
 		log.Warnf("Response Body: %s", string(bodyBytes))
-		return "", fmt.Errorf("Error parsing what if response location: %w", err)
+		return "", fmt.Errorf("error parsing what if response location: %w", err)
 	}
 
 	respBody, err := a.GetWhatIfResp(whatIfRespLoc, bearerToken)
 	if err != nil {
 		log.Infof("Could not fetch what if response: %v \n", err)
 		// return "", err
-		return "", fmt.Errorf("Could not fetch what if response: %w", err)
+		return "", fmt.Errorf("could not fetch what if response: %w", err)
 	}
 
 	log.Debugln(respBody)
@@ -290,7 +290,7 @@ func (a *armWhatIfConfig) GetWhatIfResp(whatIfRespLoc string, bearerToken string
 		if err != nil {
 			return "", err
 		}
-		defer resp.Body.Close()
+		defer resp.Body.Close() //nolint:errcheck
 
 		// read response body
 		body, err := io.ReadAll(resp.Body)
@@ -309,7 +309,7 @@ func (a *armWhatIfConfig) GetWhatIfResp(whatIfRespLoc string, bearerToken string
 		retryCount++
 		if retryCount == maxRetries {
 			log.Warnf("Whatif Results Response Body is empty after %d retries, returning empty response body", maxRetries)
-			return "", fmt.Errorf("Whatif Results Response Body is empty after %d retries", maxRetries)
+			return "", fmt.Errorf("whatif Results Response Body is empty after %d retries", maxRetries)
 		}
 
 		log.Infoln("Whatif Results Response Body is empty, retrying in a bit...")

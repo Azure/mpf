@@ -117,7 +117,6 @@ func checkBicepTestEnvVars() bool {
 // }
 
 func TestBicepAksFullDeployment(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")

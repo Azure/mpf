@@ -28,7 +28,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
@@ -106,7 +105,6 @@ import (
 // }
 
 func TestBicepInvalidResourceFile(t *testing.T) {
-
 	_, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -124,7 +122,8 @@ func TestBicepInvalidResourceFile(t *testing.T) {
 		t.Error(err)
 	}
 
-	armTemplatePath := strings.TrimSuffix(bicepFilePath, ".bicep") + ".json"
+	tempDir := t.TempDir()
+	armTemplatePath := filepath.Join(tempDir, "invalid-bicep.json")
 	bicepCmd := exec.Command(bicepExecPath, "build", bicepFilePath, "--outfile", armTemplatePath)
 	bicepCmd.Dir = filepath.Dir(bicepFilePath)
 
@@ -138,7 +137,6 @@ func TestBicepInvalidResourceFile(t *testing.T) {
 }
 
 func TestBicepInvalidParamsFullDeployment(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -155,7 +153,8 @@ func TestBicepInvalidParamsFullDeployment(t *testing.T) {
 	bicepFilePath, _ = getAbsolutePath(bicepFilePath)
 	parametersFilePath, _ = getAbsolutePath(parametersFilePath)
 
-	armTemplatePath := strings.TrimSuffix(bicepFilePath, ".bicep") + ".json"
+	tempDir := t.TempDir()
+	armTemplatePath := filepath.Join(tempDir, "aks-private-subnet.json")
 	bicepCmd := exec.Command(bicepExecPath, "build", bicepFilePath, "--outfile", armTemplatePath)
 	bicepCmd.Dir = filepath.Dir(bicepFilePath)
 

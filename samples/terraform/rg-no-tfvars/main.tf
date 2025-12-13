@@ -22,7 +22,6 @@ terraform {
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = "true"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -37,6 +36,7 @@ provider "azurerm" {
 resource "random_id" "rg" {
   byte_length = 8
 }
+
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${random_id.rg.hex}"
   location = var.location

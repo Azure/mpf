@@ -1,11 +1,11 @@
- {
-    "dnsPrefixIncorrect": {
-      "value": "manitstdnspfx32"
-    },
-    "sshRSAPublicKeyIncorrect": {
-      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKoYj0DwFvl8R2v7EV2VLOz+t7sPGnPXF5rR/BoTww8TkgVPaHuEd73r8QebLrTZWhpthUMNtLDzd/gv4uN0+N2/O1IAr0CJ5NAhHZHX1EddMGU3SMjcnLh3p8+iLXkre2PDRYF4J1wgsHmUUE8wTyIvzVRze5yAKXE9/6oi13l8sd2lWfAkHP3/c3LTFhertrXRZpG37XDCCHzzmjfVP8syLwFpZeIvRYlQ3IvlOZALyB5rW+FRyC01ZM9RSuZ8FyY8lPDCqkDw8ZoNsZrHodwtOlBRwYOTOO6BfJASZXD7VRv+MnpRUiv18TxNSVAt14nbJTJ4kVi9H8ch/K9Q2h"
-    },
-    "linuxAdminUsernameIncorrect": {
-      "value": "manitestvmadminuser"
-    }
+{
+  "dnsPrefixIncorrect": {
+    "value": "manitstdnspfx32"
+  },
+  "sshRSAPublicKeyIncorrect": {
+    "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKoYj0DwFvl8R2v7EV2VLOz+t7sPGnPXF5rR/BoTww8TkgVPaHuEd73r8QebLrTZWhpthUMNtLDzd/gv4uN0+N2/O1IAr0CJ5NAhHZHX1EddMGU3SMjcnLh3p8+iLXkre2PDRYF4J1wgsHmUUE8wTyIvzVRze5yAKXE9/6oi13l8sd2lWfAkHP3/c3LTFhertrXRZpG37XDCCHzzmjfVP8syLwFpZeIvRYlQ3IvlOZALyB5rW+FRyC01ZM9RSuZ8FyY8lPDCqkDw8ZoNsZrHodwtOlBRwYOTOO6BfJASZXD7VRv+MnpRUiv18TxNSVAt14nbJTJ4kVi9H8ch/K9Q2h"
+  },
+  "linuxAdminUsernameIncorrect": {
+    "value": "manitestvmadminuser"
   }
+}
