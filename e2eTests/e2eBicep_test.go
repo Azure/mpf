@@ -140,7 +140,7 @@ func TestBicepAksFullDeployment(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.WriteFile(newParamsPath, input, 0644)
+	err = os.WriteFile(newParamsPath, input, 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
