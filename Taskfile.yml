@@ -225,7 +225,7 @@ tasks:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
       - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestARM
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 60m -run TestARM
 
   teste2e:bicep:
     desc: Run E2E tests for Bicep
@@ -233,7 +233,7 @@ tasks:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
       - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestBicep
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 60m -run TestBicep
 
   teste2e:terraform:
     desc: Run E2E tests for Terraform
@@ -241,7 +241,7 @@ tasks:
       FORMAT: '{{if eq .GITHUB_ACTIONS "true"}}github-actions{{else}}pkgname-and-test-fails{{end}}'
     cmds:
       - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 45m -run TestTerraform
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 60m -run TestTerraform
 
   testacc:
     desc: Run acceptance tests

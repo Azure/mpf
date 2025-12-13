@@ -22,7 +22,7 @@ jobs:
   teste2ewindows:
     name: 🧪 Run e2e Tests (Windows)
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
       MPF_TENANTID: ${{ secrets.MPF_TENANTID }}

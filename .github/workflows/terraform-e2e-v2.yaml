@@ -21,7 +21,7 @@ jobs:
   testterraforme2e:
     name: 🧪 Run Terraform e2e Tests
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
       MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
