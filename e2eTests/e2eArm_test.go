@@ -309,7 +309,7 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 	// Microsoft.Storage/storageAccounts/read
 	// Microsoft.Storage/storageAccounts/write
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 57, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 69, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 // func TestARMTemplatAksPrivateSubnetTemplate(t *testing.T) {
