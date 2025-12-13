@@ -160,7 +160,12 @@ func (a *armDeploymentConfig) deployARMTemplatev2(deploymentName string, mpfConf
 			// Sample error [{\"code\":\"PodIdentityAddonFeatureFlagNotEnabled\",\"message\":\"Provisioning of resource(s) for container service aks-24xalwx7i2ueg in resource group testdeployrg-Y2jsRAG failed. Message: PodIdentity addon is not allowed since feature 'Microsoft.ContainerService/EnablePodIdentityPreview' is not enabled.
 			// Hence ok to proceed, and not return error in this condition
 			log.Warnf("Post Authorization error occurred: %s", errMesg)
+			return "", nil
 		}
+	}
+
+	if poller == nil {
+		return "", nil
 	}
 
 	_, err = poller.PollUntilDone(ctx, nil)
