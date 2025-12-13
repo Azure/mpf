@@ -77,18 +77,18 @@ jobs:
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
           MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-          MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPCLIENTID || (matrix.os == 'windows-2025' && secrets.MPF_WINDOWS_SPCLIENTID || secrets.MPF_ARM_BICEP_SPCLIENTID) }}
-          MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPCLIENTSECRET || (matrix.os == 'windows-2025' && secrets.MPF_WINDOWS_SPCLIENTSECRET || secrets.MPF_ARM_BICEP_SPCLIENTSECRET) }}
-          MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPOBJECTID || (matrix.os == 'windows-2025' && secrets.MPF_WINDOWS_SPOBJECTID || secrets.MPF_ARM_BICEP_SPOBJECTID) }}
+          MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
 
       - name: 🧪 Run ${{ matrix.type }} CLI Tests
         run: task testcli:${{ matrix.type }}
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
           MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
-          MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPCLIENTID || (matrix.os == 'windows-2025' && secrets.MPF_WINDOWS_SPCLIENTID || secrets.MPF_ARM_BICEP_SPCLIENTID) }}
-          MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPCLIENTSECRET || (matrix.os == 'windows-2025' && secrets.MPF_WINDOWS_SPCLIENTSECRET || secrets.MPF_ARM_BICEP_SPCLIENTSECRET) }}
-          MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_SPOBJECTID || (matrix.os == 'windows-2025' && secrets.MPF_WINDOWS_SPOBJECTID || secrets.MPF_ARM_BICEP_SPOBJECTID) }}
+          MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
 
   check-e2e:
     if: always()
