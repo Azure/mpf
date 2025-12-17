@@ -1,11 +1,14 @@
 # yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 ---
 # Terraform Provider testing workflow.
-name: 🧪 mpf-ci
+name: CI
 
 # This GitHub action runs your tests for each pull request.
 # Optionally, you can turn it on using a schedule for regular testing.
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -16,20 +19,18 @@ on:
   #   - cron: "0 2 * * *"
   workflow_dispatch:
 
-# concurrency:
-#   group: ${{ format('{0}-{1}-{2}-{3}-{4}', github.workflow, github.event_name, github.ref, github.base_ref || null, github.head_ref || null) }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
-# env:
+env:
+  CLI_VERSION: ${{ github.sha }}
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: read
+permissions: {}
 
 jobs:
-  lintGo:
-    name: Go lint
+  lint-go:
+    name: Lint Go
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -38,6 +39,8 @@ jobs:
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -46,9 +49,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔀 Get dependencies
         run: task deps
@@ -67,14 +68,17 @@ jobs:
           skip-save-cache: true
           problem-matchers: true
 
-  linkMarkdowns:
+  lint-markdown:
     name: 📃 Lint Markdown
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -83,9 +87,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔨 Setup tools
         run: |
@@ -97,11 +99,14 @@ jobs:
   build:
     name: 🏗️ Build
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -110,31 +115,31 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔀 Get dependencies
         run: task deps:download
 
       - name: 🔨 Setup Build tools
-        run: task build:mpf
+        run: task install:goreleaser
 
-      # - name: 🏗️ Build
-      #   run: task build
+      - name: 🏗️ Build
+        run: task build
 
   test:
     name: 🧪 Run Unit Tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
       checks: write
     steps:
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
@@ -143,9 +148,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
-        with:
-          repo-token: ${{ github.token }}
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
 
       - name: 🔀 Download Go dependencies
         run: task deps:download
@@ -158,7 +161,7 @@ jobs:
 
       - name: 📤 Upload unit test results
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ format('{0}-test-results', env.CLI_VERSION) }}
           path: testresults.json
@@ -167,7 +170,7 @@ jobs:
 
       - name: 📤 Upload unit test coverage results
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ format('{0}-test-coverage-results', env.CLI_VERSION) }}
           path: |
@@ -200,11 +203,11 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-          thresholds: "30 60"
+          thresholds: 30 60
 
       - name: 📤 Upload unit Coverage summary
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ format('{0}-test-coverage-summary', env.CLI_VERSION) }}
           path: |
