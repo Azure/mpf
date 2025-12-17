@@ -21,7 +21,7 @@ permissions: {}
 jobs:
   e2e-tests:
     if: github.event_name != 'pull_request'
-    name: 🧪 Run E2E Tests
+    name: 🧪 E2E Tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     strategy:
@@ -92,7 +92,7 @@ jobs:
 
   check-e2e-tests:
     if: always()
-    name: 🧪 E2E Tests
+    name: 🧪 Check E2E Tests
     needs: e2e-tests
     runs-on: ubuntu-24.04
     steps:
