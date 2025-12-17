@@ -85,7 +85,7 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
         with:
           terraform_wrapper: false
-          terraform_version: 1.14.2
+          terraform_version: 1.13.5
 
       - name: Install Azure CLI
         shell: powershell
