@@ -61,7 +61,7 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_wrapper: false
-          terraform_version: "1.10.4"
+          terraform_version: 1.14.2
 
       - name: 🔓 Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
@@ -72,12 +72,14 @@ jobs:
 
       - name: 🧪 Run Terraform E2E Tests
         run: |
+          terraform --version
           export MPF_TFPATH=$(which terraform)
           echo "Terraform path: $MPF_TFPATH"
           task teste2e:terraform
 
       - name: 🧪 Run Terraform CLI Tests
         run: |
+          terraform --version
           export MPF_TFPATH=$(which terraform)
           echo "Terraform path: $MPF_TFPATH"
           task testcli:terraform
