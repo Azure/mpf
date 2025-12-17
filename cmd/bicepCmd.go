@@ -53,7 +53,7 @@ func NewBicepCommand() *cobra.Command {
 		Short: "A brief description of your command",
 		Long: `A longer description that spans multiple lines and likely contains examples
 	and usage of using your command. For example:
-	
+
 	Cobra is a CLI library for Go that empowers applications.
 	This application is a tool to generate the needed files
 	to quickly create a Cobra application.`,
@@ -172,7 +172,7 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
 	// Always auto-create resource group since only resource group scoped deployments are supported
-	var autoCreateResourceGroup bool = true
+	var autoCreateResourceGroup = true
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, autoCreateResourceGroup)
 
 	mpfResult, err := mpfService.GetMinimumPermissionsRequired()

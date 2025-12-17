@@ -4,10 +4,10 @@
   // Features to add to the dev container. More info: https://containers.dev/features
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
-      "configureZshAsDefaultShell": true
+      "configureZshAsDefaultShell": false
     },
     "ghcr.io/devcontainers/features/azure-cli:1": {
-      "version": "2.81.0",
+      "version": "2.82.0",
       "installBicep": true
     },
     "ghcr.io/devcontainers/features/terraform:1": {
@@ -16,6 +16,7 @@
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.25.5"
     },
+    "ghcr.io/devcontainers/features/powershell:1": {},
     "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",

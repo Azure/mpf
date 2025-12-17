@@ -37,7 +37,6 @@ import (
 )
 
 func TestTerraformACI(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -46,7 +45,7 @@ func TestTerraformACI(t *testing.T) {
 
 	var tfpath string
 	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 	}
 	tfpath = os.Getenv("MPF_TFPATH")
 
@@ -55,7 +54,7 @@ func TestTerraformACI(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/aci")
 	log.Infof("wrkDir: %s", wrkDir)
-	varsFile := path.Join(curDir, "../samples/terraform/aci/dev.vars.tfvars")
+	varsFile := path.Join(wrkDir, "dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
 	ctx := t.Context()
@@ -86,7 +85,6 @@ func TestTerraformACI(t *testing.T) {
 }
 
 func TestTerraformACINoTfvarsFile(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -95,7 +93,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 
 	var tfpath string
 	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 	}
 	tfpath = os.Getenv("MPF_TFPATH")
 
@@ -132,7 +130,6 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 }
 
 func TestTerraformModuleTest(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -141,7 +138,7 @@ func TestTerraformModuleTest(t *testing.T) {
 
 	var tfpath string
 	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 	}
 	tfpath = os.Getenv("MPF_TFPATH")
 
@@ -191,7 +188,7 @@ func TestTerraformModuleTest(t *testing.T) {
 
 // 	var tfpath string
 // 	if os.Getenv("MPF_TFPATH") == "" {
-// 		t.Skip("Terraform Path TF_PATH not set, skipping end to end test")
+// 		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
 // 	}
 // 	tfpath = os.Getenv("MPF_TFPATH")
 

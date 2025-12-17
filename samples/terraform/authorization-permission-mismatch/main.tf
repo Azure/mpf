@@ -1,14 +1,8 @@
-
-
-
-terraform {
-
-}
+terraform {}
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = "true"
-  storage_use_azuread        = true
+  storage_use_azuread = true
 }
 
 resource "random_id" "rg" {
@@ -16,7 +10,7 @@ resource "random_id" "rg" {
 }
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${random_id.rg.hex}"
-  location = "uksouth"
+  location = "eastus2"
 }
 
 resource "random_string" "rand" {
