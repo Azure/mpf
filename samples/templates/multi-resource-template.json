@@ -627,7 +627,7 @@
       },
       "vmSize": {
         "type": "string",
-        "defaultValue": "Standard_DS3_v2",
+        "defaultValue": "Standard_D2s_v6",
         "metadata": {
           "description": "Specifies the size of the virtual machine."
         }

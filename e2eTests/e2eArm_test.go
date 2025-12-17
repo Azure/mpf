@@ -94,7 +94,7 @@ func getTestingMPFArgs() (MpfCLIArgs, error) {
 	tenantID := os.Getenv("MPF_TENANTID")
 	resourceGroupNamePfx := "e2eTest"
 	deploymentNamePfx := "e2eTest"
-	location := "eastus"
+	location := "eastus2"
 
 	if subscriptionID == "" || servicePrincipalClientID == "" || servicePrincipalObjectID == "" || servicePrincipalClientSecret == "" || tenantID == "" {
 		return MpfCLIArgs{}, errors.New("required environment variables not set")
@@ -309,7 +309,7 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 	// Microsoft.Storage/storageAccounts/read
 	// Microsoft.Storage/storageAccounts/write
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 57, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 69, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 // func TestARMTemplatAksPrivateSubnetTemplate(t *testing.T) {

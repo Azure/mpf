@@ -93,7 +93,8 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	defer s.CleanUpResources()
 
 	// Delete all existing role assignments for the service principal
-	err := s.spRoleAssignmentManager.DetachRolesFromSP(s.ctx, s.mpfConfig.SubscriptionID, s.mpfConfig.SP.SPObjectID, s.mpfConfig.Role)
+	// Pass empty role to delete ALL role assignments (not just the specific custom role)
+	err := s.spRoleAssignmentManager.DetachRolesFromSP(s.ctx, s.mpfConfig.SubscriptionID, s.mpfConfig.SP.SPObjectID, domain.Role{})
 	if err != nil {
 		log.Warnf("Unable to delete Role Assignments: %v\n", err)
 		return s.returnMPFResult(err)

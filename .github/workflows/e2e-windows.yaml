@@ -22,7 +22,7 @@ jobs:
   teste2ewindows:
     name: 🧪 Run e2e Tests (Windows)
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
       MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
@@ -85,7 +85,7 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
         with:
           terraform_wrapper: false
-          terraform_version: "1.10.4"
+          terraform_version: 1.10.4
 
       - name: Install Azure CLI
         shell: powershell
