@@ -357,7 +357,7 @@ main() {
   fi
 
   if [[ -z "${ADD_TO_GITHUB}" ]]; then
-    ADD_TO_GITHUB=true
+    ADD_TO_GITHUB=false
   fi
 
   # Create service principals
