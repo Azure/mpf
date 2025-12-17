@@ -268,7 +268,7 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 
 	log.Infof("Deployment status: %s\n", *getResp.Properties.ProvisioningState)
 
-	if !(*getResp.Properties.ProvisioningState == armresources.ProvisioningStateRunning) {
+	if *getResp.Properties.ProvisioningState != armresources.ProvisioningStateRunning {
 		return nil
 	}
 

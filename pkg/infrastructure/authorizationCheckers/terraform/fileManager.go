@@ -107,7 +107,7 @@ func LoadMPFResultFromFile(workingDir string, filename string) (*domain.MPFResul
 		log.Warnf("error opening file for found permissions from failed run: %s", err)
 		return nil, err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	return loadResultFromJSON(file)
 }
@@ -120,7 +120,7 @@ func SaveMPFResultsToFile(workingDir string, filename string, mpfResult domain.M
 		log.Warnf("error creating file for found permissions from failed run: %s", err)
 		return err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	return saveResultAsJSON(file, mpfResult)
 

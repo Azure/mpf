@@ -34,7 +34,7 @@ func TestReadJson(t *testing.T) {
 	// Create a temporary JSON file for testing
 	tempFile, err := os.CreateTemp("", "test.json")
 	assert.Nil(t, err)
-	defer os.Remove(tempFile.Name())
+	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
 	// Define a sample JSON content
 	jsonContent := `{"name": "John Doe", "age": 30}`

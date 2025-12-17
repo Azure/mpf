@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -124,13 +125,7 @@ func mergePermissionMaps(dest, src map[string][]string) {
 
 		// Add permissions, avoiding duplicates
 		for _, permission := range permissions {
-			found := false
-			for _, existing := range dest[scope] {
-				if existing == permission {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(dest[scope], permission)
 			if !found {
 				dest[scope] = append(dest[scope], permission)
 			}
