@@ -30,7 +30,7 @@ permissions: {}
 
 jobs:
   lint-go:
-    name: Lint Go
+    name: 🧹 Lint Go
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -69,7 +69,7 @@ jobs:
           problem-matchers: true
 
   lint-markdown:
-    name: 📃 Lint Markdown
+    name: 🧹 Lint Markdown
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -127,7 +127,7 @@ jobs:
         run: task build
 
   test:
-    name: 🧪 Run Unit Tests
+    name: 🧪 Unit Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
