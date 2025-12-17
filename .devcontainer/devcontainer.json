@@ -7,14 +7,14 @@
       "configureZshAsDefaultShell": true
     },
     "ghcr.io/devcontainers/features/azure-cli:1": {
-      "version": "2.77.0",
+      "version": "2.81.0",
       "installBicep": true
     },
     "ghcr.io/devcontainers/features/terraform:1": {
-      "version": "1.13.3"
+      "version": "1.14.2"
     },
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.25.2"
+      "version": "1.25.5"
     },
     "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
   },
