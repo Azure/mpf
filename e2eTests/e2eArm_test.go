@@ -86,7 +86,6 @@ func getMPFConfig(mpfArgs MpfCLIArgs) domain.MPFConfig {
 }
 
 func getTestingMPFArgs() (MpfCLIArgs, error) {
-
 	subscriptionID := os.Getenv("MPF_SUBSCRIPTIONID")
 	servicePrincipalClientID := os.Getenv("MPF_SPCLIENTID")
 	servicePrincipalObjectID := os.Getenv("MPF_SPOBJECTID")
@@ -212,7 +211,6 @@ func getTestingMPFArgs() (MpfCLIArgs, error) {
 // }
 
 func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")

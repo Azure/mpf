@@ -3,7 +3,7 @@
 ---
 name: Feature Request
 description: Make a feature request
-labels: ["enhancement"]
+labels: [enhancement]
 body:
   - id: description
     type: textarea

@@ -1,4 +1,3 @@
-
 param clusterName string
 param vnetName string
 param subnetName string
@@ -42,7 +41,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2023-05-01' = {
       {
         name: 'agentpool'
         count: 1
-        vmSize: 'Standard_D2s_v3'
+        vmSize: 'Standard_D2s_v6'
         osType: 'Linux'
         osDiskSizeGB: 30
         vnetSubnetID: subnet.id

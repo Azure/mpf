@@ -125,7 +125,6 @@ import (
 // }
 
 func TestARMTemplatDeploymentInvalidParams(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -167,7 +166,6 @@ func TestARMTemplatDeploymentInvalidParams(t *testing.T) {
 }
 
 func TestARMTemplatDeploymentInvalidTemplate(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -209,7 +207,6 @@ func TestARMTemplatDeploymentInvalidTemplate(t *testing.T) {
 }
 
 func TestARMTemplatDeploymentBlankTemplateAndParams(t *testing.T) {
-
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")

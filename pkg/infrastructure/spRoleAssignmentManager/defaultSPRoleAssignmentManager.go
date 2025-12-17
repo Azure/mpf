@@ -55,12 +55,12 @@ func NewSPRoleAssignmentManager(subscriptionID string) *SPRoleAssignmentManager 
 // It retries up to 5 times if it encounters an InvalidActionOrNotAction error
 // It returns an error if it fails to create or update the role
 // It returns a list of invalid actions that were removed from the role
-func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) (error, []string) {
+func (r *SPRoleAssignmentManager) CreateUpdateCustomRole(subscription string, role domain.Role, permissions []string) (error, []string) { //nolint:staticcheck
 	retryCount := 5
 	permissionsToAdd := permissions
 	var invalidActions []string
 
-	for i := 0; i < retryCount; i++ {
+	for i := range retryCount {
 		log.Debugf("Creating/Updating Role Definition: %s, Retry: %d", role.RoleDefinitionName, i+1)
 		err := r.createUpdateCustomRole(subscription, role, permissionsToAdd)
 		if err != nil && strings.Contains(err.Error(), "InvalidActionOrNotAction") {
@@ -91,7 +91,7 @@ func (r *SPRoleAssignmentManager) createUpdateCustomRole(subscription string, ro
 	// rgScope := fmt.Sprintf("/subscriptions/%s/resourceGroups/%s", subscription, resourceGroupName)
 	subScope := fmt.Sprintf("/subscriptions/%s", subscription)
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"assignableScopes": []string{
 			// rgScope,
 			subScope,
@@ -99,7 +99,7 @@ func (r *SPRoleAssignmentManager) createUpdateCustomRole(subscription string, ro
 		"description": role.RoleDefinitionName,
 		"id":          role.RoleDefinitionResourceID,
 		"name":        role.RoleDefinitionID,
-		"permissions": []map[string]interface{}{
+		"permissions": []map[string]any{
 			{
 				"actions":        permissions,
 				"dataActions":    []string{},
@@ -112,7 +112,7 @@ func (r *SPRoleAssignmentManager) createUpdateCustomRole(subscription string, ro
 		// "type":     "Microsoft.Authorization/roleDefinitions",
 	}
 
-	properties := map[string]interface{}{
+	properties := map[string]any{
 		"properties": data,
 	}
 	// marshal data as json
@@ -174,13 +174,13 @@ func (r *SPRoleAssignmentManager) AssignRoleToSP(subscription string, SPOBjectID
 	scope := fmt.Sprintf("/subscriptions/%s", subscription)
 	url := fmt.Sprintf("https://management.azure.com/%s/providers/Microsoft.Authorization/roleAssignments/%s?api-version=2022-04-01", scope, uuid.New().String())
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"principalId":      SPOBjectID,
 		"principalType":    "ServicePrincipal",
 		"roleDefinitionId": role.RoleDefinitionResourceID,
 	}
 
-	properties := map[string]interface{}{
+	properties := map[string]any{
 		"properties": data,
 	}
 

@@ -84,7 +84,10 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		log.Infof("Creating Resource Group: %s \n", s.mpfConfig.ResourceGroup.ResourceGroupName)
 		err := s.rgManager.CreateResourceGroup(s.ctx, s.mpfConfig.ResourceGroup.ResourceGroupName, s.mpfConfig.ResourceGroup.Location)
 		if err != nil {
-			log.Fatal(err)
+			// Avoid terminating the entire process (log.Fatal calls os.Exit).
+			// Bubble the error up so callers/tests can handle it.
+			log.Warnf("failed to create resource group %q: %v", s.mpfConfig.ResourceGroup.ResourceGroupName, err)
+			return s.returnMPFResult(err)
 		}
 		log.Infof("Resource Group: %s created successfully \n", s.mpfConfig.ResourceGroup.ResourceGroupName)
 		// defer s.deploymentAuthCheckerCleaner.CleanDeployment(s.mpfConfig)
