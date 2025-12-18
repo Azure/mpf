@@ -1,0 +1,199 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  GITHUB_VERSION:
+    map:
+      actionlint: latest
+      act: latest
+      pinact: latest
+      ghalint: latest
+      gh: latest
+
+tasks:
+  # * Install Actionlint
+  install:actionlint:
+    desc: Install Actionlint
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: rhysd.actionlint
+          VERSION: "{{.GITHUB_VERSION.actionlint}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: actionlint@{{.GITHUB_VERSION.actionlint}}
+      - cmd: |
+          ./scripts/install_actionlint.sh "{{.GITHUB_VERSION.actionlint}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install ACT
+  install:act:
+    desc: Install ACT
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: nektos.act
+          VERSION: "{{.GITHUB_VERSION.act}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: act@{{.GITHUB_VERSION.act}}
+      - cmd: |
+          ./scripts/install_act.sh "{{.GITHUB_VERSION.act}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install PinAct
+  install:pinact:
+    desc: Install PinAct
+    summary: Install a pinned version of Act
+    cmds:
+      - cmd: |
+          {{.PWSH_SCRIPT}} ./scripts/install_pinact.ps1 "{{.GITHUB_VERSION.pinact}}"
+        platforms: [windows]
+      - task: :internal:_install:brew
+        vars:
+          APP: pinact@{{.GITHUB_VERSION.pinact}}
+      - cmd: |
+          ./scripts/install_pinact.sh "{{.GITHUB_VERSION.pinact}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install GHAlint
+  install:ghalint:
+    desc: Install GHAlint
+    cmds:
+      - cmd: |
+          {{.PWSH_SCRIPT}} ./scripts/install_ghalint.ps1 "{{.GITHUB_VERSION.ghalint}}"
+        platforms: [windows]
+      - task: :internal:_install:brew
+        vars:
+          APP: ghalint@{{.GITHUB_VERSION.ghalint}}
+      - cmd: |
+          ./scripts/install_ghalint.sh "{{.GITHUB_VERSION.ghalint}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install GitHub CLI
+  install:gh:
+    desc: Install GitHub CLI
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: GitHub.cli
+          VERSION: "{{.GITHUB_VERSION.gh}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: gh@{{.GITHUB_VERSION.gh}}
+      - cmd: |
+          sudo ./scripts/install_gh.sh "{{.GITHUB_VERSION.gh}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Tools
+  tools:
+    desc: Install GitHub tools
+    vars:
+      ITEMS:
+        - act
+        - gh
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+      - task: tools:lint
+
+  # * Tools (lint)
+  tools:lint:
+    desc: Install GitHub tools (lint)
+    vars:
+      ITEMS:
+        - actionlint
+        - pinact
+        - ghalint
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
+  # * PinAct Runner
+  _run:pinact:
+    internal: true
+    desc: Run PinAct
+    preconditions:
+      - sh: task -g internal:command -- pinact
+        msg: "❌ Error: pinact is not installed. Please run 'task -g gh:install:pinact'"
+      - sh: task -g internal:command:version -- "pinact version" "{{.GITHUB_VERSION.pinact}}"
+        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.pinact}} version. Please run 'task -g gh:install:pinact'"
+    sources:
+      - .github/workflows/*.yml
+      - .github/workflows/*.yaml
+      - "**/action.yml"
+      - "**/action.yaml"
+    vars:
+      # yamllint disable-line rule:quoted-strings
+      MODE: '{{default "--check --diff" .MODE}}'
+    cmds:
+      - defer: |
+          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ GitHub Workflows/Actions files are not formatted correctly. Please run 'task -g gh:run:pinact:fix' to fix formatting issues."{{end}}
+      - pinact run {{.MODE}}
+    dir: "{{.USER_WORKING_DIR}}"
+
+  # * Run PinAct Check
+  run:pinact:check:
+    desc: Run PinAct Check
+    cmds:
+      - task: _run:pinact
+        vars: { MODE: --check --diff }
+
+  # * Run PinAct Fix
+  run:pinact:fix:
+    desc: Run PinAct fix
+    cmds:
+      - task: _run:pinact
+        vars: { MODE: --fix --diff }
+
+  # * Run Actionlint
+  run:actionlint:
+    desc: Run Actionlint
+    preconditions:
+      - sh: task -g internal:command -- actionlint
+        msg: "❌ Error: actionlint is not installed. Please run 'task -g gh:install:actionlint'"
+      - sh: task -g internal:command:version -- "actionlint --version" "{{.GITHUB_VERSION.actionlint}}"
+        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.actionlint}} version. Please run 'task -g gh:install:actionlint'"
+    sources:
+      - .github/workflows/*.yml
+      - .github/workflows/*.yaml
+      - "**/action.yml"
+      - "**/action.yaml"
+    cmds:
+      - actionlint -config-file ~/.linters/actionlint.yaml
+    dir: "{{.USER_WORKING_DIR}}"
+
+  # * Run GHALint
+  run:ghalint:
+    desc: Run GHALint
+    preconditions:
+      - sh: task -g internal:command -- ghalint
+        msg: "❌ Error: ghalint is not installed. Please run 'task -g gh:install:ghalint'"
+      - sh: task -g internal:command:version -- "ghalint --version" "{{.GITHUB_VERSION.ghalint}}"
+        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.ghalint}} version. Please run 'task -g gh:install:ghalint'"
+    sources:
+      - .github/workflows/*.yml
+      - .github/workflows/*.yaml
+      - "**/action.yml"
+      - "**/action.yaml"
+    env:
+      GHALINT_LOG_COLOR: always
+    cmds:
+      - ghalint run
+      - ghalint run-action
+    dir: "{{.USER_WORKING_DIR}}"
+
+  # * Lint
+  lint:
+    desc: Lint YAML files
+    cmds:
+      - task: run:ghalint
+      - task: run:actionlint
+      - task: run:pinact:fix

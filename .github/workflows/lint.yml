@@ -28,6 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         task:
+          - gh
           - go
           - md
           - yml

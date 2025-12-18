@@ -17,6 +17,7 @@ includes:
   internal: .taskfiles/_internal.Taskfile.yml
   runtime: .taskfiles/runtime.Taskfile.yml
   az: .taskfiles/azure.Taskfile.yml
+  gh: .taskfiles/github.Taskfile.yml
   go: .taskfiles/golang.Taskfile.yml
   md: .taskfiles/markdown.Taskfile.yml
   yml: .taskfiles/yaml.Taskfile.yml
@@ -44,6 +45,7 @@ tasks:
     vars:
       ITEMS:
         - az
+        - gh
         - go
         - md
         - yml
@@ -55,6 +57,7 @@ tasks:
     desc: Lint files
     vars:
       ITEMS:
+        - gh
         - go
         - md
         - yml
