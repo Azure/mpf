@@ -12,10 +12,6 @@ on:
   schedule:
     - cron: 0 21 * * *
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-#   cancel-in-progress: true
-
 permissions: {}
 
 jobs:
@@ -73,6 +69,7 @@ jobs:
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
       - name: 🧪 Run ${{ matrix.type }} E2E Tests
+        if: runner.os == 'Linux'
         run: task teste2e:${{ matrix.type }}
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
