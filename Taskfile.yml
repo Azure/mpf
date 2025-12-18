@@ -595,3 +595,14 @@ tasks:
         platforms: [linux]
       - cmd: brew install lychee
         platforms: [darwin]
+
+  tf:clean:
+    desc: Clean up Terraform files
+    cmds:
+      - cmd: |
+          find ./ -type d \( -name ".external_modules" -o -name ".terraform" \) -exec rm -rf {} + 2>/dev/null; find ./ -type f \( -name "*.terraform.lock.*" -o -name "*.tfstate*" -o -name "terraform.log" \) -delete 2>/dev/null; true
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} 'Get-ChildItem -Path ./ -Include ".external_modules",".terraform" -Directory -Recurse -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; Get-ChildItem -Path ./ -Include "*.terraform.lock.*","*.tfstate*","terraform.log" -File -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force'
+        platforms: [windows]
+    dir: "{{.ROOT_DIR}}"
