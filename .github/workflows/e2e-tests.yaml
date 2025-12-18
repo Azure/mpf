@@ -57,6 +57,10 @@ jobs:
         if: matrix.type == 'terraform'
         run: task tf:install:terraform
 
+      - name: 🌌 Ensure bin path
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+
       - name: 🔐 Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
