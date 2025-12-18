@@ -1,0 +1,5 @@
+  **/.terraform/**
+  **/.venv/**
+  **/venv/**
+  **/.git/**
+  **/node_modules/**

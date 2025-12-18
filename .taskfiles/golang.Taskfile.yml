@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  GO_VERSION:
+    map:
+      dlv: latest
+      deadcode: latest
+      golangciLint: latest
+      gotestsum: latest
+      govulncheck: latest
+      goimports: latest
+      gofumpt: latest
+      goTestCoverage: latest
+      gocoverCobertura: latest
+      goreleaser: latest
+
+tasks:
+  # * Install GoReleaser
+  install:goreleaser:
+    desc: Install GoReleaser
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: goreleaser.goreleaser
+          VERSION: "{{.GO_VERSION.goreleaser}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: goreleaser@{{.GO_VERSION.goreleaser}}
+      - cmd: |
+          # TODO
+          # ./scripts/install_goreleaser.sh "{{.GO_VERSION.goreleaser}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install Dlv
+  install:dlv:
+    desc: Install Dlv
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: github.com/go-delve/delve/cmd/dlv@{{.GO_VERSION.dlv}}
+
+  # * Install DeadCode
+  install:deadcode:
+    desc: Install DeadCode
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: golang.org/x/tools/cmd/deadcode@{{.GO_VERSION.deadcode}}
+
+  # * Install GolangCI-Lint
+  install:golangci-lint:
+    desc: Install GolangCI-Lint
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: GolangCI.golangci-lint
+          VERSION: "{{.GO_VERSION.golangciLint}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: golangci-lint@{{.GO_VERSION.golangciLint}}
+      - cmd: |
+          ./scripts/install_golangci-lint.sh "{{.GO_VERSION.golangciLint}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install GoTestSum
+  install:gotestsum:
+    desc: Install GoTestSum
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: gotest.tools/gotestsum@{{.GO_VERSION.gotestsum}}
+
+  # * Install GoVulnCheck
+  install:govulncheck:
+    desc: Install GoVulnCheck
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: golang.org/x/vuln/cmd/govulncheck@{{.GO_VERSION.govulncheck}}
+
+  # * Install GoImports
+  install:goimports:
+    desc: Install GoImports
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: golang.org/x/tools/cmd/goimports@{{.GO_VERSION.goimports}}
+
+  # * Install GoFumpt
+  install:gofumpt:
+    desc: Install GoFumpt
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: mvdan.cc/gofumpt@{{.GO_VERSION.gofumpt}}
+
+  # * Install Go Test Coverage
+  install:go-test-coverage:
+    desc: Install Go Test Coverage
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: github.com/vladopajic/go-test-coverage/v2@{{.GO_VERSION.goTestCoverage}}
+
+  # * Install GoCover-Cobertura
+  install:gocover-cobertura:
+    desc: Install GoCover-Cobertura
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: github.com/boumenot/gocover-cobertura@{{.GO_VERSION.gocoverCobertura}}
+
+  # * Tools
+  tools:
+    desc: Install Go tools
+    vars:
+      ITEMS:
+        - dlv
+        - deadcode
+        - golangci-lint
+        - gotestsum
+        - govulncheck
+        - goimports
+        - gofumpt
+        - go-test-coverage
+        - gocover-cobertura
+        - goreleaser
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
+  # * Run GoVulnCheck
+  run:govulncheck:
+    desc: Run govulncheck
+    preconditions:
+      - sh: task -g internal:command -- govulncheck
+        msg: "❌ Error: govulncheck is not installed. Please run 'task -g go:install:govulncheck'"
+      - sh: task -g internal:command:version -- "govulncheck --version" "{{.GO_VERSION.govulncheck}}"
+        msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.govulncheck}} version. Please run 'task -g go:install:govulncheck'"
+    cmds:
+      - govulncheck -test -show verbose ./...
+
+  # * Run GolangCI-Lint
+  run:golangci-lint:
+    desc: Run GolangCI-Lint
+    preconditions:
+      - sh: task -g internal:command -- golangci-lint
+        msg: "❌ Error: golangci-lint is not installed. Please run 'task -g go:install:golangci-lint'"
+      - sh: task -g internal:command:version -- "golangci-lint --version" "{{.GO_VERSION.golangciLint}}"
+        msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.golangciLint}} version. Please run 'task -g go:install:golangci-lint'"
+    sources:
+      - "**/*.go"
+      - "**/*.mod"
+      - "**/*.sum"
+      - "**/go.work"
+    cmds:
+      - golangci-lint run --fix
+    dir: "{{.USER_WORKING_DIR}}"
+
+  # * Lint
+  lint:
+    desc: Lint Go files
+    cmds:
+      - task: run:golangci-lint
+      - task: run:govulncheck

@@ -7,3 +7,5 @@ ignores:
   - .git
   - "**/node_modules/**"
   - .copilot-tracking/**
+  - venv/**
+  - .venv/**

@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
+---
+name: 🧹 Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+permissions: {}
+
+jobs:
+  lint:
+    name: 🧹 Lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - go
+          - md
+          - yml
+    steps:
+      - name: 🩺 Debug
+        uses: raven-actions/debug@9dbdeb7eea607a7d73411895c65987e71d59a466 # v1.2.0
+
+      - name: ⤵️ Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: 🚧 Setup Node
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version-file: .node-version
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: 🚧 Setup Task
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
+        with:
+          repo-token: ${{ github.token }}
+
+      - name: 🚧 Setup runtime (UV)
+        run: task runtime:setup:uv
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: 🔨 Setup tools
+        run: task ${{ matrix.task }}:tools
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: ✔️ Run lint (${{ matrix.task }})
+        run: task ${{ matrix.task }}:lint
+
+      - name: 🔀 Check for differences
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        run: task diff -- "${{ matrix.task }}:lint:fix"
+
+  check-lint:
+    if: always()
+    name: 🧹 Check Lint
+    needs: lint
+    runs-on: ubuntu-24.04
+    steps:
+      - name: ✅ OK
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: exit 0
+      - name: 🛑 Failure
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1

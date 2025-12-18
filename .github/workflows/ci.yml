@@ -14,7 +14,9 @@ on:
       - main
     types:
       - opened
+      - reopened
       - synchronize
+      - ready_for_review
   merge_group:
   # schedule:
   #   - cron: "0 2 * * *"
@@ -30,73 +32,6 @@ env:
 permissions: {}
 
 jobs:
-  lint-go:
-    name: 🧹 Lint Go
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pull-requests: read
-    steps:
-      - name: ⤵️ Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: 🚧 Setup Go
-        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: 🚧 Setup Task
-        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
-
-      - name: 🔀 Get dependencies
-        run: task deps
-
-      - name: ✔️ Run GoVulnCheck
-        run: |
-          task install:govulncheck
-          task govulncheck || (echo "::warning::govulncheck found issues" && exit 0)
-
-      - name: ✔️ Run Go linters
-        uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
-        with:
-          version: latest
-          only-new-issues: true
-          skip-cache: true
-          skip-save-cache: true
-          problem-matchers: true
-
-  lint-markdown:
-    name: 🧹 Lint Markdown
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: ⤵️ Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: 🚧 Setup Go
-        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: 🚧 Setup Task
-        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
-
-      - name: 🔨 Setup tools
-        run: |
-          task install:markdownlint
-
-      - name: ✔️ Run Files linters
-        run: task lint:md
-
   build:
     name: 🏗️ Build
     runs-on: ubuntu-24.04
