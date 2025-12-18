@@ -121,7 +121,7 @@ downloadUrl="$(jq -r --arg arch "${arch}" \
 
 log "Downloading ${downloadUrl}"
 archivePath="${tempDir}/${TOOL_NAME}.tar.xz"
-curl -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
+curl "${ghAuthHeader[@]}" -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
 
 # Extract binary
 log "Extracting archive"

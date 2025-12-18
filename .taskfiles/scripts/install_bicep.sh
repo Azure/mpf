@@ -125,7 +125,7 @@ downloadUrl="$(jq -r --arg arch "${arch}" \
 
 log "Downloading ${downloadUrl}"
 binaryPath="${tempDir}/${TOOL_NAME}"
-curl -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${binaryPath}" || die "Download failed"
+curl "${ghAuthHeader[@]}" -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${binaryPath}" || die "Download failed"
 
 # Install binary
 log "Installing binary"
