@@ -61,4 +61,3 @@ echo "${defs_json}" | jq -c '.[]' | while read -r def; do
   echo "Done ${role_display}"
   echo
 done
-
