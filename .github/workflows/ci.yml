@@ -90,7 +90,7 @@ jobs:
         run: task deps:download
 
       - name: 🔨 Setup Test tools
-        run: task test:tools
+        run: task go:tools:test
 
       - name: 🧪 Run Tests
         run: task testunit
