@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
+---
+name: 🧪 E2E Tests
+
+# This GitHub action runs your tests before merging a pull request via merge groups
+# Merge Group Discussions: https://github.com/orgs/community/discussions/51120
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+  schedule:
+    - cron: 0 21 * * *
+
+permissions: {}
+
+jobs:
+  e2e-tests:
+    if: github.event_name != 'pull_request'
+    name: 🧪 E2E Tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+        type: [arm, bicep, terraform]
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 🚧 Setup Task
+        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
+
+      - name: 🔀 Download Go dependencies
+        run: task deps:download
+
+      - name: 🔨 Setup Test tools
+        run: task test:tools
+
+      - name: 📦 Install Bicep
+        if: matrix.type == 'bicep'
+        run: task install:bicep
+
+      - name: 🚧 Setup Terraform
+        if: matrix.type == 'terraform'
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_wrapper: false
+          terraform_version: 1.10.4
+
+      - name: 🔐 Azure Login
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        with:
+          client-id: ${{ secrets.AZURE_OID_CLIENT_ID }}
+          tenant-id: ${{ secrets.MPF_TENANTID }}
+          subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
+
+      - name: 🧪 Run ${{ matrix.type }} E2E Tests
+        if: runner.os == 'Linux'
+        run: task teste2e:${{ matrix.type }}
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+
+      - name: 🧪 Run ${{ matrix.type }} CLI Tests
+        run: task testcli:${{ matrix.type }}
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+
+  check-e2e-tests:
+    if: always()
+    name: 🧪 Check E2E Tests
+    needs: e2e-tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: ✅ OK
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: exit 0
+      - name: 🛑 Failure
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1

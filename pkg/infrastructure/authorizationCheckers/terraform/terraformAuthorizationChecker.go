@@ -165,6 +165,13 @@ func (a *terraformDeploymentConfig) setTFConfig(mpfConfig domain.MPFConfig) (*tf
 		"PATH":                pathEnvVal,
 	}
 
+	// Pass through temp directory env vars to avoid Terraform using system directories
+	for _, k := range []string{"TMP", "TEMP", "TMPDIR", "USERPROFILE", "HOME", "HOMEDRIVE", "HOMEPATH"} {
+		if v := os.Getenv(k); v != "" {
+			envVars[k] = v
+		}
+	}
+
 	if tfReattachProviders != "" {
 		envVars["TF_REATTACH_PROVIDERS"] = tfReattachProviders
 	}
