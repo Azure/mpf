@@ -42,10 +42,10 @@ tasks:
     internal: true
     desc: Run markdownlint-cli2
     preconditions:
-      - sh: task -g internal:command -- markdownlint-cli2
-        msg: "❌ Error: markdownlint-cli2 is not installed. Please run 'task -g md:install:markdownlint-cli2'"
-      - sh: task -g internal:command:version -- "markdownlint-cli2 --help" "{{.MARKDOWN_VERSION.markdownlintCli2}}"
-        msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownlintCli2}} version. Please run 'task -g md:install:markdownlint-cli2'"
+      - sh: task internal:command -- markdownlint-cli2
+        msg: "❌ Error: markdownlint-cli2 is not installed. Please run 'task md:install:markdownlint-cli2'"
+      - sh: task internal:command:version -- "markdownlint-cli2 --help" "{{.MARKDOWN_VERSION.markdownlintCli2}}"
+        msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownlintCli2}} version. Please run 'task md:install:markdownlint-cli2'"
     sources:
       - "**/*.md"
     vars:
@@ -53,7 +53,7 @@ tasks:
       MODE: '{{default "" .MODE}}'
     cmds:
       - defer: |
-          {{if and .EXIT_CODE (eq .MODE "")}}echo "⚠️ Markdown files are not formatted correctly. Please run 'task -g md:run:markdownlint-cli2:fix' to fix formatting issues."{{end}}
+          {{if and .EXIT_CODE (eq .MODE "")}}echo "⚠️ Markdown files are not formatted correctly. Please run 'task md:run:markdownlint-cli2:fix' to fix formatting issues."{{end}}
       - markdownlint-cli2 "./**/*.md" --config ".github/linters/.markdownlint-cli2.yaml" {{.MODE}}
     dir: "{{.USER_WORKING_DIR}}"
 
@@ -76,10 +76,10 @@ tasks:
     internal: true
     desc: Run markdown-table-formatter
     preconditions:
-      - sh: task -g internal:command -- markdown-table-formatter
-        msg: "❌ Error: markdown-table-formatter is not installed. Please run 'task -g md:install:markdown-table-formatter'"
-      - sh: task -g internal:command:version -- "markdown-table-formatter --version" "{{.MARKDOWN_VERSION.markdownTableFormatter}}"
-        msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownTableFormatter}} version. Please run 'task -g md:install:markdown-table-formatter'"
+      - sh: task internal:command -- markdown-table-formatter
+        msg: "❌ Error: markdown-table-formatter is not installed. Please run 'task md:install:markdown-table-formatter'"
+      - sh: task internal:command:version -- "markdown-table-formatter --version" "{{.MARKDOWN_VERSION.markdownTableFormatter}}"
+        msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownTableFormatter}} version. Please run 'task md:install:markdown-table-formatter'"
     sources:
       - "**/*.md"
     vars:
@@ -87,7 +87,7 @@ tasks:
       MODE: '{{default "--check" .MODE}}'
     cmds:
       - defer: |
-          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ Markdown tables are not formatted correctly. Please run 'task -g md:run:markdown-table-formatter:fix' to fix formatting issues."{{end}}
+          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ Markdown tables are not formatted correctly. Please run 'task md:run:markdown-table-formatter:fix' to fix formatting issues."{{end}}
       - markdown-table-formatter "./**/*.md" {{.MODE}}
     dir: "{{.USER_WORKING_DIR}}"
 

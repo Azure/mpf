@@ -48,11 +48,11 @@ jobs:
         run: task deps:download
 
       - name: 🔨 Setup Test tools
-        run: task test:tools
+        run: task go:tools:test
 
       - name: 📦 Install Bicep
         if: matrix.type == 'bicep'
-        run: task install:bicep
+        run: task az:install:bicep
 
       - name: 🚧 Setup Terraform
         if: matrix.type == 'terraform'

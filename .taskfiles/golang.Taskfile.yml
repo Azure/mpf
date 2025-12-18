@@ -134,14 +134,27 @@ tasks:
       - for: { var: ITEMS }
         task: install:{{.ITEM}}
 
+  # * Tools
+  tools:test:
+    desc: Install Go tools (test)
+    vars:
+      ITEMS:
+        - gotestsum
+        - go-test-coverage
+        - gocover-cobertura
+        - goreleaser
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
   # * Run GoVulnCheck
   run:govulncheck:
     desc: Run govulncheck
     preconditions:
-      - sh: task -g internal:command -- govulncheck
-        msg: "❌ Error: govulncheck is not installed. Please run 'task -g go:install:govulncheck'"
-      - sh: task -g internal:command:version -- "govulncheck --version" "{{.GO_VERSION.govulncheck}}"
-        msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.govulncheck}} version. Please run 'task -g go:install:govulncheck'"
+      - sh: task internal:command -- govulncheck
+        msg: "❌ Error: govulncheck is not installed. Please run 'task go:install:govulncheck'"
+      - sh: task internal:command:version -- "govulncheck --version" "{{.GO_VERSION.govulncheck}}"
+        msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.govulncheck}} version. Please run 'task go:install:govulncheck'"
     cmds:
       - govulncheck -test -show verbose ./...
 
@@ -149,10 +162,10 @@ tasks:
   run:golangci-lint:
     desc: Run GolangCI-Lint
     preconditions:
-      - sh: task -g internal:command -- golangci-lint
-        msg: "❌ Error: golangci-lint is not installed. Please run 'task -g go:install:golangci-lint'"
-      - sh: task -g internal:command:version -- "golangci-lint --version" "{{.GO_VERSION.golangciLint}}"
-        msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.golangciLint}} version. Please run 'task -g go:install:golangci-lint'"
+      - sh: task internal:command -- golangci-lint
+        msg: "❌ Error: golangci-lint is not installed. Please run 'task go:install:golangci-lint'"
+      - sh: task internal:command:version -- "golangci-lint --version" "{{.GO_VERSION.golangciLint}}"
+        msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.golangciLint}} version. Please run 'task go:install:golangci-lint'"
     sources:
       - "**/*.go"
       - "**/*.mod"

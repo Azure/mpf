@@ -57,7 +57,7 @@ jobs:
         run: task deps:download
 
       - name: 🔨 Setup Build tools
-        run: task install:goreleaser
+        run: task go:install:goreleaser
 
       - name: 🏗️ Build
         run: task build

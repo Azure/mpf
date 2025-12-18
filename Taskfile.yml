@@ -396,7 +396,7 @@ tasks:
       - git diff --shortstat --exit-code
     cmds:
       - cmd: |
-          echo "⚠️⚠️⚠️ Unexpected difference. Run 'task -g {{.CLI_ARGS}}' command and commit. ⚠️⚠️⚠️"
+          echo "⚠️⚠️⚠️ Unexpected difference. Run 'task {{.CLI_ARGS}}' command and commit. ⚠️⚠️⚠️"
           echo
           echo "🛑🛑🛑 Uncommitted changes 🛑🛑🛑"
           echo
