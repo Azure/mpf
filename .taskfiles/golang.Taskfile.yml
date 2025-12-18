@@ -30,8 +30,7 @@ tasks:
         vars:
           APP: goreleaser@{{.GO_VERSION.goreleaser}}
       - cmd: |
-          # TODO
-          # ./scripts/install_goreleaser.sh "{{.GO_VERSION.goreleaser}}"
+          ./scripts/install_goreleaser.sh "{{.GO_VERSION.goreleaser}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
 
