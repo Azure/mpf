@@ -115,6 +115,7 @@ tasks:
     cmds:
       - for: { var: ITEMS }
         task: install:{{.ITEM}}
+      - task sh:tools:lint
 
   # * PinAct Runner
   _run:pinact:
@@ -137,7 +138,7 @@ tasks:
       - defer: |
           {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ GitHub Workflows/Actions files are not formatted correctly. Please run 'task gh:run:pinact:fix' to fix formatting issues."{{end}}
       - pinact run {{.MODE}}
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: "{{.ROOT_DIR}}"
 
   # * Run PinAct Check
   run:pinact:check:
@@ -167,8 +168,8 @@ tasks:
       - "**/action.yml"
       - "**/action.yaml"
     cmds:
-      - actionlint -config-file ~/.linters/actionlint.yaml
-    dir: "{{.USER_WORKING_DIR}}"
+      - actionlint -config-file ./.github/linters/actionlint.yaml
+    dir: "{{.ROOT_DIR}}"
 
   # * Run GHALint
   run:ghalint:
@@ -188,7 +189,7 @@ tasks:
     cmds:
       - ghalint run
       - ghalint run-action
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: "{{.ROOT_DIR}}"
 
   # * Lint
   lint:

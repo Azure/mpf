@@ -29,6 +29,7 @@ jobs:
       matrix:
         task:
           - gh
+          - sh
           - go
           - md
           - yml
@@ -82,6 +83,7 @@ jobs:
     name: 🧹 Check Lint
     needs: lint
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: ✅ OK
         if: ${{ !(contains(needs.*.result, 'failure')) }}

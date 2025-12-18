@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  SHELL_VERSION:
+    map:
+      shellcheck: latest
+      shfmt: latest
+
+tasks:
+  # * Install shellcheck
+  install:shellcheck:
+    desc: Install shellcheck
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: koalaman.shellcheck
+          VERSION: "{{.SHELL_VERSION.shellcheck}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: shellcheck@{{.SHELL_VERSION.shellcheck}}
+      - cmd: |
+          ./scripts/install_shellcheck.sh "{{.SHELL_VERSION.shellcheck}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install shfmt
+  install:shfmt:
+    desc: Install shfmt
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: mvdan.shfmt
+          VERSION: "{{.SHELL_VERSION.shfmt}}"
+      - cmd: |
+          ./scripts/install_shfmt.sh "{{.SHELL_VERSION.shfmt}}"
+        platforms: [linux, darwin]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Tools
+  tools:lint:
+    desc: Install Shell tools
+    aliases:
+      - tools
+    vars:
+      ITEMS:
+        - shellcheck
+        - shfmt
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
+  # * Run shfmt
+  run:shfmt:
+    desc: Run shfmt
+    preconditions:
+      - sh: task internal:command -- shfmt
+        msg: "❌ Error: shfmt is not installed. Please run 'task sh:install:shfmt"
+      - sh: task internal:command:version -- "shfmt --version" "{{.SHELL_VERSION.shfmt}}"
+        msg: "❌ Version Mismatch: You are not using {{.SHELL_VERSION.shfmt}} version. Please run 'task sh:install:shfmt'"
+    vars:
+      SHELL_FILES:
+        sh: |
+          {{if eq OS "windows"}}
+            {{.PWSH}} 'shfmt --find . | Where-Object { $_ -notmatch "\\(.git|node_modules|\\.terraform|\\.venv|\\.dev)\\" }'
+          {{else}}
+            shfmt --find . | grep -v -E '\./\.git/|\./node_modules/|/\.terraform/|\.terraform/|\./\.venv/|\./\.dev/'
+          {{end}}
+    cmds:
+      - for: { var: SHELL_FILES }
+        cmd: shfmt -w -i 2 -ci -bn "{{osClean .ITEM}}"
+    dir: "{{.USER_WORKING_DIR}}"
+
+  # * Run shellcheck
+  run:shellcheck:
+    desc: Run shellcheck
+    preconditions:
+      - sh: task internal:command -- shellcheck
+        msg: "❌ Error: shellcheck is not installed. Please run 'task sh:install:shellcheck'"
+      - sh: task internal:command:version -- "shellcheck --version" "{{.SHELL_VERSION.shellcheck}}"
+        msg: "❌ Version Mismatch: You are not using {{.SHELL_VERSION.shellcheck}} version. Please run 'task sh:install:shellcheck'"
+    vars:
+      ITEMS:
+        sh: |
+          {{if eq OS "windows"}}
+            {{.PWSH}} 'Get-ChildItem -Path . -Filter "*.sh" -Recurse | Where-Object { $_.FullName -notmatch "\\(.git|node_modules|.terraform|.venv|.dev)\\" } | ForEach-Object { $_.FullName | Resolve-Path -Relative }'
+          {{else}}
+            find . -type f -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "*/.venv/*" -not -path "*/.dev/*" -not -path "*/.terraform/*" -not -path ".terraform/*"
+          {{end}}
+    cmds:
+      - for: { var: ITEMS }
+        cmd: shellcheck "{{osClean .ITEM}}"
+    dir: "{{.USER_WORKING_DIR}}"
+
+  # * Lint
+  lint:
+    desc: Lint Shell files
+    cmds:
+      - task: run:shfmt
+      - task: run:shellcheck

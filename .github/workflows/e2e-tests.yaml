@@ -92,6 +92,7 @@ jobs:
     name: 🧪 Check E2E Tests
     needs: e2e-tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: ✅ OK
         if: ${{ !(contains(needs.*.result, 'failure')) }}

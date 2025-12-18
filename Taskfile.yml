@@ -18,6 +18,7 @@ includes:
   runtime: .taskfiles/runtime.Taskfile.yml
   az: .taskfiles/azure.Taskfile.yml
   gh: .taskfiles/github.Taskfile.yml
+  sh: .taskfiles/shell.Taskfile.yml
   go: .taskfiles/golang.Taskfile.yml
   md: .taskfiles/markdown.Taskfile.yml
   yml: .taskfiles/yaml.Taskfile.yml
@@ -46,6 +47,7 @@ tasks:
       ITEMS:
         - az
         - gh
+        - sh
         - go
         - md
         - yml
@@ -58,6 +60,7 @@ tasks:
     vars:
       ITEMS:
         - gh
+        - sh
         - go
         - md
         - yml

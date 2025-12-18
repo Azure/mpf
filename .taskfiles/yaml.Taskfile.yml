@@ -41,8 +41,8 @@ tasks:
       - "**/*.yml"
       - "**/*.yaml"
     cmds:
-      - yamllint --config-file .github/linters/.yamllint.yml --format auto --strict .
-    dir: "{{.USER_WORKING_DIR}}"
+      - yamllint --config-file ./.github/linters/.yamllint.yml --format auto --strict .
+    dir: "{{.ROOT_DIR}}"
 
   # * Lint
   lint:

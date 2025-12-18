@@ -56,8 +56,8 @@ tasks:
     cmds:
       - defer: |
           {{if and .EXIT_CODE (eq .MODE "")}}echo "⚠️ Markdown files are not formatted correctly. Please run 'task md:run:markdownlint-cli2:fix' to fix formatting issues."{{end}}
-      - markdownlint-cli2 "./**/*.md" --config ".github/linters/.markdownlint-cli2.yaml" {{.MODE}}
-    dir: "{{.USER_WORKING_DIR}}"
+      - markdownlint-cli2 "./**/*.md" --config "./.github/linters/.markdownlint-cli2.yaml" {{.MODE}}
+    dir: "{{.ROOT_DIR}}"
 
   # * Run markdownlint-cli2 Check
   run:markdownlint-cli2:check:
@@ -91,7 +91,7 @@ tasks:
       - defer: |
           {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ Markdown tables are not formatted correctly. Please run 'task md:run:markdown-table-formatter:fix' to fix formatting issues."{{end}}
       - markdown-table-formatter "./**/*.md" {{.MODE}}
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: "{{.ROOT_DIR}}"
 
   # * Run markdown-table-formatter Check
   run:markdown-table-formatter:check:

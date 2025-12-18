@@ -183,7 +183,7 @@ tasks:
       - "**/go.work"
     cmds:
       - golangci-lint run --fix
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: "{{.ROOT_DIR}}"
 
   # * Lint
   lint:
