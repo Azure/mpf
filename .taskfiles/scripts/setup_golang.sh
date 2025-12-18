@@ -72,7 +72,7 @@ if [[ "${VERSION}" != "latest" ]]; then
   goVersion="go${VERSION}"
 else
   log "Fetching latest Go version"
-  goVersion=$(curl -fsSL --proto '=https' --tlsv1.3 "https://go.dev/dl/?mode=json" | jq -r '.[0].version')
+  goVersion=$(curl -fsSL "https://go.dev/dl/?mode=json" | jq -r '.[0].version')
 fi
 
 # Detect architecture

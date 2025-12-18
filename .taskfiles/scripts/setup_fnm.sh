@@ -73,7 +73,7 @@ log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
 # Execute remote installation script
 log "Fetching and executing official installation script"
-if ! curl -fsSL --proto '=https' --tlsv1.3 "${INSTALL_SCRIPT_URL}" | bash -s -- --skip-shell --install-dir "${INSTALL_DIR}" --release "${VERSION}"; then
+if ! curl -fsSL "${INSTALL_SCRIPT_URL}" | bash -s -- --skip-shell --install-dir "${INSTALL_DIR}" --release "${VERSION}"; then
   die "Installation failed. Check version or network connection."
 fi
 

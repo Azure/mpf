@@ -110,7 +110,7 @@ else
 fi
 
 releaseJson="${tempDir}/release.json"
-if ! curl "${ghAuthHeader[@]}" -fsSL --proto '=https' --tlsv1.3 "${apiUrl}" -o "${releaseJson}"; then
+if ! curl "${ghAuthHeader[@]}" -fsSL "${apiUrl}" -o "${releaseJson}"; then
   die "Failed to fetch release information. Check version or network connection."
 fi
 
@@ -123,7 +123,7 @@ downloadUrl="$(jq -r --arg arch "${arch}" \
 
 log "Downloading ${downloadUrl}"
 archivePath="${tempDir}/${TOOL_NAME}.tar.gz"
-curl "${ghAuthHeader[@]}" -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
+curl "${ghAuthHeader[@]}" -fsSL "${downloadUrl}" -o "${archivePath}" || die "Download failed"
 
 # Extract binary
 log "Extracting archive"

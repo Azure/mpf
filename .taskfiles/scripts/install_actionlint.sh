@@ -86,7 +86,7 @@ fi
 
 # Execute remote installation script
 log "Fetching and executing official installation script"
-if ! curl "${ghAuthHeader[@]}" --proto '=https' --tlsv1.3 -fsSL "${INSTALL_SCRIPT_URL}" | /bin/bash -s -- "${VERSION}" "${INSTALL_DIR}"; then
+if ! curl "${ghAuthHeader[@]}" -fsSL "${INSTALL_SCRIPT_URL}" | /bin/bash -s -- "${VERSION}" "${INSTALL_DIR}"; then
   die "Installation failed. Check version or network connection."
 fi
 

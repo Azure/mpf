@@ -78,7 +78,7 @@ log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
 # Execute remote installation script
 log "Fetching and executing official installation script"
-if ! curl -fsSL --proto '=https' --tlsv1.3 "${INSTALL_SCRIPT_URL}" | env UV_INSTALL_DIR="${INSTALL_DIR}" UV_VERSION="${VERSION}" UV_GITHUB_TOKEN="${GITHUB_TOKEN:-}" sh; then
+if ! curl -fsSL "${INSTALL_SCRIPT_URL}" | env UV_INSTALL_DIR="${INSTALL_DIR}" UV_VERSION="${VERSION}" UV_GITHUB_TOKEN="${GITHUB_TOKEN:-}" sh; then
   die "Installation failed. Check version or network connection."
 fi
 
