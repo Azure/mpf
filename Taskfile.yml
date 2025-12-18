@@ -275,7 +275,7 @@ tasks:
     cmds:
       - task: _testcli:validate
         vars:
-          CMD: go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars --tfPath \"{{.MPF_TFPATH}}\"
+          CMD: go run ./cmd terraform --workingDir ./samples/terraform/aci --varFilePath ./samples/terraform/aci/dev.vars.tfvars --tfPath "{{.MPF_TFPATH}}"
           EXPECTED: "{{.EXPECTED}}"
           PRE_CMD: |
             echo "Terraform path: $MPF_TFPATH"
