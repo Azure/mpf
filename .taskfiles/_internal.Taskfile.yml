@@ -83,7 +83,7 @@ tasks:
       # yamllint disable-line rule:quoted-strings
       VERSION: '{{if and .VERSION (ne .VERSION "latest")}}--version {{.VERSION}}{{end}}'
     cmds:
-      - winget install --id "{{.APP}}" --exact --accept-source-agreements --accept-package-agreements --disable-interactivity {{.VERSION}}
+      - winget install --id "{{.APP}}" --accept-source-agreements --accept-package-agreements --disable-interactivity {{.VERSION}}
     ignore_error: true
     platforms: [windows]
 
