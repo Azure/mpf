@@ -70,7 +70,7 @@ jobs:
 
       - name: 🌌 Ensure bin path
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
+          echo "::add-path::$HOME/.local/bin"
 
       - name: ✔️ Run lint (${{ matrix.task }})
         run: task ${{ matrix.task }}:lint
