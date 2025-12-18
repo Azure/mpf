@@ -1,4 +1,5 @@
 commands.sh
+.azmpfEnteredDestroyPhase.txt
 templates/template1/parameters copy.json
 addcustomrole.json
 .env.export.sh
