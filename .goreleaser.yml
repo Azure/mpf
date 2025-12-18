@@ -3,6 +3,10 @@
 ---
 version: 2
 
+project_name: azmpf
+
+report_sizes: true
+
 before:
   hooks:
     - go mod download
@@ -11,8 +15,11 @@ archives:
   - files:
       - src: LICENSE
         dst: LICENSE.txt
-    formats: [zip]
-    name_template: az{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 
 builds:
   - dir: cmd
@@ -22,7 +29,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .Date }}
     goos:
       - windows
       - linux
@@ -35,11 +42,16 @@ builds:
     ignore:
       - goos: darwin
         goarch: "386"
-    binary: az{{ .ProjectName }}_v{{ .Version }}
+    binary: "{{ .ProjectName }}"
+
+sboms:
+  - id: default
+    disable: false
 
 checksum:
   algorithm: sha256
-  name_template: az{{ .ProjectName }}_{{ .Version }}_SHA256SUMS
+  name_template: "{{ .ProjectName }}_SHA256SUMS"
+
 signs:
   - artifacts: checksum
     args:
