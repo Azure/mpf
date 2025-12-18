@@ -66,6 +66,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: 🌌 Ensure bin path
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+
       - name: ✔️ Run lint (${{ matrix.task }})
         run: task ${{ matrix.task }}:lint
 

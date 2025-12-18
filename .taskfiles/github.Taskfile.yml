@@ -121,10 +121,10 @@ tasks:
     internal: true
     desc: Run PinAct
     preconditions:
-      - sh: task -g internal:command -- pinact
-        msg: "❌ Error: pinact is not installed. Please run 'task -g gh:install:pinact'"
-      - sh: task -g internal:command:version -- "pinact version" "{{.GITHUB_VERSION.pinact}}"
-        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.pinact}} version. Please run 'task -g gh:install:pinact'"
+      - sh: task internal:command -- pinact
+        msg: "❌ Error: pinact is not installed. Please run 'task gh:install:pinact'"
+      - sh: task internal:command:version -- "pinact version" "{{.GITHUB_VERSION.pinact}}"
+        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.pinact}} version. Please run 'task gh:install:pinact'"
     sources:
       - .github/workflows/*.yml
       - .github/workflows/*.yaml
@@ -135,7 +135,7 @@ tasks:
       MODE: '{{default "--check --diff" .MODE}}'
     cmds:
       - defer: |
-          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ GitHub Workflows/Actions files are not formatted correctly. Please run 'task -g gh:run:pinact:fix' to fix formatting issues."{{end}}
+          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ GitHub Workflows/Actions files are not formatted correctly. Please run 'task gh:run:pinact:fix' to fix formatting issues."{{end}}
       - pinact run {{.MODE}}
     dir: "{{.USER_WORKING_DIR}}"
 
@@ -157,10 +157,10 @@ tasks:
   run:actionlint:
     desc: Run Actionlint
     preconditions:
-      - sh: task -g internal:command -- actionlint
-        msg: "❌ Error: actionlint is not installed. Please run 'task -g gh:install:actionlint'"
-      - sh: task -g internal:command:version -- "actionlint --version" "{{.GITHUB_VERSION.actionlint}}"
-        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.actionlint}} version. Please run 'task -g gh:install:actionlint'"
+      - sh: task internal:command -- actionlint
+        msg: "❌ Error: actionlint is not installed. Please run 'task gh:install:actionlint'"
+      - sh: task internal:command:version -- "actionlint --version" "{{.GITHUB_VERSION.actionlint}}"
+        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.actionlint}} version. Please run 'task gh:install:actionlint'"
     sources:
       - .github/workflows/*.yml
       - .github/workflows/*.yaml
@@ -174,10 +174,10 @@ tasks:
   run:ghalint:
     desc: Run GHALint
     preconditions:
-      - sh: task -g internal:command -- ghalint
-        msg: "❌ Error: ghalint is not installed. Please run 'task -g gh:install:ghalint'"
-      - sh: task -g internal:command:version -- "ghalint --version" "{{.GITHUB_VERSION.ghalint}}"
-        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.ghalint}} version. Please run 'task -g gh:install:ghalint'"
+      - sh: task internal:command -- ghalint
+        msg: "❌ Error: ghalint is not installed. Please run 'task gh:install:ghalint'"
+      - sh: task internal:command:version -- "ghalint --version" "{{.GITHUB_VERSION.ghalint}}"
+        msg: "❌ Version Mismatch: You are not using {{.GITHUB_VERSION.ghalint}} version. Please run 'task gh:install:ghalint'"
     sources:
       - .github/workflows/*.yml
       - .github/workflows/*.yaml
