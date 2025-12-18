@@ -254,7 +254,7 @@ tasks:
     cmds:
       - task: _testcli:validate
         vars:
-          CMD: go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --bicepExecPath \"{{.MPF_BICEPEXECPATH}}\"
+          CMD: go run ./cmd bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --bicepExecPath "{{.MPF_BICEPEXECPATH}}"
           EXPECTED: "{{.EXPECTED}}"
           PRE_CMD: ""
 
