@@ -6,17 +6,13 @@
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": false
     },
-    "ghcr.io/devcontainers/features/azure-cli:1": {
-      "version": "2.81.0",
-      "installBicep": true
+    "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {
+      // ? move to Taskfile?
+      "jqVersion": "latest",
+      "yqVersion": "latest",
+      "gojqVersion": "latest",
+      "jaqVersion": "latest"
     },
-    "ghcr.io/devcontainers/features/terraform:1": {
-      "version": "1.14.3"
-    },
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.25.5"
-    },
-    "ghcr.io/devcontainers/features/powershell:1": {},
     "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
@@ -24,14 +20,48 @@
   "remoteEnv": {
     "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
   },
+  "onCreateCommand": {
+    "init": "task init"
+  },
   "postCreateCommand": {
     "git-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}"
   },
   "customizations": {
     "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.defaultProfile.osx": "zsh",
+        "terminal.integrated.defaultProfile.windows": "PowerShell",
+        "powershell.powerShellAdditionalExePaths": {
+          "pwsh": "/usr/bin/pwsh"
+        },
+        "powershell.powerShellDefaultVersion": "pwsh",
+        "shellformat.path": "/home/${remoteUser}/.local/bin/shfmt"
+      },
       "extensions": [
+        "redhat.vscode-yaml",
+        "golang.go",
+        "ms-vscode.powershell",
         "ms-azuretools.vscode-bicep",
-        "hashicorp.terraform"
+        "edwinhuish.better-comments-next",
+        "timonwong.shellcheck",
+        "task.vscode-task",
+        "esbenp.prettier-vscode",
+        "fnando.linter",
+        "ms-azuretools.vscode-azure-github-copilot",
+        "ms-azuretools.vscode-docker",
+        "davidanson.vscode-markdownlint",
+        "hashicorp.terraform",
+        "github.copilot",
+        "github.copilot-chat",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "github.codespaces",
+        "github.remotehub",
+        "bierner.github-markdown-preview",
+        "usernamehw.errorlens",
+        "lumirelle.shell-format-rev",
+        "editorconfig.editorconfig"
       ]
     }
   }

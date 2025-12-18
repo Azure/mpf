@@ -20,6 +20,7 @@ includes:
   gh: .taskfiles/github.Taskfile.yml
   sh: .taskfiles/shell.Taskfile.yml
   go: .taskfiles/golang.Taskfile.yml
+  tf: .taskfiles/terraform.Taskfile.yml
   md: .taskfiles/markdown.Taskfile.yml
   yml: .taskfiles/yaml.Taskfile.yml
 
@@ -49,6 +50,7 @@ tasks:
         - gh
         - sh
         - go
+        - tf
         - md
         - yml
     cmds:
@@ -62,11 +64,20 @@ tasks:
         - gh
         - sh
         - go
+        - tf
         - md
         - yml
     deps:
       - for: { var: ITEMS }
         task: "{{.ITEM}}:lint"
+
+  init:
+    desc: Initialize development environment
+    silent: true
+    cmds:
+      - task: runtime:setup
+      - task: tools
+    dir: "{{.USER_WORKING_DIR}}"
 
   deps:
     desc: Check if dependencies are up to date

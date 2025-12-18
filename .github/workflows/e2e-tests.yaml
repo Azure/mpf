@@ -8,7 +8,6 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
-
   schedule:
     - cron: 0 21 * * *
 
@@ -54,12 +53,9 @@ jobs:
         if: matrix.type == 'bicep'
         run: task az:install:bicep
 
-      - name: 🚧 Setup Terraform
+      - name: 📦 Install Terraform
         if: matrix.type == 'terraform'
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-        with:
-          terraform_wrapper: false
-          terraform_version: 1.14.3
+        run: task tf:install:terraform
 
       - name: 🔐 Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
