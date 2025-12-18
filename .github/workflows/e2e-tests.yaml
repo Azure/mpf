@@ -13,6 +13,10 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   e2e-tests:
     if: github.event_name != 'pull_request'
@@ -28,6 +32,9 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: 🩺 Debug
+        uses: raven-actions/debug@9dbdeb7eea607a7d73411895c65987e71d59a466 # v1.2.0
+
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
