@@ -16,7 +16,7 @@ tasks:
     desc: uv setup
     cmds:
       - cmd: |
-          ./scripts/setup_uv.sh "{{.RUNTIME_VERSION.uv}}"
+          sudo ./scripts/setup_uv.sh "{{.RUNTIME_VERSION.uv}}"
         platforms: [linux]
       - task: :internal:_install:brew
         vars:
