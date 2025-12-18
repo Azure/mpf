@@ -30,7 +30,7 @@ tasks:
 
   # * Install Azure Developer CLI
   install:azd:
-    desc: Install Azure CLI
+    desc: Install Azure Developer CLI
     cmds:
       - task: :internal:_install:winget
         vars:
