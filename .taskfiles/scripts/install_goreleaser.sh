@@ -136,7 +136,7 @@ downloadUrl="$(jq -r --arg os "${os}" --arg arch "${arch}" \
 
 log "Downloading ${downloadUrl}"
 archivePath="${tempDir}/${TOOL_NAME}.tar.gz"
-curl -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
+curl "${ghAuthHeader[@]}" -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
 
 # Extract binary
 log "Extracting archive"
@@ -157,4 +157,4 @@ fi
 log "✓ Successfully installed ${TOOL_NAME} to ${INSTALL_DIR}/${TOOL_NAME}"
 
 # Run tool version to verify
-"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed failed to run (${INSTALL_DIR}/${TOOL_NAME})"
+"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed binary failed to run (${INSTALL_DIR}/${TOOL_NAME})"

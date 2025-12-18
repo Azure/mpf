@@ -147,4 +147,4 @@ fi
 log "✓ Successfully installed ${TOOL_NAME} to ${INSTALL_DIR}/${TOOL_NAME}"
 
 # Run tool version to verify
-"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed failed to run (${INSTALL_DIR}/${TOOL_NAME})"
+"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed binary failed to run (${INSTALL_DIR}/${TOOL_NAME})"

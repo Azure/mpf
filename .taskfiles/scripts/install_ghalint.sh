@@ -142,4 +142,4 @@ chmod 0755 "${INSTALL_DIR}/${TOOL_NAME}" || die "Failed to set permissions"
 log "✓ Successfully installed ${TOOL_NAME} to ${INSTALL_DIR}/${TOOL_NAME}"
 
 # Run tool version to verify
-"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed failed to run (${INSTALL_DIR}/${TOOL_NAME})"
+"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed binary failed to run (${INSTALL_DIR}/${TOOL_NAME})"

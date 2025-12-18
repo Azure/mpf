@@ -123,7 +123,7 @@ downloadUrl="$(jq -r --arg arch "${arch}" \
 
 log "Downloading ${downloadUrl}"
 archivePath="${tempDir}/${TOOL_NAME}.tar.gz"
-curl -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
+curl "${ghAuthHeader[@]}" -fsSL --proto '=https' --tlsv1.3 "${downloadUrl}" -o "${archivePath}" || die "Download failed"
 
 # Extract binary
 log "Extracting archive"
@@ -138,4 +138,4 @@ chmod 0755 "${INSTALL_DIR}/${TOOL_NAME}" || die "Failed to set permissions"
 log "✓ Successfully installed ${TOOL_NAME} to ${INSTALL_DIR}/${TOOL_NAME}"
 
 # Run tool version to verify
-"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed failed to run (${INSTALL_DIR}/${TOOL_NAME})"
+"${INSTALL_DIR}/${TOOL_NAME}" --version || die "Installed binary failed to run (${INSTALL_DIR}/${TOOL_NAME})"
