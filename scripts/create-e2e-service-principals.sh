@@ -262,7 +262,7 @@ display_github_secrets() {
       prefix="MPF_${ecosystem^^}_${os^^}"
 
       echo "${prefix}_SPCLIENTID = ${CLIENT_ID[$key]}"
-      echo "${prefix}_SPCLIENTSECRET = ${CLIENT_SECRET[$key]}"
+      echo "${prefix}_SPCLIENTSECRET = <client secret value (do NOT echo in logs; retrieve from ${OUTPUT_FILE} or your secure store>"
       echo "${prefix}_SPOBJECTID = ${OBJECT_ID[$key]}"
       echo ""
     done
