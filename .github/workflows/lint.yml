@@ -69,8 +69,22 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: 🌌 Ensure bin path
+        if: runner.os == 'Linux'
         run: |
-          echo "::add-path::$HOME/.local/bin"
+          INSTALL_PATH="$HOME/.local/bin"
+
+          echo "$INSTALL_PATH" >> "${GITHUB_PATH}"
+          export PATH="$INSTALL_PATH:$PATH"
+        shell: bash
+
+      - name: 🌌 Ensure bin path
+        if: runner.os == 'Windows'
+        run: |
+          $INSTALL_PATH = "$env:USERPROFILE\.local\bin"
+
+          $INSTALL_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $env:PATH = "$INSTALL_PATH;$env:PATH"
+        shell: pwsh
 
       - name: ✔️ Run lint (${{ matrix.task }})
         run: task ${{ matrix.task }}:lint
