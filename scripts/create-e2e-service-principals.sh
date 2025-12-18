@@ -261,8 +261,17 @@ display_github_secrets() {
       local prefix
       prefix="MPF_${ecosystem^^}_${os^^}"
 
+      # Mask client secret to avoid leaking it via logs
+      local client_secret="${CLIENT_SECRET[$key]}"
+      local client_secret_display
+      if [[ ${#client_secret} -gt 8 ]]; then
+        client_secret_display="${client_secret:0:4}...${client_secret: -4}"
+      else
+        client_secret_display="<redacted>"
+      fi
+
       echo "${prefix}_SPCLIENTID = ${CLIENT_ID[$key]}"
-      echo "${prefix}_SPCLIENTSECRET = <client secret value (do NOT echo in logs; retrieve from ${OUTPUT_FILE} or your secure store>"
+      echo "${prefix}_SPCLIENTSECRET = ${client_secret_display} (full value stored securely in ${OUTPUT_FILE})"
       echo "${prefix}_SPOBJECTID = ${OBJECT_ID[$key]}"
       echo ""
     done
