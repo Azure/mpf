@@ -61,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: 🔨 Setup tools
-        run: task ${{ matrix.task }}:tools
+        run: task ${{ matrix.task }}:tools:lint
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -70,7 +70,7 @@ jobs:
 
       - name: 🔀 Check for differences
         if: github.event.pull_request.user.login != 'dependabot[bot]'
-        run: task diff -- "${{ matrix.task }}:lint:fix"
+        run: task diff -- "${{ matrix.task }}:lint"
 
   check-lint:
     if: always()

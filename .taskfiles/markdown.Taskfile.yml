@@ -27,8 +27,10 @@ tasks:
           APP: markdown-table-formatter@{{.MARKDOWN_VERSION.markdownTableFormatter}}
 
   # * Tools
-  tools:
+  tools:lint:
     desc: Install Markdown tools
+    aliases:
+      - tools
     vars:
       ITEMS:
         - markdownlint-cli2

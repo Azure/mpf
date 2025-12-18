@@ -18,8 +18,10 @@ tasks:
           APP: yamllint@{{.YAML_VERSION.yamllint}}
 
   # * Tools
-  tools:
-    desc: Install YAML tools
+  tools:lint:
+    desc: Install YAML tools (lint)
+    aliases:
+      - tools
     vars:
       ITEMS:
         - yamllint
