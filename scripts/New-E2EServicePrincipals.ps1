@@ -246,8 +246,19 @@ else {
         $key = "$($m.ecosystem)_$($m.os)"
         $prefix = Get-SecretPrefix -ecosystem $m.ecosystem -os $m.os
         $sp = $servicePrincipals[$key]
+
+        # Do not print the full client secret to avoid leaking it via logs.
+        # Instead, show a masked version and indicate that the full value is stored securely.
+        $clientSecret = [string]$sp.ClientSecret
+        if ($null -ne $clientSecret -and $clientSecret.Length -gt 8) {
+            $clientSecretDisplay = $clientSecret.Substring(0, 4) + '...' + $clientSecret.Substring($clientSecret.Length - 4)
+        }
+        else {
+            $clientSecretDisplay = '<redacted>'
+        }
+
         Write-Host "${prefix}_SPCLIENTID = $($sp.ClientId)"
-        Write-Host "${prefix}_SPCLIENTSECRET = $($sp.ClientSecret)"
+        Write-Host "${prefix}_SPCLIENTSECRET = $clientSecretDisplay (full value stored securely in $OutputFile)"
         Write-Host "${prefix}_SPOBJECTID = $($sp.ObjectId)"
         Write-Host ''
     }
