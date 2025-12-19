@@ -10,8 +10,29 @@ vars:
       fnm: latest
       pwsh: latest
       golang: latest
+  PYTHON_VERSION:
+    sh: |
+      [ -f .python-version ] && cat .python-version || echo "3.14"
+  NODE_VERSION:
+    sh: |
+      [ -f .node-version ] && cat .node-version || echo "24"
 
 tasks:
+  init:node:
+    desc: Initialize Node.js environment
+    cmds:
+      - fnm install {{.NODE_VERSION}}
+      - fnm use {{.NODE_VERSION}}
+      - node --version
+    dir: "{{.ROOT_DIR}}"
+
+  init:python:
+    desc: Initialize Python environment
+    cmds:
+      - uv python install --default "{{.PYTHON_VERSION}}" --preview-features python-install-default
+      - python --version
+    dir: "{{.ROOT_DIR}}"
+
   setup:uv:
     desc: uv setup
     cmds:

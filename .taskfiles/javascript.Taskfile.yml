@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  JAVASCRIPT_VERSION:
+    map:
+      prettier: latest
+
+tasks:
+  # * Install Prettier
+  install:prettier:
+    desc: Install Prettier
+    cmds:
+      - task: :internal:_install:npm
+        vars:
+          APP: prettier@{{.JAVASCRIPT_VERSION.prettier}}
+      - task: :internal:_install:npm
+        vars:
+          APP: prettier-plugin-multiline-arrays
+          OPTS: --no-save
+
+  # * Tools
+  tools:lint:
+    desc: Install JavaScript tools
+    aliases:
+      - tools
+    vars:
+      ITEMS:
+        - prettier
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
+  # * Prettier Runner
+  _run:prettier:
+    internal: true
+    desc: Run Prettier
+    preconditions:
+      - sh: task internal:command -- prettier
+        msg: "❌ Error: prettier is not installed. Please run 'task js:install:prettier'"
+      - sh: task internal:command:version -- "prettier --version" "{{.JAVASCRIPT_VERSION.prettier}}"
+        msg: "❌ Version Mismatch: You are not using {{.JAVASCRIPT_VERSION.prettier}} version. Please run 'task js:install:prettier'"
+    sources:
+      - "**/*.js"
+      - "**/*.cjs"
+      - "**/*.mjs"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.jsx"
+      - "**/*.json"
+      - "**/*.jsonc"
+    vars:
+      # yamllint disable-line rule:quoted-strings
+      MODE: '{{default "--check" .MODE}}'
+    cmds:
+      - defer: |
+          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ JavaScript/TypeScript/JSON files are not formatted correctly. Please run 'task js:run:prettier:fix' to fix formatting issues."{{end}}
+      - prettier --config ./.github/linters/.prettierrc.yml {{.MODE}} "./**/*.{js,cjs,mjs,ts,tsx,jsx,json,jsonc}"
+    dir: "{{.ROOT_DIR}}"
+
+  # * Run Prettier Check
+  run:prettier:check:
+    desc: Run Prettier (check)
+    cmds:
+      - task: _run:prettier
+        vars: { MODE: --check }
+
+  # * Run Prettier Fix
+  run:prettier:fix:
+    desc: Run Prettier (fix)
+    cmds:
+      - task: _run:prettier
+        vars: { MODE: --write }
+
+  # * Lint
+  lint:check:
+    desc: Lint JavaScript/TypeScript/JSON files
+    cmds:
+      - task: run:prettier:check
+
+  # * Lint
+  lint:fix:
+    aliases:
+      - lint
+    desc: Lint JavaScript/TypeScript/JSON files
+    cmds:
+      - task: run:prettier:fix

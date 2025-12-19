@@ -71,7 +71,7 @@ tasks:
     cmds:
       - for: { var: SHELL_FILES }
         cmd: shfmt -w -i 2 -ci -bn "{{osClean .ITEM}}"
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: "{{.ROOT_DIR}}"
 
   # * Run shellcheck
   run:shellcheck:
@@ -92,7 +92,7 @@ tasks:
     cmds:
       - for: { var: ITEMS }
         cmd: shellcheck "{{osClean .ITEM}}"
-    dir: "{{.USER_WORKING_DIR}}"
+    dir: "{{.ROOT_DIR}}"
 
   # * Lint
   lint:

@@ -8,12 +8,6 @@ vars:
   PWSH_SCRIPT: pwsh -NonInteractive -NoProfile -NoLogo -ExecutionPolicy Bypass -File
   APT_UPDATE: sudo apt-get -o DPkg::Lock::Timeout=-1 update
   APT_INSTALL: sudo apt-get -o DPkg::Lock::Timeout=-1 install -y
-  PYTHON_VERSION:
-    sh: |
-      [ -f .python-version ] && cat .python-version || echo "3.14"
-  NODE_VERSION:
-    sh: |
-      [ -f .node-version ] && cat .node-version || echo "24"
 
 env:
   DEBIAN_FRONTEND: noninteractive
