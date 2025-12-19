@@ -51,6 +51,8 @@ tasks:
       - "**/*.jsx"
       - "**/*.json"
       - "**/*.jsonc"
+      - exclude: node_modules
+      - exclude: .git
     vars:
       # yamllint disable-line rule:quoted-strings
       MODE: '{{default "--check" .MODE}}'

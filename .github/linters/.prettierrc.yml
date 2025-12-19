@@ -21,9 +21,9 @@ vueIndentScriptAndStyle: true
 embeddedLanguageFormatting: auto
 experimentalTernaries: true
 experimentalOperatorPosition: end
-multilineArraysWrapThreshold: 1
-plugins:
-  - prettier-plugin-multiline-arrays
+# multilineArraysWrapThreshold: 1
+# plugins:
+#   - prettier-plugin-multiline-arrays
 
 # Language-specific overrides
 overrides:

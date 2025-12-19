@@ -39,14 +39,13 @@ tasks:
             fnm default "{{.NODE_VERSION}}"
           '
         platforms: [windows]
-      # - node --version
     dir: "{{.ROOT_DIR}}"
 
   init:python:
     desc: Initialize Python environment
     cmds:
       - uv python install --default "{{.PYTHON_VERSION}}" --preview-features python-install-default
-      # - python --version
+      - uv python update-shell
     dir: "{{.ROOT_DIR}}"
 
   setup:uv:
