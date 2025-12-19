@@ -357,7 +357,7 @@ func (r *SPRoleAssignmentManager) DeleteCustomRole(subscription string, role dom
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	// read response body
 	body, err := io.ReadAll(resp.Body)
