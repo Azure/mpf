@@ -155,7 +155,7 @@ The default Azure CLI credentials used by the utility need to have the following
 - `Microsoft.Authorization/roleAssignments/delete`
 - `Microsoft.Resources/subscriptions/resourcegroups/delete`
 - `Microsoft.Resources/subscriptions/resourcegroups/read`
-- `Microsoft.Resources/subscriptions/resourcegroups/writ`
+- `Microsoft.Resources/subscriptions/resourcegroups/write`
 
 ## Known Issues and Workarounds
 
