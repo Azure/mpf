@@ -10,11 +10,13 @@ The overview of how this utility works is as follows:
 
 - The key parameters the utility needs are the **Service Principal details** (Client ID, Secret, and Object ID) and details needed for the specific deployment provider:
   - ARM: ARM template file and parameters file needed
+  - Bicep: Bicep file, parameters file, and the Bicep executable path needed
   - Terraform: Terraform module directory and variables file needed
 - The utility **removes any existing Role Assignments for the provided Service Principal**
-- A Custom Role (with no assigned permissions) is created
+- A Custom Role is created (seeded with a small bootstrap set of permissions required to run the deployment loop, then incrementally updated based on authorization errors)
 - The Service Principal (SP) is assigned the new custom role
-- For the above steps, the utility uses the **default Azure CLI credentials** which need to have permissions to create custom roles and role assignments. The details of the permissions required by the default Azure CLI credentials are provided in the [Permissions required by default Azure CLI credentials](#permissions-required-by-default-azure-cli-credentials) section.
+- For the above steps, the utility uses **management-plane credentials** from `DefaultAzureCredential` (commonly backed by an `az login` session in local development) to create/delete custom roles, manage role assignments, and create/delete resource groups.
+- The deployment itself is executed using the provided **Service Principal credentials**, and authorization errors returned by Azure (ARM/Bicep) or Terraform are parsed to discover missing permissions.
 - These sub-steps are retried until the deployment succeeds:
   - Depending on the provider (ARM, Bicep, or Terraform) a deployment is tried
   - If the Service Principal does not have sufficient permissions, an authorization error is returned by the deployment. If authorization errors have occurred, they are parsed to fetch the missing scopes and permissions. The [authorizationErrorParser Tests](./pkg/domain/authorizationErrorParser_test.go) provide details of the different kinds of authorization errors typically received.
@@ -28,7 +30,12 @@ The overview of how this utility works is as follows:
 
 - Azure **ARM** Template: Uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Resources are actually created during the process and then automatically cleaned up. The ARM endpoints return multiple authorization errors at a time, but since resources are actually deployed, the execution time can range from several minutes to longer depending on the complexity of the template and resources being deployed. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
 - **Bicep**: The Bicep mode uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Internally, the utility converts the Bicep file to an ARM template and then uses the ARM deployment endpoint. Like ARM mode, resources are actually created and automatically cleaned up, so execution time can range from several minutes to longer depending on template complexity. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
-- **Terraform**: The Terraform mode finds the minimum permissions required for a deployment by getting the authorization errors from the Terraform plan/apply and destroy commands. All resources are cleaned up by the utility. Since Terraform calls the ARM APIs for one resource at a time, the authorization errors are not received in bulk, and as a result, it can take quite long to get the final result. The overall time is the time taken to run the Terraform plan/apply/destroy commands, plus the overhead of getting and parsing the authorization errors a few times.
+- **Terraform**: The Terraform mode finds the minimum permissions required for a deployment by getting the authorization errors from the Terraform apply and destroy commands. All resources are cleaned up by the utility.
+
+> [!NOTE]
+> By default, when Terraform reports an "existing resource" error, MPF may import those resources into Terraform state to continue execution, and will then destroy the imported resources during cleanup. Use this tool in a dev/test environment.
+
+Note: ARM and Bicep are executed as resource-group scoped incremental deployments, and MPF will create and delete a temporary resource group during execution.
 
 ## Flags and Environment Variables
 
@@ -61,12 +68,24 @@ To run the unit tests, run `task testunit`.
 To run the end-to-end tests for ARM, you need to have the following environment variables set, and then execute `task teste2e:arm`:
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+# bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+```
 
+```powershell
+# powershell
+$env:MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID="YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+```
+
+```shell
 task teste2e:arm
 ```
 
@@ -75,13 +94,25 @@ task teste2e:arm
 To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `task teste2e:bicep`:
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+```
 
+```powershell
+# powershell
+$env:MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID="YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+$env:MPF_BICEPEXECPATH=$(where.exe bicep)
+```
+
+```shell
 task teste2e:bicep
 ```
 
@@ -90,13 +121,25 @@ task teste2e:bicep
 The Terraform end-to-end tests can take a long time to execute, depending on the resources being created. To run the end-to-end tests for Terraform, you need to have the following environment variables set, and then execute `task teste2e:terraform`:
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 export MPF_TFPATH=$(which terraform) # Path to the Terraform executable
+```
 
+```powershell
+# powershell
+$env:MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID="YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH=$(where.exe terraform)
+```
+
+```shell
 task teste2e:terraform
 ```
 
@@ -104,15 +147,15 @@ task teste2e:terraform
 
 The default Azure CLI credentials used by the utility need to have the following permissions:
 
-- "Microsoft.Authorization/roleDefinitions/read"
-- "Microsoft.Authorization/roleDefinitions/write"
-- "Microsoft.Authorization/roleDefinitions/delete"
-- "Microsoft.Authorization/roleAssignments/read"
-- "Microsoft.Authorization/roleAssignments/write"
-- "Microsoft.Authorization/roleAssignments/delete"
-- "Microsoft.Resources/subscriptions/resourcegroups/delete"
-- "Microsoft.Resources/subscriptions/resourcegroups/read"
-- "Microsoft.Resources/subscriptions/resourcegroups/write"
+- `Microsoft.Authorization/roleDefinitions/read`
+- `Microsoft.Authorization/roleDefinitions/write`
+- `Microsoft.Authorization/roleDefinitions/delete`
+- `Microsoft.Authorization/roleAssignments/read`
+- `Microsoft.Authorization/roleAssignments/write`
+- `Microsoft.Authorization/roleAssignments/delete`
+- `Microsoft.Resources/subscriptions/resourcegroups/delete`
+- `Microsoft.Resources/subscriptions/resourcegroups/read`
+- `Microsoft.Resources/subscriptions/resourcegroups/write`
 
 ## Known Issues and Workarounds
 
