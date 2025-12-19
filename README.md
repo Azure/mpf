@@ -43,6 +43,8 @@ The overview of how this utility works is as follows:
 > [!NOTE]
 > By default, when Terraform reports an "existing resource" error, MPF may import those resources into Terraform state to continue execution, and will then destroy the imported resources during cleanup. Use this tool in a dev/test environment.
 
+---
+
 > [!NOTE]
 > ARM and Bicep are executed as resource-group scoped incremental deployments, and MPF will create and delete a temporary resource group during execution.
 
