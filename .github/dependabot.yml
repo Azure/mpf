@@ -13,7 +13,8 @@ updates:
       prefix: ci
       include: scope
     labels:
-      - "deps/github-actions"
+      - deps/github-actions
+      - dependencies
     groups:
       all:
         patterns: ["*"]
