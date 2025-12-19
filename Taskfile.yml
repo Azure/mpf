@@ -1,5 +1,16 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 # docs: https://taskfile.dev
+#
+# --- Windows ---
+# winget install Task.Task
+#
+# --- Linux ---
+# sh -c "$(curl -fsSL https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+# echo 'command -v task >/dev/null || export PATH="$PATH:$HOME/.local/bin"' >> ~/.profile
+# source ~/.profile
+#
+# --- macOS ---
+# brew install go-task/tap/go-task
 ---
 version: "3"
 
@@ -22,6 +33,7 @@ includes:
   go: .taskfiles/golang.Taskfile.yml
   tf: .taskfiles/terraform.Taskfile.yml
   md: .taskfiles/markdown.Taskfile.yml
+  js: .taskfiles/javascript.Taskfile.yml
   yml: .taskfiles/yaml.Taskfile.yml
 
 tasks:
@@ -52,6 +64,7 @@ tasks:
         - go
         - tf
         - md
+        - js
         - yml
     cmds:
       - for: { var: ITEMS }
@@ -66,6 +79,7 @@ tasks:
         - go
         - tf
         - md
+        - js
         - yml
     deps:
       - for: { var: ITEMS }
@@ -76,6 +90,8 @@ tasks:
     silent: true
     cmds:
       - task: runtime:setup
+      - task: runtime:init:node
+      - task: runtime:init:python
       - task: tools
     dir: "{{.USER_WORKING_DIR}}"
 

@@ -37,6 +37,7 @@ jobs:
           - sh
           - go
           - md
+          - js
           - yml
     steps:
       - name: 🩺 Debug

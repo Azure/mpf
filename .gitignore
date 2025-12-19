@@ -3,11 +3,6 @@ commands.sh
 templates/template1/parameters copy.json
 addcustomrole.json
 .env.export.sh
-az-mpf
-az-mpf-darwin-amd64
-az-mpf-darwin-arm64
-az-mpf-linux-amd64
-az-mpf-windows-amd64.exe
 .vscode/launch-local.json
 e2e-service-principals-credentials.json
 e2e-service-principals.json
@@ -44,3 +39,9 @@ __debug*
 *.lock.info
 *.tfrc
 azmpf
+az-mpf
+mpf
+
+**/node_modules/**
+**/.venv/**
+**/venv/**

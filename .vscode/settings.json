@@ -36,10 +36,7 @@
   "markdown.extension.tableFormatter.normalizeIndentation": true,
   "markdown.extension.tableFormatter.delimiterRowNoPadding": true,
   // shell
-  "shellcheck.customArgs": [
-    "--rcfile",
-    "./.github/linters/.shellcheckrc"
-  ],
+  "shellcheck.customArgs": ["--rcfile", "./.github/linters/.shellcheckrc"],
   "shellcheck.enable": true,
   "shellcheck.enableQuickFix": true,
   "shellcheck.useWorkspaceRootAsCwd": true,

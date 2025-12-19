@@ -139,8 +139,18 @@ tar -C "${INSTALL_DIR}" -xzf "${goFile}" || die "Failed to extract Go archive"
 
 log "✓ Successfully installed ${TOOL_NAME} to ${goInstallPath}"
 
+# Expose Go in PATH for the remainder of this script/process.
+# Note: when the script is executed (not sourced), exports won't persist in the parent shell.
+export PATH="${PATH}:${goInstallPath}/bin"
+
 # Configure environment based on installation mode
 if [[ "${installMode}" == "system" ]]; then
+  # Make `go` discoverable in non-login/non-interactive shells (e.g., container builds)
+  # by placing a stable entrypoint in a common PATH directory.
+  if [[ -d /usr/local/bin ]]; then
+    ln -sf "${goInstallPath}/bin/go" /usr/local/bin/go
+  fi
+
   # System-wide installation - create profile.d script
   if [[ ! -f /etc/profile.d/golang.sh ]]; then
     log "Setting up system-wide environment variables"
@@ -150,6 +160,14 @@ if [[ "${installMode}" == "system" ]]; then
 else
   # User installation - add to shell configs
   log "Setting up user environment variables"
+
+  # Also expose GOPATH/bin for this script/process (useful in CI).
+  export GOPATH="${HOME}/go"
+  export PATH="${PATH}:${GOPATH}/bin"
+
+  # Provide stable entrypoints in ~/.local/bin (commonly on PATH).
+  mkdir -p "${HOME}/.local/bin"
+  ln -sf "${goInstallPath}/bin/go" "${HOME}/.local/bin/go"
 
   # Function to add environment variables to shell config
   add_to_shell() {
@@ -181,4 +199,4 @@ else
 fi
 
 # Verify installation
-"${goInstallPath}/bin/go" version || die "Installed binary failed to run"
+go version || die "Installed binary failed to run"

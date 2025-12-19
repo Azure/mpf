@@ -6,6 +6,9 @@
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": false
     },
+    "ghcr.io/devcontainers/features/node:1": {
+      "installYarnUsingApt": false
+    },
     "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {
       // ? move to Taskfile?
       "jqVersion": "latest",
