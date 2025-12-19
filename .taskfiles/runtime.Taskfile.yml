@@ -21,8 +21,24 @@ tasks:
   init:node:
     desc: Initialize Node.js environment
     cmds:
-      - fnm install {{.NODE_VERSION}}
-      # - fnm use {{.NODE_VERSION}}
+      - fnm install --progress never "{{.NODE_VERSION}}"
+      - cmd: |
+          eval "$(fnm env --shell bash)"
+          fnm use --silent-if-unchanged --install-if-missing "{{.NODE_VERSION}}"
+          fnm default "{{.NODE_VERSION}}"
+        platforms: [linux]
+      - cmd: |
+          eval "$(fnm env --shell zsh)"
+          fnm use --silent-if-unchanged --install-if-missing "{{.NODE_VERSION}}"
+          fnm default "{{.NODE_VERSION}}"
+        platforms: [darwin]
+      - cmd: |
+          {{.PWSH}} '
+            fnm env --shell powershell | Out-String | Invoke-Expression;
+            fnm use --silent-if-unchanged --install-if-missing "{{.NODE_VERSION}}";
+            fnm default "{{.NODE_VERSION}}"
+          '
+        platforms: [windows]
       # - node --version
     dir: "{{.ROOT_DIR}}"
 
