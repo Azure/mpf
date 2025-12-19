@@ -94,6 +94,7 @@ task teste2e:arm
 To run the end-to-end tests for Bicep, you need to have the following environment variables set, and then execute `task teste2e:bicep`:
 
 ```shell
+# bash
 export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
 export MPF_TENANTID="YOUR_TENANT_ID"
 export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
@@ -121,6 +122,7 @@ task teste2e:bicep
 The Terraform end-to-end tests can take a long time to execute, depending on the resources being created. To run the end-to-end tests for Terraform, you need to have the following environment variables set, and then execute `task teste2e:terraform`:
 
 ```shell
+# bash
 export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
 export MPF_TENANTID="YOUR_TENANT_ID"
 export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
