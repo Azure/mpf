@@ -139,6 +139,10 @@ tar -C "${INSTALL_DIR}" -xzf "${goFile}" || die "Failed to extract Go archive"
 
 log "✓ Successfully installed ${TOOL_NAME} to ${goInstallPath}"
 
+# Expose Go in PATH for the remainder of this script/process.
+# Note: when the script is executed (not sourced), exports won't persist in the parent shell.
+export PATH="${PATH}:${goInstallPath}/bin"
+
 # Configure environment based on installation mode
 if [[ "${installMode}" == "system" ]]; then
   # System-wide installation - create profile.d script
@@ -150,6 +154,10 @@ if [[ "${installMode}" == "system" ]]; then
 else
   # User installation - add to shell configs
   log "Setting up user environment variables"
+
+  # Also expose GOPATH/bin for this script/process (useful in CI).
+  export GOPATH="${HOME}/go"
+  export PATH="${PATH}:${GOPATH}/bin"
 
   # Function to add environment variables to shell config
   add_to_shell() {
@@ -181,4 +189,4 @@ else
 fi
 
 # Verify installation
-"${goInstallPath}/bin/go" version || die "Installed binary failed to run"
+go version || die "Installed binary failed to run"
