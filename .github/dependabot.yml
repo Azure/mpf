@@ -13,8 +13,10 @@ updates:
       prefix: ci
       include: scope
     labels:
-      - deps/github-actions
-      - dependencies
+      - "deps/github-actions"
+    groups:
+      all:
+        patterns: ["*"]
 
   - package-ecosystem: devcontainers
     directory: /
@@ -27,6 +29,9 @@ updates:
     labels:
       - deps/devcontainer
       - dependencies
+    groups:
+      all:
+        patterns: ["*"]
 
   - package-ecosystem: gomod
     directory: /
@@ -39,3 +44,6 @@ updates:
     labels:
       - deps/go
       - dependencies
+    groups:
+      all:
+        patterns: ["*"]
