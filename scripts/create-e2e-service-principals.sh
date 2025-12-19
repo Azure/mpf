@@ -59,7 +59,7 @@ EOF
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -y|--yes)
+      -y | --yes)
         YES=true
         shift
         ;;
@@ -67,11 +67,11 @@ parse_args() {
         ADD_TO_GITHUB=true
         shift
         ;;
-      -o|--output-file)
+      -o | --output-file)
         OUTPUT_FILE="$2"
         shift 2
         ;;
-      -h|--help)
+      -h | --help)
         usage
         exit 0
         ;;

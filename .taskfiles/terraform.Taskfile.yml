@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  TERRAFORM_VERSION:
+    map:
+      terraform: latest
+      opentofu: latest
+
+tasks:
+  # * Install Terraform
+  install:terraform:
+    desc: Install Terraform
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: HashiCorp.Terraform
+          VERSION: "{{.TERRAFORM_VERSION.terraform}}"
+      - task: :internal:_install:brew:tap
+        vars:
+          APP: hashicorp/tap
+      - task: :internal:_install:brew
+        vars:
+          APP: hashicorp/tap/terraform@{{.TERRAFORM_VERSION.terraform}}
+      - cmd: |
+          sudo ./scripts/install_terraform.sh "{{.TERRAFORM_VERSION.terraform}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Install OpenTofu
+  install:opentofu:
+    desc: Install OpenTofu
+    cmds:
+      - task: :internal:_install:winget
+        vars:
+          APP: OpenTofu.Tofu
+          VERSION: "{{.TERRAFORM_VERSION.opentofu}}"
+      - task: :internal:_install:brew
+        vars:
+          APP: opentofu@{{.TERRAFORM_VERSION.opentofu}}
+      - cmd: |
+          ./scripts/install_opentofu.sh "{{.TERRAFORM_VERSION.opentofu}}"
+        platforms: [linux]
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Tools
+  tools:lint:
+    desc: Install Terraform tools
+    aliases:
+      - tools
+    vars:
+      ITEMS:
+        - terraform
+        - opentofu
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
+  # * Run Terraform fmt
+  run:terraform-fmt:
+    desc: Run terraform fmt
+    preconditions:
+      - sh: task internal:command -- terraform
+        msg: "❌ Error: terraform is not installed. Please run 'task tf:install:terraform'"
+      - sh: task internal:command:version -- "terraform --version" "{{.TERRAFORM_VERSION.terraform}}"
+        msg: "❌ Version Mismatch: You are not using {{.TERRAFORM_VERSION.terraform}} version. Please run 'task tf:install:terraform'"
+    sources:
+      - "**/*.tf"
+      - "**/*.tfvars"
+      - "**/*.hcl"
+    cmds:
+      - terraform fmt -recursive
+    dir: "{{.ROOT_DIR}}"
+
+  # * Lint
+  lint:
+    desc: Lint Terraform files
+    cmds:
+      - task: run:terraform-fmt
+
+  # * Clean
+  clean:
+    desc: Clean up Terraform files
+    cmds:
+      - cmd: |
+          find ./ -type d \( -name ".external_modules" -o -name ".terraform" \) -exec rm -rf {} + 2>/dev/null; find ./ -type f \( -name "*.terraform.lock.*" -o -name "*.tfstate*" -o -name "terraform.log" \) -delete 2>/dev/null; true
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} 'Get-ChildItem -Path ./ -Include ".external_modules",".terraform" -Directory -Recurse -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; Get-ChildItem -Path ./ -Include "*.terraform.lock.*","*.tfstate*","terraform.log" -File -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force'
+        platforms: [windows]
+    dir: "{{.ROOT_DIR}}"

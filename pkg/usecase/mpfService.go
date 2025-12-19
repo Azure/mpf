@@ -25,6 +25,7 @@ package usecase
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/Azure/mpf/pkg/domain"
 	log "github.com/sirupsen/logrus"
@@ -104,6 +105,11 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	}
 	log.Info("Deleted all existing role assignments for service principal \n")
 
+	// Wait for Azure RBAC propagation after deleting role assignments
+	// This ensures that any previous permissions are fully revoked before starting the new test
+	log.Infoln("Waiting for Azure RBAC propagation after deleting role assignments...")
+	time.Sleep(15 * time.Second)
+
 	// Initialize new custom role
 	log.Infoln("Initializing Custom Role")
 	// err = mpf.CreateUpdateCustomRole([]string{})
@@ -127,6 +133,11 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		return s.returnMPFResult(err)
 	}
 	log.Infoln("New Custom Role assigned to service principal successfully")
+
+	// Wait for Azure RBAC propagation after initial role assignment
+	// Azure role assignments can take a few seconds to propagate across all authorization endpoints
+	log.Infoln("Waiting for Azure RBAC propagation after initial role assignment...")
+	time.Sleep(5 * time.Second)
 
 	// Add initial permissions to requiredPermissions map
 	log.Infoln("Adding initial permissions to requiredPermissions map")
@@ -205,6 +216,11 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 			log.Warnf("The following invalid actions were removed from the role during iteration: %v", invalidActions)
 		}
 		log.Infoln("Permission/scope added to role successfully")
+
+		// Wait for Azure RBAC propagation before retrying deployment
+		// Azure role definition updates can take a few seconds to propagate across all authorization endpoints
+		log.Infoln("Waiting for Azure RBAC propagation...")
+		time.Sleep(5 * time.Second)
 
 		iterCount++
 		if iterCount == maxIterations {

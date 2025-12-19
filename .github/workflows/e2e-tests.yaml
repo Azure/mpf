@@ -8,11 +8,14 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
-
   schedule:
     - cron: 0 21 * * *
 
 permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   e2e-tests:
@@ -29,6 +32,9 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: 🩺 Debug
+        uses: raven-actions/debug@9dbdeb7eea607a7d73411895c65987e71d59a466 # v1.2.0
+
       - name: ⤵️ Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
@@ -48,18 +54,40 @@ jobs:
         run: task deps:download
 
       - name: 🔨 Setup Test tools
-        run: task test:tools
+        run: task go:tools:test
 
       - name: 📦 Install Bicep
         if: matrix.type == 'bicep'
-        run: task install:bicep
+        run: task az:install:bicep
 
-      - name: 🚧 Setup Terraform
+      - name: 📦 Install Terraform
         if: matrix.type == 'terraform'
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-        with:
-          terraform_wrapper: false
-          terraform_version: 1.10.4
+        run: task tf:install:terraform
+
+      - name: 🌌 Ensure bin path
+        if: runner.os == 'Linux'
+        run: |
+          INSTALL_PATH="$HOME/.local/bin"
+
+          echo "$INSTALL_PATH" >> "${GITHUB_PATH}"
+          export PATH="$INSTALL_PATH:$PATH"
+        shell: bash
+
+      - name: 🌌 Ensure bin path
+        if: runner.os == 'Windows'
+        run: |
+          $INSTALL_PATH = "$env:USERPROFILE\.local\bin"
+          $INSTALL_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $env:PATH = "$INSTALL_PATH;$env:PATH"
+
+          $INSTALL_PATH = "$env:LOCALAPPDATA\Microsoft\WinGet\Links"
+          $INSTALL_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $env:PATH = "$INSTALL_PATH;$env:PATH"
+
+          $INSTALL_PATH = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
+          $INSTALL_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $env:PATH = "$INSTALL_PATH;$env:PATH"
+        shell: pwsh
 
       - name: 🔐 Azure Login
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
@@ -92,6 +120,7 @@ jobs:
     name: 🧪 Check E2E Tests
     needs: e2e-tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: ✅ OK
         if: ${{ !(contains(needs.*.result, 'failure')) }}

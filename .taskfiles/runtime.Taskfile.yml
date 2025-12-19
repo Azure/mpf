@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  RUNTIME_VERSION:
+    map:
+      uv: latest
+      fnm: latest
+      pwsh: latest
+      golang: latest
+
+tasks:
+  setup:uv:
+    desc: uv setup
+    cmds:
+      - cmd: |
+          ./scripts/setup_uv.sh "{{.RUNTIME_VERSION.uv}}"
+        platforms: [linux]
+      - task: :internal:_install:brew
+        vars:
+          APP: uv@{{.RUNTIME_VERSION.uv}}
+      - task: :internal:_install:winget
+        vars:
+          APP: astral-sh.uv
+          VERSION: "{{.RUNTIME_VERSION.uv}}"
+    dir: "{{.TASKFILE_DIR}}"
+
+  setup:fnm:
+    desc: fnm setup
+    cmds:
+      - cmd: |
+          ./scripts/setup_fnm.sh "{{.RUNTIME_VERSION.fnm}}"
+        platforms: [linux]
+      - task: :internal:_install:brew
+        vars:
+          APP: fnm@{{.RUNTIME_VERSION.fnm}}
+      - task: :internal:_install:winget
+        vars:
+          APP: Schniz.fnm
+          VERSION: "{{.RUNTIME_VERSION.fnm}}"
+    dir: "{{.TASKFILE_DIR}}"
+
+  setup:pwsh:
+    desc: pwsh setup
+    cmds:
+      - cmd: |
+          sudo ./scripts/setup_pwsh.sh "{{.RUNTIME_VERSION.pwsh}}"
+        platforms: [linux]
+      - cmd: |
+          ./scripts/setup_pwsh.sh "{{.RUNTIME_VERSION.pwsh}}"
+        platforms: [darwin]
+      - task: :internal:_install:winget
+        vars:
+          APP: Microsoft.PowerShell
+          VERSION: "{{.RUNTIME_VERSION.pwsh}}"
+    dir: "{{.TASKFILE_DIR}}"
+
+  setup:golang:
+    desc: golang setup
+    cmds:
+      - cmd: |
+          ./scripts/setup_golang.sh "{{.RUNTIME_VERSION.golang}}"
+        platforms: [linux]
+      - task: :internal:_install:brew
+        vars:
+          APP: golang@{{.RUNTIME_VERSION.golang}}
+      - task: :internal:_install:winget
+        vars:
+          APP: GoLang.Go
+          VERSION: "{{.RUNTIME_VERSION.golang}}"
+    dir: "{{.TASKFILE_DIR}}"
+
+  # * Setup
+  setup:
+    desc: Setup Runtime environments
+    vars:
+      ITEMS:
+        - golang
+        - uv
+        - fnm
+        - pwsh
+    cmds:
+      - for: { var: ITEMS }
+        task: setup:{{.ITEM}}

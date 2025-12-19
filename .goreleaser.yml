@@ -3,6 +3,10 @@
 ---
 version: 2
 
+project_name: azmpf
+
+report_sizes: true
+
 before:
   hooks:
     - go mod download
@@ -11,8 +15,11 @@ archives:
   - files:
       - src: LICENSE
         dst: LICENSE.txt
-    formats: [zip]
-    name_template: "az{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 
 builds:
   - dir: cmd
@@ -22,7 +29,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .Date }}
     goos:
       - windows
       - linux
@@ -35,24 +42,28 @@ builds:
     ignore:
       - goos: darwin
         goarch: "386"
-    binary: "az{{ .ProjectName }}_v{{ .Version }}"
+    binary: "{{ .ProjectName }}"
+
+sboms:
+  - id: default
+    disable: false
 
 checksum:
   algorithm: sha256
-  name_template: "az{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
+  name_template: "{{ .ProjectName }}_SHA256SUMS"
 
 signs:
   - artifacts: checksum
     args:
       # if you are using this in a GitHub action or some other automated pipeline, you
       # need to pass the batch flag to indicate its not interactive.
-      - "--batch"
-      - "--local-user"
+      - --batch
+      - --local-user
       - "{{ .Env.GPG_FINGERPRINT }}" # set this environment variable for your signing key
-      - "--output"
-      - "${signature}"
-      - "--detach-sign"
-      - "${artifact}"
+      - --output
+      - ${signature}
+      - --detach-sign
+      - ${artifact}
 
 release:
   # If you want to manually examine the release before its live, uncomment this line:

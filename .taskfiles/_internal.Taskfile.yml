@@ -1,0 +1,145 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  PWSH: pwsh -NonInteractive -NoProfile -NoLogo -Command
+  PWSH_SCRIPT: pwsh -NonInteractive -NoProfile -NoLogo -ExecutionPolicy Bypass -File
+  APT_UPDATE: sudo apt-get -o DPkg::Lock::Timeout=-1 update
+  APT_INSTALL: sudo apt-get -o DPkg::Lock::Timeout=-1 install -y
+  PYTHON_VERSION:
+    sh: |
+      [ -f .python-version ] && cat .python-version || echo "3.14"
+  NODE_VERSION:
+    sh: |
+      [ -f .node-version ] && cat .node-version || echo "24"
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+tasks:
+  command:
+    desc: Check if command exists (internal)
+    silent: true
+    run: once
+    preconditions:
+      - sh: |
+          {{empty .CLI_ARGS | not}}
+        msg: No command provided. Please provide a command to check.
+    cmds:
+      - cmd: command -v "{{.CLI_ARGS}}"
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} 'Get-Command "{{.CLI_ARGS}}"'
+        platforms: [windows]
+
+  command:version:
+    desc: Check if desired version of command is installed (internal)
+    silent: true
+    run: once
+    preconditions:
+      - sh: |
+          {{empty .CLI_ARGS | not}}
+        msg: No command and version provided. Please provide a command and version to check.
+    vars:
+      CMD: "{{index .CLI_ARGS_LIST 0}}"
+      VER: "{{index .CLI_ARGS_LIST 1}}"
+    cmds:
+      - cmd: |
+          {{if ne .VER "latest"}}
+            {{.CMD}} | grep -F "{{.VER}}"
+          {{end}}
+        platforms: [linux, darwin]
+      - cmd: |
+          {{if ne .VER "latest"}}
+            {{.PWSH}} '
+              $match = (& {{.CMD}}) | Select-String -Pattern "{{.VER}}" -SimpleMatch
+              if (-not $match) { exit 1 }
+            '
+          {{end}}
+        platforms: [windows]
+
+  _install:go:
+    desc: go install
+    internal: true
+    preconditions:
+      - sh: task internal:command -- go
+        msg: "go is not installed. Please install go: https://go.dev/doc/install"
+    requires:
+      vars: [APP]
+    cmds:
+      - go install {{.APP}}
+
+  _install:winget:
+    desc: winget install
+    internal: true
+    preconditions:
+      - sh: task internal:command -- winget
+        msg: "winget is not installed. Please install winget: https://learn.microsoft.com/windows/package-manager/winget/"
+    requires:
+      vars: [APP]
+    vars:
+      # yamllint disable-line rule:quoted-strings
+      VERSION: '{{if and .VERSION (ne .VERSION "latest")}}--version {{.VERSION}}{{end}}'
+    cmds:
+      - winget install --id "{{.APP}}" --accept-source-agreements --accept-package-agreements --disable-interactivity {{.VERSION}}
+    ignore_error: true
+    platforms: [windows]
+
+  _install:brew:
+    desc: brew install
+    internal: true
+    preconditions:
+      - sh: task internal:command -- brew
+        msg: brew is not installed. Please install brew.
+    requires:
+      vars: [APP]
+    cmds:
+      - brew install {{.APP}}
+    platforms: [darwin]
+
+  _install:brew:tap:
+    desc: brew tap
+    internal: true
+    preconditions:
+      - sh: task internal:command -- brew
+        msg: brew is not installed. Please install brew.
+    requires:
+      vars: [APP]
+    cmds:
+      - brew tap {{.APP}}
+    platforms: [darwin]
+
+  _install:pipx:
+    desc: pipx install
+    internal: true
+    preconditions:
+      - sh: task internal:command -- pipx
+        msg: "pipx is not installed. Please install pipx: https://pipx.pypa.io/"
+    requires:
+      vars: [APP]
+    cmds:
+      - pipx install --include-deps {{.APP}}
+
+  _install:npm:
+    desc: npm install
+    internal: true
+    preconditions:
+      - sh: task internal:command -- npm
+        msg: "npm is not installed. Please install npm: https://docs.npmjs.com/cli/commands/npm"
+    requires:
+      vars: [APP]
+    cmds:
+      - npm install {{if .OPTS}}{{.OPTS}}{{else}}--global{{end}} {{.APP}}
+
+  _install:uv:
+    desc: uv install
+    internal: true
+    preconditions:
+      - sh: task internal:command -- uv
+        msg: uv is not installed. Please install by running 'task runtime:setup:uv'
+    requires:
+      vars: [APP]
+    cmds:
+      - uv tool install --force --upgrade {{.APP}}

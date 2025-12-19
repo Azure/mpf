@@ -357,11 +357,16 @@ func (r *SPRoleAssignmentManager) DeleteCustomRole(subscription string, role dom
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close() //nolint:errcheck
 
 	// read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Warnf("Could not delete role definition: %s\n", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("failed to delete role definition. Status: %s, Body: %s", resp.Status, string(body))
 	}
 
 	log.Debugln(string(body))

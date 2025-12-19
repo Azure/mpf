@@ -170,8 +170,19 @@ func TestTerraformModuleTest(t *testing.T) {
 		t.Error(err)
 	}
 
+	// Microsoft.OperationalInsights/workspaces/delete
+	// Microsoft.OperationalInsights/workspaces/read
+	// Microsoft.OperationalInsights/workspaces/write
+	// Microsoft.Resources/deployments/read
+	// Microsoft.Resources/deployments/write
+	// Microsoft.Resources/subscriptions/resourcegroups/delete
+	// Microsoft.Resources/subscriptions/resourcegroups/read
+	// Microsoft.Resources/subscriptions/resourcegroups/write
+
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	perms := mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]
+	log.Infof("Found %d permissions: %v", len(perms), perms)
+	assert.Equal(t, 8, len(perms))
 }
 
 //

@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://www.schemastore.org/prettierrc.json
+---
+arrowParens: always
+bracketSpacing: true
+endOfLine: lf
+htmlWhitespaceSensitivity: css
+insertPragma: false # consider true
+singleAttributePerLine: false
+bracketSameLine: false
+jsxSingleQuote: true
+printWidth: 120
+proseWrap: preserve
+quoteProps: as-needed
+requirePragma: false # consider true
+semi: true
+singleQuote: true
+tabWidth: 2
+trailingComma: none
+useTabs: false
+vueIndentScriptAndStyle: true
+embeddedLanguageFormatting: auto
+experimentalTernaries: true
+experimentalOperatorPosition: end
+# multilineArraysWrapThreshold: 1
+# plugins:
+#   - prettier-plugin-multiline-arrays
+
+# Language-specific overrides
+overrides:
+  - files: "*.md"
+    options:
+      proseWrap: always
+  - files: "*.yml"
+    options:
+      singleQuote: false
+  - files: "*.yaml"
+    options:
+      singleQuote: false

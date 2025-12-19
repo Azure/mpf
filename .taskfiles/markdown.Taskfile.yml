@@ -1,0 +1,124 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# docs: https://taskfile.dev
+---
+version: "3"
+
+vars:
+  MARKDOWN_VERSION:
+    map:
+      markdownlintCli2: latest
+      markdownTableFormatter: latest
+
+tasks:
+  # * Install markdownlint-cli2
+  install:markdownlint-cli2:
+    desc: Install markdownlint-cli2
+    cmds:
+      - task: :internal:_install:npm
+        vars:
+          APP: markdownlint-cli2@{{.MARKDOWN_VERSION.markdownlintCli2}}
+
+  # * Install markdown-table-formatter
+  install:markdown-table-formatter:
+    desc: Install markdown-table-formatter
+    cmds:
+      - task: :internal:_install:npm
+        vars:
+          APP: markdown-table-formatter@{{.MARKDOWN_VERSION.markdownTableFormatter}}
+
+  # * Tools
+  tools:lint:
+    desc: Install Markdown tools
+    aliases:
+      - tools
+    vars:
+      ITEMS:
+        - markdownlint-cli2
+        - markdown-table-formatter
+    cmds:
+      - for: { var: ITEMS }
+        task: install:{{.ITEM}}
+
+  # * Run markdownlint-cli2
+  _run:markdownlint-cli2:
+    internal: true
+    desc: Run markdownlint-cli2
+    preconditions:
+      - sh: task internal:command -- markdownlint-cli2
+        msg: "❌ Error: markdownlint-cli2 is not installed. Please run 'task md:install:markdownlint-cli2'"
+      - sh: task internal:command:version -- "markdownlint-cli2 --help" "{{.MARKDOWN_VERSION.markdownlintCli2}}"
+        msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownlintCli2}} version. Please run 'task md:install:markdownlint-cli2'"
+    sources:
+      - "**/*.md"
+    vars:
+      # yamllint disable-line rule:quoted-strings
+      MODE: '{{default "" .MODE}}'
+    cmds:
+      - defer: |
+          {{if and .EXIT_CODE (eq .MODE "")}}echo "⚠️ Markdown files are not formatted correctly. Please run 'task md:run:markdownlint-cli2:fix' to fix formatting issues."{{end}}
+      - markdownlint-cli2 "./**/*.md" --config "./.github/linters/.markdownlint-cli2.yaml" {{.MODE}}
+    dir: "{{.ROOT_DIR}}"
+
+  # * Run markdownlint-cli2 Check
+  run:markdownlint-cli2:check:
+    desc: Run markdownlint-cli2 (check)
+    cmds:
+      - task: _run:markdownlint-cli2
+        vars: { MODE: "" }
+
+  # * Run markdownlint-cli2 Fix
+  run:markdownlint-cli2:fix:
+    desc: Run markdownlint-cli2 (fix)
+    cmds:
+      - task: _run:markdownlint-cli2
+        vars: { MODE: --fix }
+
+  # * Run markdown-table-formatter
+  _run:markdown-table-formatter:
+    internal: true
+    desc: Run markdown-table-formatter
+    preconditions:
+      - sh: task internal:command -- markdown-table-formatter
+        msg: "❌ Error: markdown-table-formatter is not installed. Please run 'task md:install:markdown-table-formatter'"
+      - sh: task internal:command:version -- "markdown-table-formatter --version" "{{.MARKDOWN_VERSION.markdownTableFormatter}}"
+        msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownTableFormatter}} version. Please run 'task md:install:markdown-table-formatter'"
+    sources:
+      - "**/*.md"
+    vars:
+      # yamllint disable-line rule:quoted-strings
+      MODE: '{{default "--check" .MODE}}'
+    cmds:
+      - defer: |
+          {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ Markdown tables are not formatted correctly. Please run 'task md:run:markdown-table-formatter:fix' to fix formatting issues."{{end}}
+      - markdown-table-formatter "./**/*.md" {{.MODE}}
+    dir: "{{.ROOT_DIR}}"
+
+  # * Run markdown-table-formatter Check
+  run:markdown-table-formatter:check:
+    desc: Run markdown-table-formatter (check)
+    cmds:
+      - task: _run:markdown-table-formatter
+        vars: { MODE: --check }
+
+  # * Run markdown-table-formatter Fix
+  run:markdown-table-formatter:fix:
+    desc: Run markdown-table-formatter (fix)
+    cmds:
+      - task: _run:markdown-table-formatter
+        vars: { MODE: "" }
+
+  # * Lint Check
+  lint:check:
+    desc: Lint Markdown files (check)
+    cmds:
+      - task: run:markdownlint-cli2:check
+      - task: run:markdown-table-formatter:check
+
+  # * Lint Fix
+  lint:fix:
+    aliases:
+      - lint
+    desc: Lint Markdown files (fix)
+    cmds:
+      - task: run:markdownlint-cli2:fix
+      - task: run:markdown-table-formatter:fix
