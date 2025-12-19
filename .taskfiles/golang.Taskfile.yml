@@ -7,6 +7,7 @@ vars:
   GO_VERSION:
     map:
       dlv: latest
+      gopls: latest
       deadcode: latest
       golangciLint: latest
       gotestsum: latest
@@ -33,6 +34,14 @@ tasks:
           ./scripts/install_goreleaser.sh "{{.GO_VERSION.goreleaser}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
+
+  # * Install GoPls
+  install:gopls:
+    desc: Install GoPls
+    cmds:
+      - task: :internal:_install:go
+        vars:
+          APP: golang.org/x/tools/gopls@{{.GO_VERSION.gopls}}
 
   # * Install Dlv
   install:dlv:
@@ -120,6 +129,7 @@ tasks:
     vars:
       ITEMS:
         - dlv
+        - gopls
         - deadcode
         - golangci-lint
         - gotestsum
