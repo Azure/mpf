@@ -61,11 +61,11 @@ func NewRootCommand() *cobra.Command {
 		Use:   "azmpf",
 		Short: "Find minimum permissions required for Azure deployments",
 		Long: `Find minimum permissions required for Azure deployments including ARM and Terraform based deployments. For example:
-		
-		This CLI allows you to find the minimum permissions required for Azure deployments including ARM and Terraform based deployments. 
+
+		This CLI allows you to find the minimum permissions required for Azure deployments including ARM and Terraform based deployments.
 		A Service Principal is required to run this CLI. All permissions associated with the Service principal are initially wiped by this command:`,
 		Example: `azmpf arm --subscriptionID <subscriptionID> --tenantID <tenantID> --spClientID <spClientID> --spObjectID <spObjectID> --spClientSecret <spClientSecret>
-		az-mpm terraform --subscriptionID <subscriptionID> --tenantID <tenantID> --spClientID <spClientID> --spObjectID <spObjectID> --spClientSecret <spClientSecret> --executablePath <executablePath> --workingDir <workingDir> --varFilePath <varFilePath>
+		azmpm terraform --subscriptionID <subscriptionID> --tenantID <tenantID> --spClientID <spClientID> --spObjectID <spObjectID> --spClientSecret <spClientSecret> --tfPath <executablePath> --workingDir <workingDir> --varFilePath <varFilePath>
 		`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return initializeConfig(cmd)

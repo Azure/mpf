@@ -18,11 +18,11 @@ The utility by default prints the overall required permissions. It is also possi
 
 ```shell
 # Detailed Text output
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --showDetailedOutput --verbose
 ```
@@ -111,11 +111,11 @@ Microsoft.ContainerService/managedClusters/write
 It is possible to also get the JSON output, which by default shows details as well. The following is a sample of JSON output:
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --outputFormat json --verbose
 ```
@@ -207,11 +207,11 @@ INFO[0452] Resource group deletion initiated successfully...
 By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of default logging (error level only):
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
 ```
@@ -250,11 +250,11 @@ Microsoft.Resources/deployments/write
 Let us look at the detailed output of a more complex ARM template. The following is the command used to run the sample:
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/multi-resource-template.json --parametersFilePath ./samples/templates/multi-resource-parameters.json --showDetailedOutput
 ```

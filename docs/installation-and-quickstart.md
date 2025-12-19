@@ -15,7 +15,7 @@ chmod +x ./azmpf
 ```
 
 For Mac Arm64:
-  
+
 ```shell
 # Please change the version in the URL to the latest version
 curl -LO https://github.com/Azure/mpf/releases/download/v0.15.0/azmpf_0.15.0_darwin_arm64.zip
@@ -68,11 +68,11 @@ $env:MPF_SPOBJECTID = (az ad sp show --id $MPF_SP.appId --query id -o tsv)
 ### ARM
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --verbose
 ```
@@ -92,33 +92,33 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 Output:
 
 ```text
-INFO[0000] Executing MPF for ARM                        
-INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json 
-INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json 
-INFO[0000] Location: eastus2                            
-INFO[0001] Creating Resource Group: testdeployrg-OJ2zCNA  
-INFO[0007] Resource Group: testdeployrg-OJ2zCNA created successfully  
-INFO[0008] Deleted all existing role assignments for service principal  
-INFO[0008] Initializing Custom Role                     
-INFO[0014] Custom role initialized successfully         
-INFO[0014] Assigning new custom role to service principal 
-INFO[0018] New Custom Role assigned to service principal successfully 
-INFO[0023] Iteration Number: 0                          
-INFO[0023] Successfully Parsed Deployment Authorization Error 
-INFO[0023] Adding mising scopes/permissions to final result map... 
-INFO[0023] Adding permission/scope to role...........   
-INFO[0027] Permission/scope added to role successfully  
-INFO[0082] Iteration Number: 1                          
-INFO[0082] Successfully Parsed Deployment Authorization Error 
-INFO[0082] Adding mising scopes/permissions to final result map... 
-INFO[0082] Adding permission/scope to role...........   
-INFO[0085] Permission/scope added to role successfully  
-INFO[0560] Iteration Number: 2                          
-INFO[0560] Authorization Successful                     
-INFO[0560] Cleaning up resources...                     
-INFO[0560] *************************                    
-INFO[0573] Role definition deleted successfully         
-INFO[0577] Resource group deletion initiated successfully... 
+INFO[0000] Executing MPF for ARM
+INFO[0000] TemplateFilePath: ./samples/templates/aks-private-subnet.json
+INFO[0000] ParametersFilePath: ./samples/templates/aks-private-subnet-parameters.json
+INFO[0000] Location: eastus2
+INFO[0001] Creating Resource Group: testdeployrg-OJ2zCNA
+INFO[0007] Resource Group: testdeployrg-OJ2zCNA created successfully
+INFO[0008] Deleted all existing role assignments for service principal
+INFO[0008] Initializing Custom Role
+INFO[0014] Custom role initialized successfully
+INFO[0014] Assigning new custom role to service principal
+INFO[0018] New Custom Role assigned to service principal successfully
+INFO[0023] Iteration Number: 0
+INFO[0023] Successfully Parsed Deployment Authorization Error
+INFO[0023] Adding mising scopes/permissions to final result map...
+INFO[0023] Adding permission/scope to role...........
+INFO[0027] Permission/scope added to role successfully
+INFO[0082] Iteration Number: 1
+INFO[0082] Successfully Parsed Deployment Authorization Error
+INFO[0082] Adding mising scopes/permissions to final result map...
+INFO[0082] Adding permission/scope to role...........
+INFO[0085] Permission/scope added to role successfully
+INFO[0560] Iteration Number: 2
+INFO[0560] Authorization Successful
+INFO[0560] Cleaning up resources...
+INFO[0560] *************************
+INFO[0573] Role definition deleted successfully
+INFO[0577] Resource group deletion initiated successfully...
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -138,11 +138,11 @@ Microsoft.Resources/deployments/write
 ### Bicep
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 export MPF_BICEPEXECPATH="/usr/local/bin/bicep" # Path to the Bicep executable
 
 $ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --verbose
@@ -164,33 +164,33 @@ $env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe" # Path to 
 Output:
 
 ```text
-INFO[0000] BicepFilePath: ./samples/bicep/aks-private-subnet.bicep 
-INFO[0000] ParametersFilePath: ./samples/bicep/aks-private-subnet-params.json 
-INFO[0000] Location: eastus2                            
-INFO[0001] Successfully built ./samples/bicep/aks-private-subnet.bicep to ./samples/bicep/aks-private-subnet.json 
-INFO[0001] Creating Resource Group: testdeployrg-Qz5bP5s  
-INFO[0007] Resource Group: testdeployrg-Qz5bP5s created successfully  
-INFO[0007] Deleted all existing role assignments for service principal  
-INFO[0007] Initializing Custom Role                     
-INFO[0014] Custom role initialized successfully         
-INFO[0014] Assigning new custom role to service principal 
-INFO[0018] New Custom Role assigned to service principal successfully 
-INFO[0024] Iteration Number: 0                          
-INFO[0024] Successfully Parsed Deployment Authorization Error 
-INFO[0024] Adding mising scopes/permissions to final result map... 
-INFO[0024] Adding permission/scope to role...........   
-INFO[0028] Permission/scope added to role successfully  
-INFO[0175] Iteration Number: 1                          
-INFO[0175] Successfully Parsed Deployment Authorization Error 
-INFO[0175] Adding mising scopes/permissions to final result map... 
-INFO[0175] Adding permission/scope to role...........   
-INFO[0178] Permission/scope added to role successfully  
-INFO[0675] Iteration Number: 2                          
-INFO[0675] Authorization Successful                     
-INFO[0675] Cleaning up resources...                     
-INFO[0675] *************************                    
-INFO[0688] Role definition deleted successfully         
-INFO[0693] Resource group deletion initiated successfully... 
+INFO[0000] BicepFilePath: ./samples/bicep/aks-private-subnet.bicep
+INFO[0000] ParametersFilePath: ./samples/bicep/aks-private-subnet-params.json
+INFO[0000] Location: eastus2
+INFO[0001] Successfully built ./samples/bicep/aks-private-subnet.bicep to ./samples/bicep/aks-private-subnet.json
+INFO[0001] Creating Resource Group: testdeployrg-Qz5bP5s
+INFO[0007] Resource Group: testdeployrg-Qz5bP5s created successfully
+INFO[0007] Deleted all existing role assignments for service principal
+INFO[0007] Initializing Custom Role
+INFO[0014] Custom role initialized successfully
+INFO[0014] Assigning new custom role to service principal
+INFO[0018] New Custom Role assigned to service principal successfully
+INFO[0024] Iteration Number: 0
+INFO[0024] Successfully Parsed Deployment Authorization Error
+INFO[0024] Adding mising scopes/permissions to final result map...
+INFO[0024] Adding permission/scope to role...........
+INFO[0028] Permission/scope added to role successfully
+INFO[0175] Iteration Number: 1
+INFO[0175] Successfully Parsed Deployment Authorization Error
+INFO[0175] Adding mising scopes/permissions to final result map...
+INFO[0175] Adding permission/scope to role...........
+INFO[0178] Permission/scope added to role successfully
+INFO[0675] Iteration Number: 2
+INFO[0675] Authorization Successful
+INFO[0675] Cleaning up resources...
+INFO[0675] *************************
+INFO[0688] Role definition deleted successfully
+INFO[0693] Resource group deletion initiated successfully...
 ------------------------------------------------------------------------------------------------------------------------------------------
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -210,12 +210,12 @@ Microsoft.Resources/deployments/write
 ### Terraform
 
 ```shell
-export MPF_SUBSCRIPTIONID=YOUR_SUBSCRIPTION_ID
-export MPF_TENANTID=YOUR_TENANT_ID
-export MPF_SPCLIENTID=YOUR_SP_CLIENT_ID
-export MPF_SPCLIENTSECRET=YOUR_SP_CLIENT_SECRET
-export MPF_SPOBJECTID=YOUR_SP_OBJECT_ID
-export MPF_TFPATH=TERRAFORM_EXECUTABLE_PATH
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH="TERRAFORM_EXECUTABLE_PATH"
 
 # pushd .
 # cd ./samples/terraform/aci/
