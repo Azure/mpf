@@ -28,14 +28,23 @@ The overview of how this utility works is as follows:
 
 ## Supported Deployment Providers
 
-- Azure **ARM** Template: Uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Resources are actually created during the process and then automatically cleaned up. The ARM endpoints return multiple authorization errors at a time, but since resources are actually deployed, the execution time can range from several minutes to longer depending on the complexity of the template and resources being deployed. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
-- **Bicep**: The Bicep mode uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Internally, the utility converts the Bicep file to an ARM template and then uses the ARM deployment endpoint. Like ARM mode, resources are actually created and automatically cleaned up, so execution time can range from several minutes to longer depending on template complexity. *Note: The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
+- Azure **ARM** Template: Uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Resources are actually created during the process and then automatically cleaned up. The ARM endpoints return multiple authorization errors at a time, but since resources are actually deployed, the execution time can range from several minutes to longer depending on the complexity of the template and resources being deployed.
+
+> [!NOTE]
+> The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
+
+- **Bicep**: The Bicep mode uses ARM deployment endpoint in Incremental mode to get the authorization errors and find the minimum permissions required for a deployment. Internally, the utility converts the Bicep file to an ARM template and then uses the ARM deployment endpoint. Like ARM mode, resources are actually created and automatically cleaned up, so execution time can range from several minutes to longer depending on template complexity.
+
+> [!NOTE]
+> The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.*
+
 - **Terraform**: The Terraform mode finds the minimum permissions required for a deployment by getting the authorization errors from the Terraform apply and destroy commands. All resources are cleaned up by the utility.
 
 > [!NOTE]
 > By default, when Terraform reports an "existing resource" error, MPF may import those resources into Terraform state to continue execution, and will then destroy the imported resources during cleanup. Use this tool in a dev/test environment.
 
-Note: ARM and Bicep are executed as resource-group scoped incremental deployments, and MPF will create and delete a temporary resource group during execution.
+> [!NOTE]
+> ARM and Bicep are executed as resource-group scoped incremental deployments, and MPF will create and delete a temporary resource group during execution.
 
 ## Flags and Environment Variables
 
