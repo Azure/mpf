@@ -22,15 +22,15 @@ tasks:
     desc: Initialize Node.js environment
     cmds:
       - fnm install {{.NODE_VERSION}}
-      - fnm use {{.NODE_VERSION}}
-      - node --version
+      # - fnm use {{.NODE_VERSION}}
+      # - node --version
     dir: "{{.ROOT_DIR}}"
 
   init:python:
     desc: Initialize Python environment
     cmds:
       - uv python install --default "{{.PYTHON_VERSION}}" --preview-features python-install-default
-      - python --version
+      # - python --version
     dir: "{{.ROOT_DIR}}"
 
   setup:uv:
