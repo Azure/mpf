@@ -248,66 +248,79 @@ func TestARMTemplatMultiResourceTemplateFullDeployment(t *testing.T) {
 		t.Error(err)
 	}
 
-	//check if mpfResult.RequiredPermissions is not empty and has 57 permissions
-	// Microsoft.Authorization/roleAssignments/read
-	// Microsoft.Authorization/roleAssignments/write
-	// Microsoft.Compute/virtualMachines/extensions/read
-	// Microsoft.Compute/virtualMachines/extensions/write
-	// Microsoft.Compute/virtualMachines/read
-	// Microsoft.Compute/virtualMachines/write
-	// Microsoft.ContainerRegistry/registries/read
-	// Microsoft.ContainerRegistry/registries/write
-	// Microsoft.ContainerService/managedClusters/read
-	// Microsoft.ContainerService/managedClusters/write
-	// Microsoft.Insights/actionGroups/read
-	// Microsoft.Insights/actionGroups/write
-	// Microsoft.Insights/activityLogAlerts/read
-	// Microsoft.Insights/activityLogAlerts/write
-	// Microsoft.Insights/diagnosticSettings/read
-	// Microsoft.Insights/diagnosticSettings/write
-	// Microsoft.KeyVault/vaults/read
-	// Microsoft.KeyVault/vaults/write
-	// Microsoft.ManagedIdentity/userAssignedIdentities/read
-	// Microsoft.ManagedIdentity/userAssignedIdentities/write
-	// Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/read
-	// Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/write
-	// Microsoft.Network/applicationGateways/read
-	// Microsoft.Network/applicationGateways/write
-	// Microsoft.Network/bastionHosts/read
-	// Microsoft.Network/bastionHosts/write
-	// Microsoft.Network/natGateways/read
-	// Microsoft.Network/natGateways/write
-	// Microsoft.Network/networkInterfaces/read
-	// Microsoft.Network/networkInterfaces/write
-	// Microsoft.Network/networkSecurityGroups/read
-	// Microsoft.Network/networkSecurityGroups/write
-	// Microsoft.Network/privateDnsZones/read
-	// Microsoft.Network/privateDnsZones/virtualNetworkLinks/read
-	// Microsoft.Network/privateDnsZones/virtualNetworkLinks/write
-	// Microsoft.Network/privateDnsZones/write
-	// Microsoft.Network/privateEndpoints/privateDnsZoneGroups/read
-	// Microsoft.Network/privateEndpoints/privateDnsZoneGroups/write
-	// Microsoft.Network/privateEndpoints/read
-	// Microsoft.Network/privateEndpoints/write
-	// Microsoft.Network/publicIPAddresses/read
-	// Microsoft.Network/publicIPAddresses/write
-	// Microsoft.Network/publicIPPrefixes/read
-	// Microsoft.Network/publicIPPrefixes/write
-	// Microsoft.Network/virtualNetworks/read
-	// Microsoft.Network/virtualNetworks/write
-	// Microsoft.OperationalInsights/workspaces/listKeys/action
-	// Microsoft.OperationalInsights/workspaces/read
-	// Microsoft.OperationalInsights/workspaces/sharedKeys/action
-	// Microsoft.OperationalInsights/workspaces/write
-	// Microsoft.OperationsManagement/solutions/read
-	// Microsoft.OperationsManagement/solutions/write
-	// Microsoft.Resources/deployments/read
-	// Microsoft.Resources/deployments/write
-	// Microsoft.Resources/subscriptions/resourceGroups/read
-	// Microsoft.Storage/storageAccounts/read
-	// Microsoft.Storage/storageAccounts/write
+	// Define the baseline permissions that must always be present.
+	// Additional permissions may be returned based on subscription/management group policies.
+	baselinePermissions := []string{
+		"Microsoft.Authorization/roleAssignments/read",
+		"Microsoft.Authorization/roleAssignments/write",
+		"Microsoft.Compute/virtualMachines/extensions/read",
+		"Microsoft.Compute/virtualMachines/extensions/write",
+		"Microsoft.Compute/virtualMachines/read",
+		"Microsoft.Compute/virtualMachines/write",
+		"Microsoft.ContainerRegistry/registries/read",
+		"Microsoft.ContainerRegistry/registries/write",
+		"Microsoft.ContainerService/managedClusters/read",
+		"Microsoft.ContainerService/managedClusters/write",
+		"Microsoft.Insights/actionGroups/read",
+		"Microsoft.Insights/actionGroups/write",
+		"Microsoft.Insights/activityLogAlerts/read",
+		"Microsoft.Insights/activityLogAlerts/write",
+		"Microsoft.Insights/diagnosticSettings/read",
+		"Microsoft.Insights/diagnosticSettings/write",
+		"Microsoft.KeyVault/vaults/read",
+		"Microsoft.KeyVault/vaults/write",
+		"Microsoft.ManagedIdentity/userAssignedIdentities/read",
+		"Microsoft.ManagedIdentity/userAssignedIdentities/write",
+		"Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/read",
+		"Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/write",
+		"Microsoft.Network/applicationGateways/read",
+		"Microsoft.Network/applicationGateways/write",
+		"Microsoft.Network/bastionHosts/read",
+		"Microsoft.Network/bastionHosts/write",
+		"Microsoft.Network/natGateways/read",
+		"Microsoft.Network/natGateways/write",
+		"Microsoft.Network/networkInterfaces/read",
+		"Microsoft.Network/networkInterfaces/write",
+		"Microsoft.Network/networkSecurityGroups/read",
+		"Microsoft.Network/networkSecurityGroups/write",
+		"Microsoft.Network/privateDnsZones/read",
+		"Microsoft.Network/privateDnsZones/virtualNetworkLinks/read",
+		"Microsoft.Network/privateDnsZones/virtualNetworkLinks/write",
+		"Microsoft.Network/privateDnsZones/write",
+		"Microsoft.Network/privateEndpoints/privateDnsZoneGroups/read",
+		"Microsoft.Network/privateEndpoints/privateDnsZoneGroups/write",
+		"Microsoft.Network/privateEndpoints/read",
+		"Microsoft.Network/privateEndpoints/write",
+		"Microsoft.Network/publicIPAddresses/read",
+		"Microsoft.Network/publicIPAddresses/write",
+		"Microsoft.Network/publicIPPrefixes/read",
+		"Microsoft.Network/publicIPPrefixes/write",
+		"Microsoft.Network/virtualNetworks/read",
+		"Microsoft.Network/virtualNetworks/write",
+		"Microsoft.OperationalInsights/workspaces/listKeys/action",
+		"Microsoft.OperationalInsights/workspaces/read",
+		"Microsoft.OperationalInsights/workspaces/sharedKeys/action",
+		"Microsoft.OperationalInsights/workspaces/write",
+		"Microsoft.OperationsManagement/solutions/read",
+		"Microsoft.OperationsManagement/solutions/write",
+		"Microsoft.Resources/deployments/read",
+		"Microsoft.Resources/deployments/write",
+		"Microsoft.Resources/subscriptions/resourceGroups/read",
+		"Microsoft.Storage/storageAccounts/read",
+		"Microsoft.Storage/storageAccounts/write",
+	}
+
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 69, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+
+	// Assert all baseline permissions are present in the result
+	actualPermissions := mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]
+	for _, expectedPerm := range baselinePermissions {
+		assert.Contains(t, actualPermissions, expectedPerm, "Missing expected permission: %s", expectedPerm)
+	}
+
+	// Assert minimum count - should have at least the baseline permissions
+	assert.GreaterOrEqual(t, len(actualPermissions), len(baselinePermissions),
+		"Expected at least %d permissions, got %d", len(baselinePermissions), len(actualPermissions))
 }
 
 // func TestARMTemplatAksPrivateSubnetTemplate(t *testing.T) {
