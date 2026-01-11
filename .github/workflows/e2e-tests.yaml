@@ -45,7 +45,33 @@ jobs:
         if: matrix.type == 'terraform'
         run: git clean -ffdx samples/terraform
 
-      - name: 🚧 Setup Go
+      - name: � Debug Terraform artifacts (pre-test)
+        if: matrix.type == 'terraform'
+        run: |
+          echo "=== Checking for .terraform folders ==="
+          find samples/terraform -type d -name ".terraform" 2>/dev/null || echo "No .terraform folders found"
+
+          echo ""
+          echo "=== Checking for .terraform.lock.hcl files ==="
+          find samples/terraform -name ".terraform.lock.hcl" 2>/dev/null || echo "No .terraform.lock.hcl files found"
+
+          echo ""
+          echo "=== Checking for tfstate files ==="
+          find samples/terraform -name "*.tfstate*" 2>/dev/null || echo "No tfstate files found"
+
+          echo ""
+          echo "=== Checking for tfplan files ==="
+          find samples/terraform -name "*.tfplan" 2>/dev/null || echo "No tfplan files found"
+
+          echo ""
+          echo "=== Terraform sample directories content ==="
+          for dir in samples/terraform/*/; do
+            echo "--- $dir ---"
+            ls -la "$dir" 2>/dev/null || echo "  (empty or not accessible)"
+          done
+        shell: bash
+
+      - name: �🚧 Setup Go
         uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
         with:
           go-version-file: go.mod
