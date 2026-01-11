@@ -329,10 +329,56 @@ tasks:
             which terraform
           {{end}}
     cmds:
+      - task: _debug:terraform-artifacts
       - task: _teste2e:run
         vars:
           TEST_RUN: TestTerraform
           MPF_TFPATH: "{{.MPF_TFPATH}}"
+
+  _debug:terraform-artifacts:
+    internal: true
+    desc: Check for existing Terraform artifacts before tests
+    cmds:
+      - cmd: |
+          echo "=== Checking for Terraform artifacts in samples/terraform ==="
+          echo ""
+          echo "--- .terraform directories ---"
+          find samples/terraform -type d -name ".terraform" 2>/dev/null || echo "(none found)"
+          echo ""
+          echo "--- .terraform.lock.hcl files ---"
+          find samples/terraform -name ".terraform.lock.hcl" 2>/dev/null || echo "(none found)"
+          echo ""
+          echo "--- terraform.tfstate files ---"
+          find samples/terraform -name "terraform.tfstate*" 2>/dev/null || echo "(none found)"
+          echo ""
+          echo "--- .tfplan files ---"
+          find samples/terraform -name "*.tfplan" 2>/dev/null || echo "(none found)"
+          echo ""
+          echo "=== End artifact check ==="
+        platforms: [linux, darwin]
+      - cmd: |
+          {{.PWSH}} '
+            Write-Host "=== Checking for Terraform artifacts in samples/terraform ===" -ForegroundColor Cyan
+            Write-Host ""
+            Write-Host "--- .terraform directories ---"
+            $dirs = Get-ChildItem -Path samples/terraform -Recurse -Directory -Filter ".terraform" -ErrorAction SilentlyContinue
+            if ($dirs) { $dirs.FullName } else { Write-Host "(none found)" }
+            Write-Host ""
+            Write-Host "--- .terraform.lock.hcl files ---"
+            $locks = Get-ChildItem -Path samples/terraform -Recurse -Filter ".terraform.lock.hcl" -ErrorAction SilentlyContinue
+            if ($locks) { $locks.FullName } else { Write-Host "(none found)" }
+            Write-Host ""
+            Write-Host "--- terraform.tfstate files ---"
+            $states = Get-ChildItem -Path samples/terraform -Recurse -Filter "terraform.tfstate*" -ErrorAction SilentlyContinue
+            if ($states) { $states.FullName } else { Write-Host "(none found)" }
+            Write-Host ""
+            Write-Host "--- .tfplan files ---"
+            $plans = Get-ChildItem -Path samples/terraform -Recurse -Filter "*.tfplan" -ErrorAction SilentlyContinue
+            if ($plans) { $plans.FullName } else { Write-Host "(none found)" }
+            Write-Host ""
+            Write-Host "=== End artifact check ===" -ForegroundColor Cyan
+          '
+        platforms: [windows]
 
   testacc:
     desc: Run acceptance tests
