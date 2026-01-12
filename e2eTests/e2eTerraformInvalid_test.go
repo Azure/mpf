@@ -54,6 +54,11 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	varsFile := path.Join(wrkDir, "dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
@@ -98,6 +103,10 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-invalid-tf-file")
 	log.Infof("wrkDir: %s", wrkDir)
 
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
@@ -134,6 +143,10 @@ func TestTerraformACIInvalidTfExec(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
 
 	ctx := t.Context()
 

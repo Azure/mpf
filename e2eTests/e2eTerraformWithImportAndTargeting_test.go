@@ -56,6 +56,11 @@ func TestTerraformWithImport(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/existing-resource-import")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
@@ -102,6 +107,11 @@ func TestTerraformWithTargetting(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/module-test-with-targetting")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)

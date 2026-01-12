@@ -226,7 +226,7 @@ tasks:
       MPF_BICEPEXECPATH: "{{.MPF_BICEPEXECPATH}}"
     cmds:
       - go clean -testcache
-      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 60m -run {{.TEST_RUN}}
+      - gotestsum --format-hivis --format {{.FORMAT}} -- ./e2eTests -v -timeout 60m -p 1 -parallel 1 -run {{.TEST_RUN}}
 
   testunit:
     desc: Run unit tests
