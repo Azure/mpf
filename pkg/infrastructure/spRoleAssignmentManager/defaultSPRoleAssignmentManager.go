@@ -322,6 +322,12 @@ func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscri
 
 			_, err := r.azAPIClient.RoleAssignmentsDeletionClient.DeleteByID(ctx, string(*roleAssignment.ID), nil)
 			if err != nil {
+				// If the SP does not have permission to delete the role assignment
+				// (403 AuthorizationFailed), log a warning and continue with best-effort cleanup.
+				if strings.Contains(err.Error(), "AuthorizationFailed") || strings.Contains(err.Error(), "403") {
+					log.Warnf("Unable to delete role assignment %s (continuing): %v", *roleAssignment.ID, err)
+					continue
+				}
 				return err
 			}
 		}

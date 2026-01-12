@@ -25,6 +25,7 @@ package e2etests
 import (
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -35,6 +36,34 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
+
+// cleanTerraformWorkingDir removes Terraform state files and cache directories
+// from the working directory to ensure each test starts with a clean state.
+// This prevents test pollution from leftover state files between test runs.
+func cleanTerraformWorkingDir(t *testing.T, workingDir string) {
+	t.Helper()
+
+	// Files and directories to remove
+	artifactsToRemove := []string{
+		".terraform",
+		".terraform.lock.hcl",
+		"terraform.tfstate",
+		"terraform.tfstate.backup",
+		".terraform.tfstate.lock.info",
+		"terraform.log",
+		".azmpfEnteredDestroyPhase.txt",
+	}
+
+	for _, artifact := range artifactsToRemove {
+		artifactPath := filepath.Join(workingDir, artifact)
+		if err := os.RemoveAll(artifactPath); err != nil {
+			// Log warning but don't fail - the artifact may not exist
+			log.Debugf("could not remove %s: %v", artifactPath, err)
+		}
+	}
+
+	log.Infof("cleaned Terraform artifacts from: %s", workingDir)
+}
 
 func TestTerraformACI(t *testing.T) {
 	mpfArgs, err := getTestingMPFArgs()
@@ -54,6 +83,11 @@ func TestTerraformACI(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/aci")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	varsFile := path.Join(wrkDir, "dev.vars.tfvars")
 	log.Infof("varsFile: %s", varsFile)
 
@@ -102,6 +136,11 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/rg-no-tfvars")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
@@ -147,6 +186,11 @@ func TestTerraformModuleTest(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/module-test")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)

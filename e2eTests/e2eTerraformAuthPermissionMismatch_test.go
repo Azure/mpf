@@ -58,6 +58,11 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	log.Infof("curDir: %s", curDir)
 	wrkDir := path.Join(curDir, "../samples/terraform/authorization-permission-mismatch")
 	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
 	ctx := t.Context()
 
 	mpfConfig := getMPFConfig(mpfArgs)
