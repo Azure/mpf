@@ -48,6 +48,28 @@ The overview of how this utility works is as follows:
 > [!NOTE]
 > ARM and Bicep are executed as resource-group scoped incremental deployments, and MPF will create and delete a temporary resource group during execution.
 
+## AI-Assisted Analysis
+
+For AI-assisted analysis using GitHub Copilot CLI or similar tools, see [AGENTS.md](./AGENTS.md). This provides instructions for AI agents to automatically analyze IaC repositories and determine minimum permissions.
+
+**Use in your own repository:**
+
+Copy [AGENTS.md](./AGENTS.md) to your Azure IaC project, then run Copilot CLI:
+
+```bash
+# Download to your project
+curl -sO https://raw.githubusercontent.com/Azure/mpf/main/AGENTS.md
+
+# Or for VS Code Copilot Chat
+mkdir -p .github && curl -s https://raw.githubusercontent.com/Azure/mpf/main/AGENTS.md -o .github/copilot-instructions.md
+
+# Run Copilot CLI
+copilot
+```
+
+**Example prompt:**
+> "Analyze this repository and find the minimum Azure permissions required to deploy the infrastructure"
+
 ## Flags and Environment Variables
 
 The commands can be used with flags or environment variables. For details on the flags and environment variables, please refer to the [command line flags and environment variables](docs/commandline-flags-and-env-variables.md) document.
