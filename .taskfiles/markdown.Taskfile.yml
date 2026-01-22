@@ -84,9 +84,6 @@ tasks:
         msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownTableFormatter}} version. Please run 'task md:install:markdown-table-formatter'"
     sources:
       - "**/*.md"
-    vars:
-      # yamllint disable-line rule:quoted-strings
-      MODE: '{{default "--check" .MODE}}'
     cmds:
       - defer: |
           {{if and .EXIT_CODE (eq .MODE "--check")}}echo "⚠️ Markdown tables are not formatted correctly. Please run 'task md:run:markdown-table-formatter:fix' to fix formatting issues."{{end}}
@@ -111,8 +108,8 @@ tasks:
   lint:check:
     desc: Lint Markdown files (check)
     cmds:
-      - task: run:markdownlint-cli2:check
       - task: run:markdown-table-formatter:check
+      - task: run:markdownlint-cli2:check
 
   # * Lint Fix
   lint:fix:
@@ -120,5 +117,5 @@ tasks:
       - lint
     desc: Lint Markdown files (fix)
     cmds:
-      - task: run:markdownlint-cli2:fix
       - task: run:markdown-table-formatter:fix
+      - task: run:markdownlint-cli2:fix

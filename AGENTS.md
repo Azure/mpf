@@ -54,11 +54,11 @@ export MPF_SUBSCRIPTIONID=$(az account show --query id -o tsv)
 
 ### Detection Patterns
 
-| IaC Type   | File Patterns                                        | Identifying Markers                              |
-|------------|------------------------------------------------------|--------------------------------------------------|
-| **ARM**    | `*.json` (with `$schema` containing `deploymentTemplate`) | `"$schema": "https://schema.management.azure.com/schemas/...deploymentTemplate.json"` |
-| **Bicep**  | `*.bicep`                                           | Bicep syntax: `resource`, `param`, `var`, `output` keywords |
-| **Terraform** | `*.tf`, `*.tf.json`                              | `terraform {}` block, `provider "azurerm" {}` |
+| IaC Type      | File Patterns                                             | Identifying Markers                                                                   |
+|---------------|-----------------------------------------------------------|---------------------------------------------------------------------------------------|
+| **ARM**       | `*.json` (with `$schema` containing `deploymentTemplate`) | `"$schema": "https://schema.management.azure.com/schemas/...deploymentTemplate.json"` |
+| **Bicep**     | `*.bicep`                                                 | Bicep syntax: `resource`, `param`, `var`, `output` keywords                           |
+| **Terraform** | `*.tf`, `*.tf.json`                                       | `terraform {}` block, `provider "azurerm" {}`                                         |
 
 ### Detection Commands
 
@@ -144,17 +144,17 @@ MPF outputs permissions in JSON format when using `--jsonOutput`:
 
 Match discovered permissions against Azure built-in roles:
 
-| Resource Provider | Suggested Role | Role ID |
-|-------------------|----------------|---------|
-| Microsoft.Compute | Virtual Machine Contributor | `9980e02c-c2be-4d73-94e8-173b1dc7cf3c` |
-| Microsoft.Network | Network Contributor | `4d97b98b-1d4f-4787-a291-c67834d212e7` |
-| Microsoft.Storage | Storage Account Contributor | `17d1049b-9a84-46fb-8f53-869881c3d3ab` |
-| Microsoft.ContainerService | Azure Kubernetes Service Contributor | `ed7f3fbd-7b88-4dd4-9017-9adb7ce333f8` |
-| Microsoft.ContainerRegistry | AcrPush | `8311e382-0749-4cb8-b61a-304f252e45ec` |
-| Microsoft.KeyVault | Key Vault Contributor | `f25e0fa2-a7c8-4377-a976-54943a77a395` |
-| Microsoft.Web | Website Contributor | `de139f84-1756-47ae-9be6-808fbbe84772` |
-| Microsoft.Sql | SQL DB Contributor | `9b7fa17d-e63e-47b0-bb0a-15c516ac86ec` |
-| Microsoft.Authorization | User Access Administrator | `18d7d88d-d35e-4fb5-a5c3-7773c20a72d9` |
+| Resource Provider           | Suggested Role                       | Role ID                                |
+|-----------------------------|--------------------------------------|----------------------------------------|
+| Microsoft.Compute           | Virtual Machine Contributor          | `9980e02c-c2be-4d73-94e8-173b1dc7cf3c` |
+| Microsoft.Network           | Network Contributor                  | `4d97b98b-1d4f-4787-a291-c67834d212e7` |
+| Microsoft.Storage           | Storage Account Contributor          | `17d1049b-9a84-46fb-8f53-869881c3d3ab` |
+| Microsoft.ContainerService  | Azure Kubernetes Service Contributor | `ed7f3fbd-7b88-4dd4-9017-9adb7ce333f8` |
+| Microsoft.ContainerRegistry | AcrPush                              | `8311e382-0749-4cb8-b61a-304f252e45ec` |
+| Microsoft.KeyVault          | Key Vault Contributor                | `f25e0fa2-a7c8-4377-a976-54943a77a395` |
+| Microsoft.Web               | Website Contributor                  | `de139f84-1756-47ae-9be6-808fbbe84772` |
+| Microsoft.Sql               | SQL DB Contributor                   | `9b7fa17d-e63e-47b0-bb0a-15c516ac86ec` |
+| Microsoft.Authorization     | User Access Administrator            | `18d7d88d-d35e-4fb5-a5c3-7773c20a72d9` |
 
 ### Generate Custom Role Definition
 
