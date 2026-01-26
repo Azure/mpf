@@ -4,17 +4,18 @@
 
 ## Global Flags (Common to all providers)
 
-| Flag               | Environment Variable   | Required / Optional | Description                                                                                                                    |
-|--------------------|------------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| subscriptionID     | MPF_SUBSCRIPTIONID     | Required            |                                                                                                                                |
-| tenantID           | MPF_TENANTID           | Required            |                                                                                                                                |
-| spClientID         | MPF_SPCLIENTID         | Required            |                                                                                                                                |
-| spObjectID         | MPF_SPOBJECTID         | Required            | Note this is the SP Object id and is different from the Client ID                                                              |
-| spClientSecret     | MPF_SPCLIENTSECRET     | Required            |                                                                                                                                |
-| showDetailedOutput | MPF_SHOWDETAILEDOUTPUT | Optional            | If set to true, the output shows details of permissions resource wise as well. This is not needed if --jsonOutput is specified |
-| jsonOutput         | MPF_JSONOUTPUT         | Optional            | If set to true, the detailed output is printed in JSON format                                                                  |
-| verbose            | MPF_VERBOSE            | Optional            | If set to true, verbose output with informational messages is displayed                                                        |
-| debug              | MPF_DEBUG              | Optional            | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens              |
+| Flag               | Environment Variable   | Required / Optional | Description                                                                                                                       |
+|--------------------|------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| subscriptionID     | MPF_SUBSCRIPTIONID     | Required            |                                                                                                                                   |
+| tenantID           | MPF_TENANTID           | Required            |                                                                                                                                   |
+| spClientID         | MPF_SPCLIENTID         | Required            |                                                                                                                                   |
+| spObjectID         | MPF_SPOBJECTID         | Required            | Note this is the SP Object id and is different from the Client ID                                                                 |
+| spClientSecret     | MPF_SPCLIENTSECRET     | Required            |                                                                                                                                   |
+| showDetailedOutput | MPF_SHOWDETAILEDOUTPUT | Optional            | If set to true, the output shows details of permissions resource wise as well. This is not needed if --jsonOutput is specified    |
+| jsonOutput         | MPF_JSONOUTPUT         | Optional            | If set to true, the detailed output is printed in JSON format                                                                     |
+| verbose            | MPF_VERBOSE            | Optional            | If set to true, verbose output with informational messages is displayed                                                           |
+| debug              | MPF_DEBUG              | Optional            | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens                 |
+| initialPermissions | MPF_INITIALPERMISSIONS | Optional            | Initial permissions to seed the custom role with before MPF analysis. See [Initial Permissions](#initial-permissions) for details |
 
 When used for Terraform, the verbose and debug flags show detailed logs from Terraform.
 
@@ -48,3 +49,77 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 | varFilePath                    | MPF_VARFILEPATH                    | Optional            | Path to the Terraform variables file                                                                                                                                              |
 | importExistingResourcesToState | MPF_IMPORTEXISTINGRESOURCESTOSTATE | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
 | targetModule                   | MPF_TARGETMODULE                   | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
+
+## Initial Permissions
+
+The `--initialPermissions` flag allows you to specify permissions that should be added to the custom role before MPF starts its analysis. This is particularly useful when:
+
+- Using **Terraform with a remote backend** (e.g., Azure Storage) that requires permissions to access the state store
+- You want to **reduce MPF execution time** by seeding known permissions upfront
+- Your deployment has **prerequisites** that need specific permissions before the main deployment can proceed
+
+### Usage
+
+The flag accepts two formats:
+
+#### 1. Comma-separated list
+
+```bash
+azmpf terraform \
+  --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action" \
+  --workingDir ./my-terraform \
+  # ... other flags
+```
+
+#### 2. JSON file reference (prefix with @)
+
+```bash
+azmpf terraform \
+  --initialPermissions @backend-permissions.json \
+  --workingDir ./my-terraform \
+  # ... other flags
+```
+
+The JSON file must have the following format:
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Storage/storageAccounts/read",
+      "Microsoft.Storage/storageAccounts/listKeys/action",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+    ]
+  }
+}
+```
+
+### Example: Terraform Remote Backend
+
+When using Azure Storage as a Terraform remote backend, the service principal needs permissions to access the storage account. Create a file called `backend-permissions.json`:
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Storage/storageAccounts/read",
+      "Microsoft.Storage/storageAccounts/listKeys/action",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+    ]
+  }
+}
+```
+
+Then run MPF with:
+
+```bash
+azmpf terraform \
+  --initialPermissions @backend-permissions.json \
+  --tfPath $(which terraform) \
+  --workingDir ./my-terraform \
+  # ... other required flags
+```

@@ -49,7 +49,7 @@ func TestSaveResultAsJSON(t *testing.T) {
 				},
 			},
 			wantErr:    false,
-			wantOutput: `{"RequiredPermissions":{"":["Microsoft.Authorization/roleAssignments/delete","Microsoft.Authorization/roleAssignments/read","Microsoft.Authorization/roleAssignments/write"]}}`,
+			wantOutput: `{"RequiredPermissions":{"":["Microsoft.Authorization/roleAssignments/delete","Microsoft.Authorization/roleAssignments/read","Microsoft.Authorization/roleAssignments/write"]},"IterationCount":0}`,
 		},
 		{
 			name: "valid MPFResult with detailed permissions",
@@ -80,7 +80,7 @@ func TestSaveResultAsJSON(t *testing.T) {
 				},
 			},
 			wantErr:    false,
-			wantOutput: `{"RequiredPermissions":{"":["Microsoft.ContainerService/managedClusters/read","Microsoft.ContainerService/managedClusters/write","Microsoft.Network/virtualNetworks/read","Microsoft.Network/virtualNetworks/subnets/read","Microsoft.Network/virtualNetworks/subnets/write","Microsoft.Network/virtualNetworks/write","Microsoft.Resources/deployments/read","Microsoft.Resources/deployments/write"],"/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster":["Microsoft.ContainerService/managedClusters/read","Microsoft.ContainerService/managedClusters/write"],"/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet":["Microsoft.Network/virtualNetworks/read","Microsoft.Network/virtualNetworks/write"],"/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet":["Microsoft.Network/virtualNetworks/subnets/read","Microsoft.Network/virtualNetworks/subnets/write"]}}`,
+			wantOutput: `{"RequiredPermissions":{"":["Microsoft.ContainerService/managedClusters/read","Microsoft.ContainerService/managedClusters/write","Microsoft.Network/virtualNetworks/read","Microsoft.Network/virtualNetworks/subnets/read","Microsoft.Network/virtualNetworks/subnets/write","Microsoft.Network/virtualNetworks/write","Microsoft.Resources/deployments/read","Microsoft.Resources/deployments/write"],"/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster":["Microsoft.ContainerService/managedClusters/read","Microsoft.ContainerService/managedClusters/write"],"/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet":["Microsoft.Network/virtualNetworks/read","Microsoft.Network/virtualNetworks/write"],"/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet":["Microsoft.Network/virtualNetworks/subnets/read","Microsoft.Network/virtualNetworks/subnets/write"]},"IterationCount":0}`,
 		},
 		{
 			name: "empty MPFResult",
@@ -88,7 +88,7 @@ func TestSaveResultAsJSON(t *testing.T) {
 				RequiredPermissions: map[string][]string{},
 			},
 			wantErr:    false,
-			wantOutput: `{"RequiredPermissions":{}}`,
+			wantOutput: `{"RequiredPermissions":{},"IterationCount":0}`,
 		},
 	}
 

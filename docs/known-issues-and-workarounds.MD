@@ -8,6 +8,32 @@ Currently only ARM type [parameters files](https://github.com/Azure/mpf/blob/mai
 
 ## Terraform
 
+### Remote Backend Access Denied
+
+When using a remote backend (e.g., Azure Storage for Terraform state), MPF removes all existing role assignments from the service principal before starting analysis. This can cause Terraform to fail with a 403 error when trying to access the backend.
+
+**Workaround**: Use the `--initialPermissions` flag to specify the permissions required to access the remote backend. These permissions will be added to the custom role before Terraform runs.
+
+Example for Azure Storage backend:
+
+```bash
+azmpf terraform \
+  --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action,Microsoft.Storage/storageAccounts/blobServices/containers/read,Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read,Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write" \
+  --tfPath $(which terraform) \
+  --workingDir ./my-terraform \
+  # ... other required flags
+```
+
+Or create a JSON file with the permissions and reference it:
+
+```bash
+azmpf terraform \
+  --initialPermissions @backend-permissions.json \
+  # ... other flags
+```
+
+See [Initial Permissions](./commandline-flags-and-env-variables.md#initial-permissions) for more details on the JSON file format.
+
 ### Token Expiry
 
 If your default Azure credentials token issued for the utility expires before the utility completes the execution, that execution will fail. When this happens, the utility saves the permissions inferred up to that point in the Terraform module directory, and these are automatically added next time the utility executes for the same Terraform module directory.

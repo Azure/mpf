@@ -139,6 +139,9 @@ func getMPFTerraform(cmd *cobra.Command, args []string) {
 	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
+	// Add initial permissions from flag if provided (supports comma-separated string or @file.json)
+	initialPermissionsToAdd, permissionsToAddToResult = appendUserInitialPermissions(initialPermissionsToAdd, permissionsToAddToResult)
+
 	// Check if permissions file from previous failed run exists
 	if terraform.DoesTFFileExist(flgWorkingDir, FoundPermissionsFromFailedRunFilename) {
 		prevResult, err := terraform.LoadMPFResultFromFile(flgWorkingDir, FoundPermissionsFromFailedRunFilename)

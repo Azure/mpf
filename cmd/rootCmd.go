@@ -23,6 +23,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -43,15 +44,16 @@ var (
 	envPrefix                  = "MPF"
 	replaceHyphenWithCamelCase = false
 
-	flgSubscriptionID     string
-	flgTenantID           string
-	flgSPClientID         string
-	flgSPObjectID         string
-	flgSPClientSecret     string
-	flgShowDetailedOutput bool
-	flgJSONOutput         bool
-	flgVerbose            bool
-	flgDebug              bool
+	flgSubscriptionID      string
+	flgTenantID            string
+	flgSPClientID          string
+	flgSPObjectID          string
+	flgSPClientSecret      string
+	flgShowDetailedOutput  bool
+	flgJSONOutput          bool
+	flgVerbose             bool
+	flgDebug               bool
+	flgInitialPermissions  string
 	// RootCmd            *cobra.Command
 )
 
@@ -85,6 +87,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&flgJSONOutput, "jsonOutput", "", false, "Output in JSON format")
 	rootCmd.PersistentFlags().BoolVarP(&flgVerbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&flgDebug, "debug", "d", false, "debug output")
+	rootCmd.PersistentFlags().StringVarP(&flgInitialPermissions, "initialPermissions", "", "", "Initial permissions to add to the custom role before starting MPF analysis. Can be a comma-separated list (e.g., 'perm1,perm2') or @path/to/file.json to load from a JSON file with format: {\"RequiredPermissions\":{\"\":[\"perm1\",\"perm2\"]}}.")
 
 	err := rootCmd.MarkPersistentFlagRequired("subscriptionID")
 	if err != nil {
@@ -207,4 +210,70 @@ func getAbsolutePath(path string) (string, error) {
 		absPath = absWorkingDir + "/" + absPath
 	}
 	return absPath, nil
+}
+
+// parseInitialPermissions parses the initial permissions from either a comma-separated string
+// or from a JSON file (if the value starts with @).
+// The JSON file should have the same format as .permissionsFromFailedRun.json:
+// {"RequiredPermissions":{"":["perm1","perm2"]}}
+func parseInitialPermissions(value string) ([]string, error) {
+	if value == "" {
+		return nil, nil
+	}
+
+	// Check if it's a file reference (starts with @)
+	if strings.HasPrefix(value, "@") {
+		filePath := strings.TrimPrefix(value, "@")
+		absPath, err := getAbsolutePath(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("error getting absolute path for permissions file: %w", err)
+		}
+
+		file, err := os.Open(absPath)
+		if err != nil {
+			return nil, fmt.Errorf("error opening permissions file %s: %w", absPath, err)
+		}
+		defer file.Close() //nolint:errcheck
+
+		var result domain.MPFResult
+		decoder := json.NewDecoder(file)
+		if err := decoder.Decode(&result); err != nil {
+			return nil, fmt.Errorf("error parsing permissions file %s: %w", absPath, err)
+		}
+
+		permissions := result.RequiredPermissions[""]
+		if len(permissions) == 0 {
+			log.Warnf("No permissions found in file %s under the empty string key", absPath)
+		}
+		return permissions, nil
+	}
+
+	// Parse as comma-separated string
+	permissions := strings.Split(value, ",")
+	for i := range permissions {
+		permissions[i] = strings.TrimSpace(permissions[i])
+	}
+	return permissions, nil
+}
+
+// appendUserInitialPermissions parses the --initialPermissions flag and appends
+// the permissions to both slices. This is a helper to reduce code duplication
+// across arm, bicep, and terraform commands.
+func appendUserInitialPermissions(initialPermissionsToAdd, permissionsToAddToResult []string) ([]string, []string) {
+	if flgInitialPermissions == "" {
+		return initialPermissionsToAdd, permissionsToAddToResult
+	}
+
+	userPermissions, err := parseInitialPermissions(flgInitialPermissions)
+	if err != nil {
+		log.Fatalf("Error parsing initial permissions: %v\n", err)
+	}
+
+	if len(userPermissions) > 0 {
+		log.Infof("Adding user-specified initial permissions: %v\n", userPermissions)
+		initialPermissionsToAdd = append(initialPermissionsToAdd, userPermissions...)
+		permissionsToAddToResult = append(permissionsToAddToResult, userPermissions...)
+	}
+
+	return initialPermissionsToAdd, permissionsToAddToResult
 }
