@@ -86,6 +86,33 @@ if [[ "${os}" != "linux" ]]; then
   die "Unsupported OS: ${os}"
 fi
 
+# Check for ARM64 architecture - PowerShell apt packages are not available for ARM64
+arch="$(uname -m)"
+if [[ "${arch}" == "aarch64" || "${arch}" == "arm64" ]]; then
+  log "⚠ PowerShell is not available via apt for ARM64 architecture."
+  log "Installing PowerShell via .NET global tool instead..."
+
+  # Install .NET SDK if not present
+  if ! command -v dotnet >/dev/null 2>&1; then
+    log "Installing .NET SDK..."
+    apt-get update
+    apt-get install -y dotnet-sdk-8.0 || die "Failed to install .NET SDK"
+  fi
+
+  # Install PowerShell as a .NET global tool
+  dotnet tool install --global PowerShell || log "PowerShell may already be installed"
+
+  # Add to PATH if needed
+  export PATH="$PATH:$HOME/.dotnet/tools"
+  if command -v pwsh >/dev/null 2>&1; then
+    log "✓ Successfully installed ${TOOL_NAME} via .NET global tool"
+    exit 0
+  else
+    log "⚠ PowerShell installation skipped on ARM64 - not critical for development"
+    exit 0
+  fi
+fi
+
 check_sudo
 
 if [[ "${VERSION}" != "latest" ]]; then
