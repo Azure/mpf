@@ -295,3 +295,80 @@ func TestTerraformModuleTest(t *testing.T) {
 // 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
 // 	assert.Equal(t, 16, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 // }
+
+// TestTerraformACIWithInitialPermissions tests that when all required permissions are provided
+// upfront via initialPermissionsToAdd, MPF completes in a single iteration (iterationCount == 0).
+// This validates the --initialPermissions flag feature (issue #91) which reduces execution time
+// by seeding known permissions.
+func TestTerraformACIWithInitialPermissions(t *testing.T) {
+	mpfArgs, err := getTestingMPFArgs()
+	if err != nil {
+		t.Skip("required environment variables not set, skipping end to end test")
+	}
+	mpfArgs.MPFMode = "terraform"
+
+	var tfpath string
+	if os.Getenv("MPF_TFPATH") == "" {
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
+	}
+	tfpath = os.Getenv("MPF_TFPATH")
+
+	_, filename, _, _ := runtime.Caller(0)
+	curDir := path.Dir(filename)
+	log.Infof("curDir: %s", curDir)
+	wrkDir := path.Join(curDir, "../samples/terraform/aci")
+	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
+	varsFile := path.Join(wrkDir, "dev.vars.tfvars")
+	log.Infof("varsFile: %s", varsFile)
+
+	ctx := t.Context()
+
+	mpfConfig := getMPFConfig(mpfArgs)
+
+	var rgManager usecase.ResourceGroupManager
+	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager
+	rgManager = rgm.NewResourceGroupManager(mpfArgs.SubscriptionID)
+	spRoleAssignmentManager = spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
+
+	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
+	var mpfService *usecase.MPFService
+
+	// Provide ALL expected permissions upfront - this should result in 0 iterations
+	// These are the 8 permissions required for the ACI sample (from TestTerraformACI)
+	initialPermissionsToAdd := []string{
+		"Microsoft.Resources/deployments/read",
+		"Microsoft.Resources/deployments/write",
+		// ACI permissions
+		"Microsoft.ContainerInstance/containerGroups/read",
+		"Microsoft.ContainerInstance/containerGroups/write",
+		"Microsoft.ContainerInstance/containerGroups/delete",
+		// Resource group permissions
+		"Microsoft.Resources/subscriptions/resourcegroups/read",
+		"Microsoft.Resources/subscriptions/resourcegroups/write",
+		"Microsoft.Resources/subscriptions/resourcegroups/delete",
+	}
+	permissionsToAddToResult := initialPermissionsToAdd
+
+	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, varsFile, true, "")
+	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
+
+	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Verify the result is not empty
+	assert.NotEmpty(t, mpfResult.RequiredPermissions)
+
+	// Key assertion: When all permissions are provided upfront, MPF should complete
+	// in 0 iterations (no permission discovery needed)
+	assert.Equal(t, 0, mpfResult.IterationCount, "Expected 0 iterations when all permissions are provided upfront")
+
+	// Verify we have all 8 expected permissions
+	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+}

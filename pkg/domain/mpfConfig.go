@@ -52,10 +52,20 @@ type MPFConfig struct {
 type MPFResult struct {
 	// The map from which the minimum permissions will be calculated
 	RequiredPermissions map[string][]string
+	// IterationCount is the number of iterations MPF took to discover all permissions.
+	// A value of 0 means all required permissions were provided upfront via initialPermissions.
+	IterationCount int
 }
 
 func GetMPFResult(requiredPermissions map[string][]string) MPFResult {
 	return MPFResult{
 		RequiredPermissions: getMapWithUniqueValues(requiredPermissions),
+	}
+}
+
+func GetMPFResultWithIterationCount(requiredPermissions map[string][]string, iterationCount int) MPFResult {
+	return MPFResult{
+		RequiredPermissions: getMapWithUniqueValues(requiredPermissions),
+		IterationCount:      iterationCount,
 	}
 }

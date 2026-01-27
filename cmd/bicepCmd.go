@@ -171,6 +171,9 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	initialPermissionsToAdd = []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
+	// Add initial permissions from flag if provided (supports comma-separated string or @file.json)
+	initialPermissionsToAdd, permissionsToAddToResult = appendUserInitialPermissions(initialPermissionsToAdd, permissionsToAddToResult)
+
 	// Always auto-create resource group since only resource group scoped deployments are supported
 	var autoCreateResourceGroup = true
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, autoCreateResourceGroup)

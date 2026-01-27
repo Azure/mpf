@@ -46,6 +46,7 @@ type MPFService struct {
 	autoAddReadPermissionForEachWrite   bool
 	autoAddDeletePermissionForEachWrite bool
 	autoCreateResourceGroup             bool
+	iterationCount                      int
 }
 
 func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnMgr ServicePrincipalRolemAssignmentManager, deploymentAuthChkCln DeploymentAuthorizationCheckerCleaner, mpfConfig domain.MPFConfig, initialPermissionsToAdd []string, permissionsToAddToResult []string, autoAddReadPermissionForEachWrite bool, autoAddDeletePermissionForEachWrite bool, autoCreateResourceGroup bool) *MPFService {
@@ -65,7 +66,7 @@ func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnM
 }
 
 func (s *MPFService) returnMPFResult(err error) (domain.MPFResult, error) {
-	mpfResult := domain.GetMPFResult(s.requiredPermissions)
+	mpfResult := domain.GetMPFResultWithIterationCount(s.requiredPermissions, s.iterationCount)
 
 	if err != nil && len(mpfResult.RequiredPermissions) == 0 {
 		return domain.MPFResult{}, err
@@ -144,11 +145,10 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	s.requiredPermissions[s.mpfConfig.SubscriptionID] = append(s.requiredPermissions[s.mpfConfig.SubscriptionID], s.permissionsToAddToResult...)
 
 	maxIterations := 50
-	iterCount := 0
 	for {
 		authErrMesg, err := s.deploymentAuthCheckerCleaner.GetDeploymentAuthorizationErrors(s.mpfConfig)
 
-		log.Infof("Iteration Number: %d \n", iterCount)
+		log.Infof("Iteration Number: %d \n", s.iterationCount)
 
 		if authErrMesg == "" && err == nil {
 			log.Infoln("Authorization Successful")
@@ -222,8 +222,8 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		log.Infoln("Waiting for Azure RBAC propagation...")
 		time.Sleep(5 * time.Second)
 
-		iterCount++
-		if iterCount == maxIterations {
+		s.iterationCount++
+		if s.iterationCount == maxIterations {
 			log.Warnln("max iterations for fetching authorization errors reached, exiting...")
 			return s.returnMPFResult(err)
 		}

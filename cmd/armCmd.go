@@ -146,6 +146,9 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 	initialPermissionsToAdd = []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
 	permissionsToAddToResult = []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
 
+	// Add initial permissions from flag if provided (supports comma-separated string or @file.json)
+	initialPermissionsToAdd, permissionsToAddToResult = appendUserInitialPermissions(initialPermissionsToAdd, permissionsToAddToResult)
+
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, true)
 
 	log.Infof("Show Detailed Output: %t\n", flgShowDetailedOutput)
