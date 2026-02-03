@@ -23,10 +23,59 @@
 
 ## Proposed Solution
 
-### Phase 1: Create Sample Files (if needed)
-- **Review existing Bicep samples** - The `aks-private-subnet` sample appears sufficient for most demos
-- **Consider creating a new simpler Bicep sample** (e.g., basic Storage Account) as an alternative for clarity, OR reuse existing ones
-- **Create `bicep-backend-permissions.json`** sample file - a JSON file demonstrating the permissions structure needed for initialPermissions flag with Bicep
+### Phase 1: Create Sample Files
+
+#### 1.1: Create a Simple Storage Account Bicep Sample
+We will create a **new, simpler Bicep example** focused on a basic Azure Storage Account deployment. This provides:
+- **Simplicity**: Much easier to understand than AKS (which has VNets, subnets, clusters)
+- **Real-world relevance**: Storage accounts are commonly deployed and a natural use case for backend state
+- **Clear permissions output**: Storage account deployments generate a focused set of permissions that are easy to demonstrate
+
+**Files to create:**
+- `samples/bicep/storage-account-simple.bicep` - Basic storage account with minimal parameters
+- `samples/bicep/storage-account-simple-params.json` - Parameters file for the storage account
+
+**Purpose in documentation:**
+- Used for basic output format examples (text, JSON, detailed output)
+- Fast execution (~1-2 minutes) makes it ideal for documentation examples
+- Clear permission output (4-5 permissions) easier to read than complex templates
+- Can reuse across multiple documentation sections
+
+#### 1.2: Use Existing AKS Bicep Sample for `--initialPermissions` Demonstration
+We will use the **existing `samples/bicep/aks-private-subnet.bicep`** template to demonstrate the `--initialPermissions` flag.
+
+**Why AKS for this use case:**
+- Represents a realistic scenario: AKS cluster depends on backend storage account
+- Shows the real value of `--initialPermissions`: reduces execution time (5-10 min → 2-3 min)
+- Complex enough to meaningfully benefit from pre-seeded permissions
+- Already exists in repo (no new code to create)
+
+**Scenario explanation:**
+The AKS cluster is deploying, but assumes a pre-existing backend storage account is available (e.g., for state, configuration, or secrets). By pre-seeding storage permissions with `--initialPermissions`, we avoid MPF wasting iterations on storage permission discovery and focus only on AKS requirements.
+
+#### 1.3: Create Backend Permissions JSON File
+Create `samples/bicep/bicep-backend-permissions.json` - a JSON file demonstrating the permissions structure needed for the `--initialPermissions` flag with Bicep deployments that use remote backends.
+
+**File contents:**
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Storage/storageAccounts/read",
+      "Microsoft.Storage/storageAccounts/listKeys/action",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+    ]
+  }
+}
+```
+
+**Why this file:**
+- Provides a concrete example referenced in documentation
+- Shows real-world scenario: Bicep deployment that needs to access state in Azure Storage
+- Demonstrates both what the JSON structure looks like and when it's needed
+- Can be referenced when showing both storage account and AKS examples
 
 ### Phase 2: Update Documentation
 
@@ -76,9 +125,18 @@
 
 ---
 
-## Implementation Order
+## Phase 1 Implementation Steps
 
-1. Create `samples/bicep/bicep-backend-permissions.json` 
+1. ✅ Create `samples/bicep/storage-account-simple.bicep` with the storage account Bicep code
+2. ✅ Create `samples/bicep/storage-account-simple-params.json` with parameters
+3. ✅ Add comprehensive comments to storage-account-simple.bicep for junior developers
+4. ✅ Create `samples/bicep/bicep-backend-permissions.json` with the permissions structure
+5. ✅ Commit these files to the branch with message: "docs(samples): add storage account bicep example for issue #87"
+6. ✅ Identify existing `samples/bicep/aks-private-subnet.bicep` for use in `--initialPermissions` documentation examples
+7. ✅ Plan: Use `bicep-backend-permissions.json` to show pre-seeding storage permissions for AKS deployment scenario
+
+## Phase 2 & 3 Implementation Order (Future)
+
 2. Update `commandline-flags-and-env-variables.md` (add Bicep initialPermissions examples)
 3. Update `display-options.MD` (add Bicep JSON output and detailed output sections)
 4. Update `installation-and-quickstart.md` (add Bicep JSON output example)
@@ -89,7 +147,16 @@
 
 ## Deliverables Checklist
 
-- [ ] New JSON permissions file for Bicep backend scenario
+## Phase 1 Documentation Samples Summary
+
+| Sample | Purpose | Execution Time | Output Complexity | Use Cases |
+|--------|---------|-----------------|-------------------|-----------|
+| **storage-account-simple.bicep** | Basic output format demos | ~1-2 min | 4-5 permissions | Text output, JSON output, Detailed output examples |
+| **aks-private-subnet.bicep** (existing) | `--initialPermissions` demo | ~5-10 min | 9+ permissions | Showing time savings with pre-seeded permissions |
+| **bicep-backend-permissions.json** | Pre-seeded permissions example | N/A | Reference file | Demonstrating permission structure and use case |
+
+### Phase 2 & 3 (Future)
+- [ ] New JSON permissions file for Bicep backend scenario *(Phase 1)*
 - [ ] Documentation sections for: Bicep JSON output, Bicep detailed output, Bicep initialPermissions (both formats)
 - [ ] Examples for both Linux/macOS and Windows PowerShell
 - [ ] Sample command outputs (can be real or representative)
