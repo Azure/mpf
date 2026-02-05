@@ -220,7 +220,7 @@ export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
 export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 export MPF_BICEPEXECPATH=$(which bicep)
 
-./azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --outputFormat json --verbose
+./azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --jsonOutput --verbose
 ```
 
 Or using PowerShell on Windows:
@@ -233,7 +233,7 @@ $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 $env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
 
-.\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.json --outputFormat json --verbose
+.\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.json --jsonOutput --verbose
 ```
 
 ### Terraform

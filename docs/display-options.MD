@@ -213,7 +213,7 @@ export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
 export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 export MPF_BICEPEXECPATH=$(which bicep)
 
-azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --outputFormat json --verbose
+azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --jsonOutput --verbose
 ```
 
 Output shows JSON with permissions array and permissionsByResourceScope details (similar to ARM example above).
