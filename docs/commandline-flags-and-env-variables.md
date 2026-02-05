@@ -1,4 +1,4 @@
-# MPF command line flags and environment variables
+﻿# MPF command line flags and environment variables
 
 **Note**: Environment variables can be set using bash/shell syntax (e.g., `export MPF_SUBSCRIPTIONID=value`) on Linux/macOS, or using PowerShell syntax (e.g., `$env:MPF_SUBSCRIPTIONID = "value"`) on Windows.
 
@@ -123,3 +123,96 @@ azmpf terraform \
   --workingDir ./my-terraform \
   # ... other required flags
 ```
+
+### Example: Bicep with Pre-existing Storage Backend (Comma-separated)
+
+When deploying Bicep templates that depend on pre-existing Azure Storage (for configuration, state, or secrets), you can use comma-separated permissions to speed up analysis:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_BICEPEXECPATH=$(which bicep)
+
+azmpf bicep \
+  --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action,Microsoft.Storage/storageAccounts/blobServices/containers/read" \
+  --bicepFilePath ./samples/bicep/aks-private-subnet.bicep \
+  --parametersFilePath ./samples/bicep/aks-private-subnet-params.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
+
+.\azmpf.exe bicep `
+  --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action,Microsoft.Storage/storageAccounts/blobServices/containers/read" `
+  --bicepFilePath .\samples\bicep\aks-private-subnet.bicep `
+  --parametersFilePath .\samples\bicep\aks-private-subnet-params.json `
+  --verbose
+```
+
+### Example: Bicep with JSON File Format
+
+For complex deployments with many pre-requisite permissions, using a JSON file is cleaner and more maintainable. Create a file called `bicep-backend-permissions.json`:
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Storage/storageAccounts/read",
+      "Microsoft.Storage/storageAccounts/listKeys/action",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+    ]
+  }
+}
+```
+
+Then run MPF with:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_BICEPEXECPATH=$(which bicep)
+
+azmpf bicep \
+  --initialPermissions @bicep-backend-permissions.json \
+  --bicepFilePath ./samples/bicep/aks-private-subnet.bicep \
+  --parametersFilePath ./samples/bicep/aks-private-subnet-params.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
+
+.\azmpf.exe bicep `
+  --initialPermissions @bicep-backend-permissions.json `
+  --bicepFilePath .\samples\bicep\aks-private-subnet.bicep `
+  --parametersFilePath .\samples\bicep\aks-private-subnet-params.json `
+  --verbose
+```
+
+**Benefits of using `--initialPermissions`:**
+- Reduces MPF execution time by avoiding permission discovery iterations for known prerequisites
+- Cleaner separation of concerns: pre-requisite permissions vs. deployment permissions
+- JSON file format provides a reusable, version-controllable configuration

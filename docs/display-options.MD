@@ -201,7 +201,39 @@ INFO[0452] Resource group deletion initiated successfully...
 }
 
 ```
+### Bicep JSON Output
 
+Similar to ARM templates, Bicep deployments can produce JSON output which shows detailed permission breakdowns. The following is a sample of JSON output:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_BICEPEXECPATH=$(which bicep)
+
+azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --jsonOutput --verbose
+```
+
+Output shows JSON with permissions array and permissionsByResourceScope details (similar to ARM example above).
+
+### Bicep Detailed Output
+
+For a detailed breakdown of permissions by resource with Bicep templates:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_BICEPEXECPATH=$(which bicep)
+
+azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --showDetailedOutput --verbose
+```
+
+Output shows permissions aggregated and broken down by resource scope (similar to ARM detailed output example above).
 ### Viewing info, warn, or debug level logs
 
 By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of default logging (error level only):
