@@ -213,6 +213,7 @@ $env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
 ```
 
 **Benefits of using `--initialPermissions`:**
+
 - Reduces MPF execution time by avoiding permission discovery iterations for known prerequisites
 - Cleaner separation of concerns: pre-requisite permissions vs. deployment permissions
 - JSON file format provides a reusable, version-controllable configuration

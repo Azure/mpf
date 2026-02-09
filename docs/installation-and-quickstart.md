@@ -207,7 +207,6 @@ Microsoft.Resources/deployments/write
 
 ```
 
-
 ### Bicep with JSON Output
 
 You can also get JSON output from Bicep deployments, which is useful for programmatic processing and automation:
@@ -231,7 +230,7 @@ $env:MPF_TENANTID = "YOUR_TENANT_ID"
 $env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
 $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
+$env:MPF_BICEPEXECPATH = (Get-Command bicep).Source # Dynamically resolves to the Bicep executable path, works across different installation locations
 
 .\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.json --jsonOutput --verbose
 ```
@@ -296,4 +295,3 @@ Microsoft.Resources/subscriptions/resourcegroups/write
 It is also possible to additionally view detailed resource-level permissions required as shown in the [display options](./display-options.MD) document.
 
 The blog post [Figuring out the Minimum Permissions Required to Deploy an Azure ARM Template](https://medium.com/microsoftazure/figuring-out-the-minimum-permissions-required-to-deploy-an-azure-arm-template-d1c1e74092fa) provides a more contextual usage scenario for azmpf.
-
