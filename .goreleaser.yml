@@ -15,11 +15,8 @@ archives:
   - files:
       - src: LICENSE
         dst: LICENSE.txt
-    format_overrides:
-      - goos: windows
-        formats:
-          - zip
-    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    formats: [ 'zip' ]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 builds:
   - dir: cmd
@@ -44,7 +41,7 @@ builds:
         goarch: "386"
       - goos: windows
         goarch: arm
-    binary: "{{ .ProjectName }}"
+    binary: "{{ .ProjectName }}_v{{ .Version }}"
 
 sboms:
   - id: default
@@ -52,7 +49,7 @@ sboms:
 
 checksum:
   algorithm: sha256
-  name_template: "{{ .ProjectName }}_SHA256SUMS"
+  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
 
 signs:
   - artifacts: checksum
