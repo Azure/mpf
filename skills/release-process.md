@@ -81,14 +81,14 @@ This mirrors the CI lint workflow (`.github/workflows/lint.yml`) and helps avoid
 
 ## Key Files Involved
 
-| File | Purpose |
-|------|---------|
-| `.goreleaser.yml` | GoReleaser build/release configuration (targets, archives, signing, changelog) |
-| `.github/workflows/release.yml` | GitHub Actions workflow triggered on tag push |
-| `.github/workflows/lint.yml` | Lint workflow that validates YAML, Go, and markdown |
-| `Taskfile.yml` | Task runner config — use `task lint` to run all linters locally |
-| `docs/installation-and-quickstart.md` | User-facing installation docs with version-specific download URLs |
-| `go.mod` | Go version and module dependencies |
+| File                                  | Purpose                                                                        |
+|---------------------------------------|--------------------------------------------------------------------------------|
+| `.goreleaser.yml`                     | GoReleaser build/release configuration (targets, archives, signing, changelog) |
+| `.github/workflows/release.yml`       | GitHub Actions workflow triggered on tag push                                  |
+| `.github/workflows/lint.yml`          | Lint workflow that validates YAML, Go, and markdown                            |
+| `Taskfile.yml`                        | Task runner config — use `task lint` to run all linters locally                |
+| `docs/installation-and-quickstart.md` | User-facing installation docs with version-specific download URLs              |
+| `go.mod`                              | Go version and module dependencies                                             |
 
 ## Important Considerations for Release Authors
 
