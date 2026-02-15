@@ -67,15 +67,46 @@ This mirrors the CI lint workflow (`.github/workflows/lint.yml`) and helps avoid
 
 ## Step 7: Validate the Released Binary
 
-- Download the released binary for your platform:
-  - Linux/macOS: `gh release download v<version> --repo Azure/mpf --pattern "azmpf_<os>_<arch>.tar.gz"`
-  - Windows: `gh release download v<version> --repo Azure/mpf --pattern "azmpf_<os>_<arch>.zip"`
-- Extract and verify version:
-  - Linux/macOS: `tar -xzf <archive> && chmod +x azmpf && ./azmpf --version`
-  - Windows: `Expand-Archive <archive> -DestinationPath . && .\azmpf.exe --version`
-- **Bicep validation**: Run against a sample Bicep template (e.g., `storage-account-simple.bicep`) and verify permissions are discovered successfully
-- **Terraform validation**: Initialize a sample Terraform module (e.g., `samples/terraform/aci`), then run azmpf and verify full apply/destroy cycle completes with permissions discovered
+### 7a: Install using the installation instructions
+
+Follow the installation instructions in `docs/installation-and-quickstart.md` to download and install the released binary. This validates that the download URLs and install steps in the docs actually work with the new release.
+
 - Verify asset naming matches installation docs (format: `azmpf_<os>_<arch>.tar.gz` for Linux/macOS, `.zip` for Windows)
+- Verify the binary runs: `./azmpf --version`
+
+### 7b: Validate with Azure deployments
+
+Source the environment variables required for MPF:
+
+```bash
+source dev.env.export.sh
+```
+
+**Bicep validation** — run against a sample Bicep template and verify permissions are discovered:
+
+```bash
+./azmpf bicep \
+  --bicepFilePath ./samples/bicep/storage-account-simple.bicep \
+  --parametersFilePath ./samples/bicep/storage-account-simple-params.json \
+  --jsonOutput --verbose
+```
+
+**Terraform validation** — initialize a sample Terraform module, then run azmpf and verify the full apply/destroy cycle completes:
+
+```bash
+cd ./samples/terraform/aci && $MPF_TFPATH init && cd -
+
+./azmpf terraform \
+  --workingDir $(pwd)/samples/terraform/aci \
+  --varFilePath $(pwd)/samples/terraform/aci/dev.vars.tfvars \
+  --jsonOutput --verbose
+```
+
+For both validations, confirm:
+
+- The binary executes without errors
+- Permissions are discovered and listed in the output
+- Resources are cleaned up successfully (role definition deleted, resource group deletion initiated)
 
 ## Step 8: Update Release Notes and Publish
 
