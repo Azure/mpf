@@ -21,9 +21,10 @@ This document captures the key steps and skills used when creating a new release
 - Check if the current Go version (from `go.mod`) has dropped support for any target platforms
   - Example: Go 1.26.0 dropped `windows/arm` support, requiring an addition to the `ignore` list in `.goreleaser.yml`
 - Verify `.goreleaser.yml` naming conventions match installation docs:
-  - Archive `name_template` must include version: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}`
-  - Binary name must include version: `{{ .ProjectName }}_v{{ .Version }}`
-  - Checksum `name_template` must include version: `{{ .ProjectName }}_{{ .Version }}_SHA256SUMS`
+  - Archive `name_template` should not include version: `{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}` (version is in the release tag URL)
+  - Binary name should be plain with no version suffix: `{{ .ProjectName }}` (i.e., just `azmpf`)
+  - Archives use `tar.gz` (default) for Linux/macOS and `zip` for Windows via `format_overrides`
+  - Checksum `name_template`: `{{ .ProjectName }}_SHA256SUMS.txt`
 
 ## Step 4: Run Linting Locally Before Committing
 
@@ -66,11 +67,15 @@ This mirrors the CI lint workflow (`.github/workflows/lint.yml`) and helps avoid
 
 ## Step 7: Validate the Released Binary
 
-- Download the released binary for your platform: `gh release download v<version> --repo Azure/mpf --pattern "azmpf_<version>_<os>_<arch>.zip"`
-- Extract and verify version: `unzip <archive> && chmod +x azmpf_v<version> && ./azmpf_v<version> --version`
+- Download the released binary for your platform:
+  - Linux/macOS: `gh release download v<version> --repo Azure/mpf --pattern "azmpf_<os>_<arch>.tar.gz"`
+  - Windows: `gh release download v<version> --repo Azure/mpf --pattern "azmpf_<os>_<arch>.zip"`
+- Extract and verify version:
+  - Linux/macOS: `tar -xzf <archive> && chmod +x azmpf && ./azmpf --version`
+  - Windows: `Expand-Archive <archive> -DestinationPath . && .\azmpf.exe --version`
 - **Bicep validation**: Run against a sample Bicep template (e.g., `storage-account-simple.bicep`) and verify permissions are discovered successfully
 - **Terraform validation**: Initialize a sample Terraform module (e.g., `samples/terraform/aci`), then run azmpf and verify full apply/destroy cycle completes with permissions discovered
-- Verify asset naming matches installation docs (format: `azmpf_<version>_<os>_<arch>.zip`)
+- Verify asset naming matches installation docs (format: `azmpf_<os>_<arch>.tar.gz` for Linux/macOS, `.zip` for Windows)
 
 ## Step 8: Update Release Notes and Publish
 
@@ -93,7 +98,7 @@ This mirrors the CI lint workflow (`.github/workflows/lint.yml`) and helps avoid
 ## Important Considerations for Release Authors
 
 - **Go version upgrades can break builds**: Go may drop support for certain GOOS/GOARCH pairs (e.g., Go 1.26.0 removed `windows/arm`). Always check Go release notes for dropped platform support when upgrading Go versions, and update the `ignore` list in `.goreleaser.yml` accordingly.
-- **GoReleaser naming conventions must match docs**: The archive `name_template`, `binary` name, and checksum `name_template` must include `{{ .Version }}` to produce artifacts like `azmpf_0.16.0_linux_amd64.zip` that match the installation documentation.
+- **GoReleaser naming conventions must match docs**: The binary name should be plain (`{{ .ProjectName }}`) with no version suffix — this is the standard convention used by most CLI tools. Archive names should also omit the version (it's already in the release tag URL). Use `tar.gz` for Linux/macOS and `zip` for Windows via `format_overrides`.
 - **Run `task lint` locally before pushing**: The CI lint workflow checks YAML, Go, Markdown, and more. Running `task lint` locally catches issues like YAML formatting before they fail in CI.
 - **YAML formatting matters**: Use expanded YAML syntax (not inline `[ 'zip' ]`) to pass yamllint strict mode.
 - **Validate with real Azure deployments**: Always test the released binary against actual Bicep and Terraform samples to confirm end-to-end functionality before publishing the draft release.

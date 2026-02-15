@@ -8,9 +8,8 @@ For example, to download the latest version for Linux/amd64:
 
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/Azure/mpf/releases/download/v0.16.0/azmpf_0.16.0_linux_amd64.zip
-unzip azmpf_0.16.0_linux_amd64.zip
-mv azmpf_v0.16.0 azmpf
+curl -LO https://github.com/Azure/mpf/releases/download/v0.17.0/azmpf_linux_amd64.tar.gz
+tar -xzf azmpf_linux_amd64.tar.gz
 chmod +x ./azmpf
 ```
 
@@ -18,9 +17,8 @@ For Mac Arm64:
 
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/Azure/mpf/releases/download/v0.16.0/azmpf_0.16.0_darwin_arm64.zip
-unzip azmpf_0.16.0_darwin_arm64.zip
-mv azmpf_v0.16.0 azmpf
+curl -LO https://github.com/Azure/mpf/releases/download/v0.17.0/azmpf_darwin_arm64.tar.gz
+tar -xzf azmpf_darwin_arm64.tar.gz
 chmod +x ./azmpf
 ```
 
@@ -28,9 +26,8 @@ And for Windows:
 
 ```powershell
 # Please change the version in the URL to the latest version
-Invoke-WebRequest -Uri "https://github.com/Azure/mpf/releases/download/v0.16.0/azmpf_0.16.0_windows_amd64.zip" -OutFile "azmpf_0.16.0_windows_amd64.zip"
-Expand-Archive -Path "azmpf_0.16.0_windows_amd64.zip" -DestinationPath "."
-Rename-Item -Path "azmpf_v0.16.0.exe" -NewName "azmpf.exe"
+Invoke-WebRequest -Uri "https://github.com/Azure/mpf/releases/download/v0.17.0/azmpf_windows_amd64.zip" -OutFile "azmpf_windows_amd64.zip"
+Expand-Archive -Path "azmpf_windows_amd64.zip" -DestinationPath "."
 ```
 
 ## Creating a service principal for MPF
