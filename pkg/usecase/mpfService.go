@@ -109,7 +109,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	// Wait for Azure RBAC propagation after deleting role assignments
 	// This ensures that any previous permissions are fully revoked before starting the new test
 	log.Infoln("Waiting for Azure RBAC propagation after deleting role assignments...")
-	time.Sleep(15 * time.Second)
+	time.Sleep(90 * time.Second)
 
 	// Initialize new custom role
 	log.Infoln("Initializing Custom Role")
