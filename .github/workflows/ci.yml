@@ -51,7 +51,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
+        uses: go-task/setup-task@70f2430ad412f838533de8c0515c749ffb2b8bd3 # v1.1.0
 
       - name: 🔀 Get dependencies
         run: task deps:download
@@ -84,7 +84,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: go-task/setup-task@0ab1b2a65bc55236a3bc64cde78f80e20e8885c2 # v1.0.0
+        uses: go-task/setup-task@70f2430ad412f838533de8c0515c749ffb2b8bd3 # v1.1.0
 
       - name: 🔀 Download Go dependencies
         run: task deps:download
