@@ -1,5 +1,7 @@
 # MPF utility (Azure Deployment Minimum Permissions Finder)
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Azure/mpf/badge)](https://scorecard.dev/viewer/?uri=github.com/Azure/mpf)
+
 This utility finds the minimum permissions required for a given Azure deployment. This can help when you need to figure out the details of what permissions a service principal or managed identity will need to deploy a given ARM template, Bicep file, or Terraform module. Similarly, when assigning a Service Principal / Managed Identity to an Azure Policy Assignment, this utility can help you figure out the minimum permissions required by the Service Principal / Managed Identity to enforce/remediate the policy. It is recommended that the utility is used in a **development** or **test environment** to find the minimum permissions required.
 
 ## How It Works
