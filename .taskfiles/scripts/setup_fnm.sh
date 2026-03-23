@@ -4,11 +4,16 @@ set -euo pipefail
 
 # Constants
 readonly TOOL_NAME="fnm"
-readonly INSTALL_SCRIPT_URL="https://fnm.vercel.app/install"
+# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
+# To update: get latest SHA from https://github.com/Schniz/fnm/commits/master/.ci/install.sh
+readonly INSTALL_SCRIPT_SHA="bfb186034978b1ddaf87501eb1633bdc42a5c0a6"
+readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/Schniz/fnm/${INSTALL_SCRIPT_SHA}/.ci/install.sh"
 
 # Configuration (can be overridden by env)
 VERSION="${1:-${VERSION:-latest}}"
 INSTALL_DIR="${2:-${INSTALL_DIR:-}}"
+
+tempDir=""
 
 # Logging helper
 log() {
@@ -20,6 +25,13 @@ die() {
   echo "X Error: $*" >&2
   exit "${2:-1}"
 }
+
+cleanup() {
+  if [[ -n "${tempDir}" && -d "${tempDir}" ]]; then
+    rm -rf "${tempDir}"
+  fi
+}
+trap cleanup EXIT INT TERM
 
 # Help message
 usage() {
@@ -71,9 +83,18 @@ fi
 
 log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
-# Execute remote installation script
-log "Fetching and executing official installation script"
-if ! curl -fsSL "${INSTALL_SCRIPT_URL}" | bash -s -- --skip-shell --install-dir "${INSTALL_DIR}" --release "${VERSION}"; then
+# Download installation script to temp file (avoid piping curl to shell)
+tempDir="$(mktemp -d)" || die "Failed to create temp directory"
+INSTALL_SCRIPT="${tempDir}/install.sh"
+log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+  die "Failed to download installation script. Check network connection."
+fi
+chmod +x "${INSTALL_SCRIPT}"
+
+# Execute downloaded script
+log "Executing installation script"
+if ! /bin/bash "${INSTALL_SCRIPT}" --skip-shell --install-dir "${INSTALL_DIR}" --release "${VERSION}"; then
   die "Installation failed. Check version or network connection."
 fi
 

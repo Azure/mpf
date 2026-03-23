@@ -6,11 +6,16 @@ set -euo pipefail
 readonly GITHUB_OWNER="golangci"
 readonly GITHUB_REPO="golangci-lint"
 readonly TOOL_NAME="golangci-lint"
-readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/master/install.sh"
+# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
+# To update: get latest SHA from https://github.com/golangci/golangci-lint/commits/master/install.sh
+readonly INSTALL_SCRIPT_SHA="870ddc133592c3609f26af3b6f05ce2dd4a7afda"
+readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${INSTALL_SCRIPT_SHA}/install.sh"
 
 # Configuration (can be overridden by env)
 VERSION="${1:-${VERSION:-latest}}"
 INSTALL_DIR="${2:-${INSTALL_DIR:-}}"
+
+tempDir=""
 
 # Logging helper
 log() {
@@ -22,6 +27,13 @@ die() {
   echo "X Error: $*" >&2
   exit "${2:-1}"
 }
+
+cleanup() {
+  if [[ -n "${tempDir}" && -d "${tempDir}" ]]; then
+    rm -rf "${tempDir}"
+  fi
+}
+trap cleanup EXIT INT TERM
 
 # Help message
 usage() {
@@ -84,9 +96,18 @@ else
   ghAuthHeader=()
 fi
 
-# Execute remote installation script
-log "Fetching and executing official installation script"
-if ! curl "${ghAuthHeader[@]}" -fsSL "${INSTALL_SCRIPT_URL}" | sh -s -- -b "${INSTALL_DIR}" "${VERSION}"; then
+# Download installation script to temp file (avoid piping curl to shell)
+tempDir="$(mktemp -d)" || die "Failed to create temp directory"
+INSTALL_SCRIPT="${tempDir}/install.sh"
+log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+if ! curl "${ghAuthHeader[@]}" -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+  die "Failed to download installation script. Check network connection."
+fi
+chmod +x "${INSTALL_SCRIPT}"
+
+# Execute downloaded script
+log "Executing installation script"
+if ! /bin/bash "${INSTALL_SCRIPT}" -b "${INSTALL_DIR}" "${VERSION}"; then
   die "Installation failed. Check version or network connection."
 fi
 

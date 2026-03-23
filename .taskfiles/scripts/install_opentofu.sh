@@ -4,11 +4,16 @@ set -euo pipefail
 
 # Constants
 readonly TOOL_NAME="tofu"
-readonly INSTALL_SCRIPT_URL="https://get.opentofu.org/install-opentofu.sh"
+# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
+# To update: get latest SHA from https://github.com/opentofu/get.opentofu.org/commits/main/static/install-opentofu.sh
+readonly INSTALL_SCRIPT_SHA="c4f7de951e69f7c11b04e2e97b72b1e4e447e5bc"
+readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/opentofu/get.opentofu.org/${INSTALL_SCRIPT_SHA}/static/install-opentofu.sh"
 
 # Configuration (can be overridden by env)
 VERSION="${1:-${VERSION:-latest}}"
 INSTALL_DIR="${2:-${INSTALL_DIR:-}}"
+
+tempDir=""
 
 # Logging helper
 log() {
@@ -20,6 +25,13 @@ die() {
   echo "X Error: $*" >&2
   exit "${2:-1}"
 }
+
+cleanup() {
+  if [[ -n "${tempDir}" && -d "${tempDir}" ]]; then
+    rm -rf "${tempDir}"
+  fi
+}
+trap cleanup EXIT INT TERM
 
 # Help message
 usage() {
@@ -75,9 +87,18 @@ fi
 
 log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
-# Execute remote installation script
-log "Fetching and executing official installation script"
-if ! curl -fsSL "${INSTALL_SCRIPT_URL}" | sh -s -- --install-method standalone --opentofu-version "${VERSION}" --install-path "${INSTALL_DIR}"; then
+# Download installation script to temp file (avoid piping curl to shell)
+tempDir="$(mktemp -d)" || die "Failed to create temp directory"
+INSTALL_SCRIPT="${tempDir}/install-opentofu.sh"
+log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+  die "Failed to download installation script. Check network connection."
+fi
+chmod +x "${INSTALL_SCRIPT}"
+
+# Execute downloaded script
+log "Executing installation script"
+if ! /bin/bash "${INSTALL_SCRIPT}" --install-method standalone --opentofu-version "${VERSION}" --install-path "${INSTALL_DIR}"; then
   die "Installation failed. Check version or network connection."
 fi
 
