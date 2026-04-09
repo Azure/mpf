@@ -50,6 +50,44 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 | importExistingResourcesToState | MPF_IMPORTEXISTINGRESOURCESTOSTATE | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
 | targetModule                   | MPF_TARGETMODULE                   | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
 
+### Example: Terraform Module Targeting
+
+When a Terraform configuration contains multiple modules, you can use `--targetModule` to analyze permissions for only a specific module. This uses the Terraform `-target` flag under the hood.
+
+The following example uses the `module-test-with-targetting` sample which defines two modules (`law` and `law2`). To find minimum permissions for only the `law` module:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH=$(which terraform)
+
+cd samples/terraform/module-test-with-targetting
+terraform init
+
+azmpf terraform --workingDir $(pwd) --targetModule module.law --verbose
+```
+
+On Windows (PowerShell):
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = (Get-Command terraform).Source
+
+cd samples\terraform\module-test-with-targetting
+terraform init
+
+.\azmpf.exe terraform --workingDir (Get-Location).Path --targetModule module.law --verbose
+```
+
+The `--targetModule` value follows Terraform's module address syntax (e.g., `module.law`). You can combine this with other flags like `--jsonOutput` or `--initialPermissions`.
+
 ## Initial Permissions
 
 The `--initialPermissions` flag allows you to specify permissions that should be added to the custom role before MPF starts its analysis. This is particularly useful when:
@@ -98,7 +136,9 @@ The JSON file must have the following format:
 
 ### Example: Terraform Remote Backend
 
-When using Azure Storage as a Terraform remote backend, the service principal needs permissions to access the storage account. Create a file called `backend-permissions.json`:
+When using Azure Storage as a Terraform remote backend, the service principal needs permissions to access the storage account. Because MPF strips all roles from the service principal before analysis, the SP loses access to the remote backend and `terraform init` / `terraform plan` will fail. This is tracked in [#172](https://github.com/Azure/mpf/issues/172).
+
+The workaround is to seed the required backend permissions using `--initialPermissions`. Create a file called `backend-permissions.json` (a sample is provided at `samples/terraform/backend-permissions.json`):
 
 ```json
 {
@@ -117,11 +157,39 @@ When using Azure Storage as a Terraform remote backend, the service principal ne
 Then run MPF with:
 
 ```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH=$(which terraform)
+
+cd my-terraform
+terraform init
+
 azmpf terraform \
   --initialPermissions @backend-permissions.json \
-  --tfPath $(which terraform) \
-  --workingDir ./my-terraform \
-  # ... other required flags
+  --workingDir $(pwd) \
+  --verbose
+```
+
+On Windows (PowerShell):
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = (Get-Command terraform).Source
+
+cd my-terraform
+terraform init
+
+.\azmpf.exe terraform `
+  --initialPermissions @backend-permissions.json `
+  --workingDir (Get-Location).Path `
+  --verbose
 ```
 
 ### Example: ARM with Known Permissions (Comma-separated)
