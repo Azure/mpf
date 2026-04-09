@@ -124,6 +124,90 @@ azmpf terraform \
   # ... other required flags
 ```
 
+### Example: ARM with Known Permissions (Comma-separated)
+
+When deploying ARM templates where you already know some of the required permissions (e.g., from a previous MPF run or from documentation), you can seed them upfront to reduce execution time:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+azmpf arm \
+  --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" \
+  --templateFilePath ./samples/templates/aks-private-subnet.json \
+  --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm `
+  --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" `
+  --templateFilePath .\samples\templates\aks-private-subnet.json `
+  --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
+  --verbose
+```
+
+### Example: ARM with JSON File Format
+
+For ARM templates with many pre-requisite permissions, using a JSON file is cleaner. Create a file called `arm-initial-permissions.json`:
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Network/virtualNetworks/read",
+      "Microsoft.Network/virtualNetworks/write",
+      "Microsoft.Network/virtualNetworks/subnets/read",
+      "Microsoft.Network/virtualNetworks/subnets/write",
+      "Microsoft.Network/virtualNetworks/subnets/join/action"
+    ]
+  }
+}
+```
+
+Then run MPF with:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+azmpf arm \
+  --initialPermissions @arm-initial-permissions.json \
+  --templateFilePath ./samples/templates/aks-private-subnet.json \
+  --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm `
+  --initialPermissions @arm-initial-permissions.json `
+  --templateFilePath .\samples\templates\aks-private-subnet.json `
+  --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
+  --verbose
+```
+
 ### Example: Bicep with Pre-existing Storage Backend (Comma-separated)
 
 When deploying Bicep templates that depend on pre-existing Azure Storage (for configuration, state, or secrets), you can use comma-separated permissions to speed up analysis:

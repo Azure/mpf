@@ -1,0 +1,11 @@
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Network/virtualNetworks/read",
+      "Microsoft.Network/virtualNetworks/write",
+      "Microsoft.Network/virtualNetworks/subnets/read",
+      "Microsoft.Network/virtualNetworks/subnets/write",
+      "Microsoft.Network/virtualNetworks/subnets/join/action"
+    ]
+  }
+}
