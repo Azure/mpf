@@ -134,7 +134,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
+```text
 INFO[0000] Executing MPF for ARM
 INFO[0000] TemplateFilePath: .\samples\templates\aks-private-subnet.json
 INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json
@@ -226,6 +226,7 @@ azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --param
 ```
 
 Output shows permissions aggregated and broken down by resource scope (similar to ARM detailed output example above).
+
 ### Viewing info, warn, or debug level logs
 
 By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of default logging (error level only):
@@ -254,7 +255,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
+```text
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
 Microsoft.ContainerService/managedClusters/read
@@ -297,7 +298,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
+```text
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
 Microsoft.Authorization/roleAssignments/read
