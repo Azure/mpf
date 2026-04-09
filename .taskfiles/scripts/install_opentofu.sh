@@ -9,6 +9,7 @@ readonly TOOL_NAME="tofu"
 readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 [[ "${INSTALL_SCRIPT_SHA}" =~ ^[0-9a-fA-F]{40}$ ]] || { echo "X Error: INSTALLER_SHA must be a full 40-character hexadecimal commit SHA" >&2; exit 1; }
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/opentofu/get.opentofu.org/${INSTALL_SCRIPT_SHA}/static/install-opentofu.sh"
+VERSION="${1:-${VERSION:-latest}}"
 INSTALL_DIR="${2:-${INSTALL_DIR:-}}"
 
 tempDir=""
