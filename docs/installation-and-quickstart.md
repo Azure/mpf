@@ -132,6 +132,145 @@ Microsoft.Resources/deployments/write
 
 ```
 
+#### ARM with JSON Output
+
+To get the output in JSON format (which includes per-resource permission details by default), use the `--jsonOutput` flag:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --jsonOutput --verbose
+```
+
+Output (verbose INFO lines omitted for brevity):
+
+```json
+{
+  "SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write",
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/subnets/join/action",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write",
+    "Microsoft.Network/virtualNetworks/write",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet": [
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet": [
+    "Microsoft.Network/virtualNetworks/subnets/join/action",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write"
+  ]
+}
+```
+
+The JSON output is a map where the subscription ID key contains all aggregate permissions, and each resource scope key contains permissions specific to that resource. The `--showDetailedOutput` flag is not needed with `--jsonOutput` (they are mutually exclusive). For more display options, see [display options](display-options.MD).
+
+#### ARM with Initial Permissions
+
+The `--initialPermissions` flag allows you to seed known permissions before MPF starts its analysis. This can reduce execution time by avoiding extra permission-discovery iterations. It accepts either a comma-separated list or a JSON file reference (prefixed with `@`).
+
+##### Comma-separated format
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
+  --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
+  --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" `
+  --verbose
+```
+
+##### JSON file format
+
+For many permissions, a JSON file is cleaner. Create a file (e.g., `arm-initial-permissions.json`):
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Network/virtualNetworks/read",
+      "Microsoft.Network/virtualNetworks/write",
+      "Microsoft.Network/virtualNetworks/subnets/read",
+      "Microsoft.Network/virtualNetworks/subnets/write",
+      "Microsoft.Network/virtualNetworks/subnets/join/action"
+    ]
+  }
+}
+```
+
+Then reference it with the `@` prefix:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
+  --initialPermissions @arm-initial-permissions.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
+  --initialPermissions @arm-initial-permissions.json `
+  --verbose
+```
+
+For full details on the `--initialPermissions` flag, see [Initial Permissions](commandline-flags-and-env-variables.md#initial-permissions).
+
 ### Bicep
 
 ```shell
