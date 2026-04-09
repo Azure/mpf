@@ -41,16 +41,20 @@ Positional arguments:
   VERSION           Version to install (default: latest)
   INSTALL_DIR       Custom install directory
 
-Environment variables:
+Environment variables (required):
+  INSTALLER_SHA     Full 40-char hex commit SHA for the installer script (set by Taskfile)
+
+Environment variables (optional):
   VERSION           Desired version (default: latest)
   INSTALL_DIR       Install directory override
   GITHUB_TOKEN      GitHub token for API authentication
 
 Examples:
-  $0                         # Install latest
-  $0 1.37.0                  # Install 1.37.0
-  $0 1.37.0 ~/.local/fnm     # Install 1.37.0 to custom location
-  VERSION=1.37.0 $0          # Install 1.37.0 via env
+  INSTALLER_SHA=<sha> $0                         # Install latest
+  INSTALLER_SHA=<sha> $0 1.37.0                  # Install 1.37.0
+  INSTALLER_SHA=<sha> $0 1.37.0 ~/.local/fnm     # Install 1.37.0 to custom location
+
+Note: Normally invoked via Taskfile (e.g., task setup:fnm), which sets INSTALLER_SHA automatically.
 EOF
 }
 
