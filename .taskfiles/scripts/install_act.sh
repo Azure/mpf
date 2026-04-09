@@ -6,9 +6,9 @@ set -euo pipefail
 readonly GITHUB_OWNER="nektos"
 readonly GITHUB_REPO="act"
 readonly TOOL_NAME="act"
-# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
-# To update: get latest SHA from https://github.com/nektos/act/commits/master/install.sh
-readonly INSTALL_SCRIPT_SHA="fe017a109f2b78fa5d8cdd3ad2c5691443665c89"
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in github.Taskfile.yml GITHUB_INSTALLER_SHA.act
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${INSTALL_SCRIPT_SHA}/install.sh"
 
 # Configuration (can be overridden by env)

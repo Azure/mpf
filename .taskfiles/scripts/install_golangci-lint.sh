@@ -6,9 +6,9 @@ set -euo pipefail
 readonly GITHUB_OWNER="golangci"
 readonly GITHUB_REPO="golangci-lint"
 readonly TOOL_NAME="golangci-lint"
-# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
-# To update: get latest SHA from https://github.com/golangci/golangci-lint/commits/master/install.sh
-readonly INSTALL_SCRIPT_SHA="870ddc133592c3609f26af3b6f05ce2dd4a7afda"
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in golang.Taskfile.yml GO_INSTALLER_SHA.golangciLint
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${INSTALL_SCRIPT_SHA}/install.sh"
 
 # Configuration (can be overridden by env)

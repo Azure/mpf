@@ -4,9 +4,9 @@ set -euo pipefail
 
 # Constants
 readonly TOOL_NAME="tofu"
-# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
-# To update: get latest SHA from https://github.com/opentofu/get.opentofu.org/commits/main/static/install-opentofu.sh
-readonly INSTALL_SCRIPT_SHA="c4f7de951e69f7c11b04e2e97b72b1e4e447e5bc"
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in terraform.Taskfile.yml TERRAFORM_INSTALLER_SHA.opentofu
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/opentofu/get.opentofu.org/${INSTALL_SCRIPT_SHA}/static/install-opentofu.sh"
 
 # Configuration (can be overridden by env)

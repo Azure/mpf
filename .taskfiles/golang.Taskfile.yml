@@ -17,6 +17,9 @@ vars:
       goTestCoverage: latest
       gocoverCobertura: latest
       goreleaser: latest
+  GO_INSTALLER_SHA:
+    map:
+      golangciLint: 870ddc133592c3609f26af3b6f05ce2dd4a7afda # 2025-10-13 golangci/golangci-lint install.sh
 
 tasks:
   # * Install GoReleaser
@@ -71,7 +74,7 @@ tasks:
         vars:
           APP: golangci-lint@{{.GO_VERSION.golangciLint}}
       - cmd: |
-          ./scripts/install_golangci-lint.sh "{{.GO_VERSION.golangciLint}}"
+          INSTALLER_SHA="{{.GO_INSTALLER_SHA.golangciLint}}" ./scripts/install_golangci-lint.sh "{{.GO_VERSION.golangciLint}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
 

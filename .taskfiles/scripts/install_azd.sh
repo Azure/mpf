@@ -4,9 +4,9 @@ set -euo pipefail
 
 # Constants
 readonly TOOL_NAME="azd"
-# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
-# To update: get latest SHA from https://github.com/Azure/azure-dev/commits/main/cli/installer/install-azd.sh
-readonly INSTALL_SCRIPT_SHA="0340065907dee7ca71cd68ed132033cabb38cbce"
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in azure.Taskfile.yml AZURE_INSTALLER_SHA.azd
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/Azure/azure-dev/${INSTALL_SCRIPT_SHA}/cli/installer/install-azd.sh"
 
 # Configuration (can be overridden by env)

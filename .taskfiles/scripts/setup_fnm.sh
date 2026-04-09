@@ -4,9 +4,9 @@ set -euo pipefail
 
 # Constants
 readonly TOOL_NAME="fnm"
-# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
-# To update: get latest SHA from https://github.com/Schniz/fnm/commits/master/.ci/install.sh
-readonly INSTALL_SCRIPT_SHA="bfb186034978b1ddaf87501eb1633bdc42a5c0a6"
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in runtime.Taskfile.yml RUNTIME_INSTALLER_SHA.fnm
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/Schniz/fnm/${INSTALL_SCRIPT_SHA}/.ci/install.sh"
 
 # Configuration (can be overridden by env)

@@ -6,9 +6,9 @@ set -euo pipefail
 readonly GITHUB_OWNER="rhysd"
 readonly GITHUB_REPO="actionlint"
 readonly TOOL_NAME="actionlint"
-# Pinned to commit SHA for supply-chain security (OpenSSF Scorecard: Pinned-Dependencies)
-# To update: get latest SHA from https://github.com/rhysd/actionlint/commits/main/scripts/download-actionlint.bash
-readonly INSTALL_SCRIPT_SHA="62c50a97a146fe36a8951a2a365158c4a4795ba8"
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in github.Taskfile.yml GITHUB_INSTALLER_SHA.actionlint
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
 readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${INSTALL_SCRIPT_SHA}/scripts/download-actionlint.bash"
 
 # Configuration (can be overridden by env)

@@ -8,6 +8,9 @@ vars:
     map:
       terraform: latest
       opentofu: latest
+  TERRAFORM_INSTALLER_SHA:
+    map:
+      opentofu: c4f7de951e69f7c11b04e2e97b72b1e4e447e5bc # 2024-12-26 opentofu/get.opentofu.org static/install-opentofu.sh
 
 tasks:
   # * Install Terraform
@@ -41,7 +44,7 @@ tasks:
         vars:
           APP: opentofu@{{.TERRAFORM_VERSION.opentofu}}
       - cmd: |
-          ./scripts/install_opentofu.sh "{{.TERRAFORM_VERSION.opentofu}}"
+          INSTALLER_SHA="{{.TERRAFORM_INSTALLER_SHA.opentofu}}" ./scripts/install_opentofu.sh "{{.TERRAFORM_VERSION.opentofu}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
 
