@@ -214,7 +214,7 @@ func TestBicepWithBicepparamFile(t *testing.T) {
 		log.Errorf("error running bicep build-params: %s\n%s", err, string(output))
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { os.Remove(compiledParamsPath) })
+	t.Cleanup(func() { _ = os.Remove(compiledParamsPath) })
 
 	// Build bicep to ARM template
 	armTemplatePath := strings.TrimSuffix(bicepFilePath, ".bicep") + ".json"
