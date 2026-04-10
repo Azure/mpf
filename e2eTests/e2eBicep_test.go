@@ -187,6 +187,84 @@ func TestBicepAksFullDeployment(t *testing.T) {
 	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
+func TestBicepWithBicepparamFile(t *testing.T) {
+	mpfArgs, err := getTestingMPFArgs()
+	if err != nil {
+		t.Skip("required environment variables not set, skipping end to end test")
+	}
+
+	if checkBicepTestEnvVars() {
+		t.Skip("required environment variables not set, skipping end to end test")
+	}
+
+	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+	bicepFilePath := "../samples/bicep/storage-account-simple.bicep"
+	parametersFilePath := "../samples/bicep/storage-account-simple-params.bicepparam"
+
+	bicepFilePath, _ = getAbsolutePath(bicepFilePath)
+	parametersFilePath, _ = getAbsolutePath(parametersFilePath)
+
+	// Compile .bicepparam to ARM JSON parameters
+	compiledParamsPath := strings.TrimSuffix(parametersFilePath, filepath.Ext(parametersFilePath)) + ".parameters.json"
+	buildParamsCmd := exec.Command(bicepExecPath, "build-params", parametersFilePath, "--outfile", compiledParamsPath)
+	buildParamsCmd.Dir = filepath.Dir(parametersFilePath)
+
+	output, err := buildParamsCmd.CombinedOutput()
+	if err != nil {
+		log.Errorf("error running bicep build-params: %s\n%s", err, string(output))
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Remove(compiledParamsPath) })
+
+	// Build bicep to ARM template
+	armTemplatePath := strings.TrimSuffix(bicepFilePath, ".bicep") + ".json"
+	bicepCmd := exec.Command(bicepExecPath, "build", bicepFilePath, "--outfile", armTemplatePath)
+	bicepCmd.Dir = filepath.Dir(bicepFilePath)
+
+	_, err = bicepCmd.CombinedOutput()
+	if err != nil {
+		log.Error(err)
+		t.Error(err)
+	}
+
+	ctx := t.Context()
+
+	mpfConfig := getMPFConfig(mpfArgs)
+
+	deploymentName := fmt.Sprintf("%s-%s", mpfArgs.DeploymentNamePfx, mpfSharedUtils.GenerateRandomString(7))
+	armConfig := &ARMTemplateShared.ArmTemplateAdditionalConfig{
+		TemplateFilePath:   armTemplatePath,
+		ParametersFilePath: compiledParamsPath,
+		DeploymentName:     deploymentName,
+	}
+
+	var rgManager usecase.ResourceGroupManager
+	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager
+	rgManager = rgm.NewResourceGroupManager(mpfArgs.SubscriptionID)
+	spRoleAssignmentManager = spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
+
+	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
+	var mpfService *usecase.MPFService
+
+	deploymentAuthorizationCheckerCleaner = ARMTemplateDeployment.NewARMTemplateDeploymentAuthorizationChecker(mpfArgs.SubscriptionID, *armConfig)
+	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/*", "Microsoft.Resources/subscriptions/operationresults/read"}
+	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, true, false, true)
+
+	mpfResult, err := mpfService.GetMinimumPermissionsRequired()
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Storage account deployment requires these permissions:
+	// Microsoft.Resources/deployments/read
+	// Microsoft.Resources/deployments/write
+	// Microsoft.Storage/storageAccounts/read
+	// Microsoft.Storage/storageAccounts/write
+	assert.NotEmpty(t, mpfResult.RequiredPermissions)
+	assert.GreaterOrEqual(t, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]), 4)
+}
+
 func getAbsolutePath(path string) (string, error) {
 	absPath := path
 	if !filepath.IsAbs(path) {
