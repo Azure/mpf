@@ -34,6 +34,18 @@ import (
 
 func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, error) {
 	log.Debugf("Attempting to Parse Authorization Error: %s", authErrMesg)
+
+	// Check for Authorization_RequestDenied errors from Microsoft Graph / Azure AD.
+	// These errors do not contain specific permission details that MPF can parse.
+	// They typically require Azure AD admin consent or Global Administrator privileges.
+	if strings.Contains(authErrMesg, "Authorization_RequestDenied") {
+		log.Warnln("Authorization_RequestDenied error detected. This error originates from Microsoft Graph / Azure AD and cannot be resolved by MPF.")
+		return nil, fmt.Errorf("Authorization_RequestDenied error detected: %w",
+			errors.New("this error indicates insufficient Azure AD / Microsoft Graph API privileges. "+
+				"These permissions require admin consent or Global Administrator role and cannot be automatically discovered by MPF. "+
+				"See https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference for details"))
+	}
+
 	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") && !strings.Contains(authErrMesg, "LinkedAccessCheckFailed") && !strings.Contains(authErrMesg, "LackOfPermissions") {
 		log.Warnln("Non Authorization Error when creating deployment:", authErrMesg)
 		return nil, errors.New("could not parse deployment error, potentially due to a non-authorization error")

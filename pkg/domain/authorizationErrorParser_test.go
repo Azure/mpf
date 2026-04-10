@@ -85,3 +85,19 @@ func TestMultiAuthorizationSpaceFailedErrors(t *testing.T) {
 	assert.Equal(t, "Microsoft.KeyVault/vaults/write", lastMatch[0])
 
 }
+
+func TestAuthorizationRequestDeniedError(t *testing.T) {
+	authRequestDeniedError := `Error: Creating group "Group-name-axtwb"
+
+  with azuread_group.res_ds_group[0],
+  on rbac.tf line 3, in resource "azuread_group" "res_ds_group":
+   3: resource "azuread_group" "res_ds_group" {
+
+GroupsClient.BaseClient.Post(): unexpected status 403 with OData error:
+Authorization_RequestDenied: Insufficient privileges to complete the operation.`
+	spm, err := GetScopePermissionsFromAuthError(authRequestDeniedError)
+	assert.NotNil(t, err)
+	assert.Nil(t, spm)
+	assert.Contains(t, err.Error(), "Authorization_RequestDenied")
+	assert.Contains(t, err.Error(), "Azure AD / Microsoft Graph API privileges")
+}
