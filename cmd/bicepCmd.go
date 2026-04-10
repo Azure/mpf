@@ -69,7 +69,7 @@ func NewBicepCommand() *cobra.Command {
 		log.Errorf("Error marking flag required for Bicep file path: %v\n", err)
 	}
 
-	bicepCmd.Flags().StringVarP(&flgParametersFilePath, "parametersFilePath", "", "", "Path to bicep Parameters File")
+	bicepCmd.Flags().StringVarP(&flgParametersFilePath, "parametersFilePath", "", "", "Path to bicep Parameters File (.json or .bicepparam)")
 	err = bicepCmd.MarkFlagRequired("parametersFilePath")
 	if err != nil {
 		log.Errorf("Error marking flag required for Bicep parameters file path: %v\n", err)
@@ -127,6 +127,21 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	flgParametersFilePath, err := getAbsolutePath(flgParametersFilePath)
 	if err != nil {
 		log.Errorf("Error getting absolute path for parameters file: %v\n", err)
+	}
+
+	// If the parameters file is a .bicepparam file, compile it to ARM JSON format
+	if strings.HasSuffix(strings.ToLower(flgParametersFilePath), ".bicepparam") {
+		log.Infoln("Detected .bicepparam file, compiling to ARM parameters JSON format")
+		compiledParamsPath := strings.TrimSuffix(flgParametersFilePath, filepath.Ext(flgParametersFilePath)) + ".parameters.json"
+		buildParamsCmd := exec.Command(flgBicepExecPath, "build-params", flgParametersFilePath, "--outfile", compiledParamsPath)
+		buildParamsCmd.Dir = filepath.Dir(flgParametersFilePath)
+
+		output, err := buildParamsCmd.CombinedOutput()
+		if err != nil {
+			log.Fatalf("error running bicep build-params: %s\n%s", err, string(output))
+		}
+		log.Infoln("Bicep parameters compiled successfully, ARM Parameters JSON created at:", compiledParamsPath)
+		flgParametersFilePath = compiledParamsPath
 	}
 
 	armTemplatePath := strings.TrimSuffix(flgBicepFilePath, ".bicep") + ".json"
