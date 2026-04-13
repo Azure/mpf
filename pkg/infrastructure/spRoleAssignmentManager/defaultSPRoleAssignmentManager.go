@@ -29,9 +29,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/authorization/armauthorization/v3"
 	"github.com/Azure/mpf/pkg/domain"
 	"github.com/Azure/mpf/pkg/infrastructure/azureAPI"
@@ -294,7 +294,7 @@ func (r *SPRoleAssignmentManager) AssignRoleToSP(subscription string, SPOBjectID
 // DetachRolesFromSP detaches the specified role from the SP
 func (r *SPRoleAssignmentManager) DetachRolesFromSP(ctx context.Context, subscription string, SPOBjectID string, role domain.Role) error {
 	pager := r.azAPIClient.RoleAssignmentsClient.NewListForSubscriptionPager(&armauthorization.RoleAssignmentsClientListForSubscriptionOptions{
-		Filter: to.Ptr(fmt.Sprintf("assignedTo('%s')", SPOBjectID)),
+		Filter: new(fmt.Sprintf("assignedTo('%s')", SPOBjectID)),
 	})
 
 	for pager.More() {
@@ -382,12 +382,7 @@ func (r *SPRoleAssignmentManager) DeleteCustomRole(subscription string, role dom
 }
 
 func stringExistsInSlice(s string, sl []string) bool {
-	for _, v := range sl {
-		if v == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(sl, s)
 }
 
 func filterInvalidActions(permissions []string, invalidActions []string) []string {

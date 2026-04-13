@@ -50,7 +50,7 @@ func TestReadJson(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Assert that the result matches the expected JSON content
-	expected := make(map[string]interface{})
+	expected := make(map[string]any)
 	err = json.Unmarshal([]byte(jsonContent), &expected)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)

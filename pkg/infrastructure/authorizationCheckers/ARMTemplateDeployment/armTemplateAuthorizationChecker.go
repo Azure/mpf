@@ -273,7 +273,7 @@ func (a *armDeploymentConfig) cancelDeployment(ctx context.Context, deploymentNa
 	}
 
 	const maxRetries = 24
-	for retryCount := 0; retryCount < maxRetries; retryCount++ {
+	for range maxRetries {
 		_, err := a.azAPIClient.DeploymentsClient.Cancel(ctx, mpfConfig.ResourceGroup.ResourceGroupName, deploymentName, nil)
 		if err == nil {
 			log.Infof("Cancelled deployment %s", deploymentName)
