@@ -35,7 +35,7 @@ type ArmTemplateAdditionalConfig struct {
 }
 
 // Get parameters in standard format that is without the schema, contentVersion and parameters fields
-func GetParametersInStandardFormat(parameters map[string]interface{}) map[string]interface{} {
+func GetParametersInStandardFormat(parameters map[string]any) map[string]any {
 	// convert from
 	// {
 	// 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
@@ -67,7 +67,7 @@ func GetParametersInStandardFormat(parameters map[string]interface{}) map[string
 	// 	}
 	if parameters["$schema"] != nil {
 
-		return parameters["parameters"].(map[string]interface{})
+		return parameters["parameters"].(map[string]any)
 
 	}
 	return parameters

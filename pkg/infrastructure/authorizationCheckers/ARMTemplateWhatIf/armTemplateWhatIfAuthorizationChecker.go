@@ -87,11 +87,11 @@ func (a *armWhatIfConfig) CreateEmptyDeployment(client *http.Client, deploymentN
 		return err
 	}
 
-	emptyTemplStdFmtMap := map[string]interface{}{
-		"properties": map[string]interface{}{
+	emptyTemplStdFmtMap := map[string]any{
+		"properties": map[string]any{
 			"mode":       "Incremental",
 			"template":   emptyTempl,
-			"parameters": map[string]interface{}{},
+			"parameters": map[string]any{},
 		},
 	}
 
@@ -152,8 +152,8 @@ func (a *armWhatIfConfig) GetARMWhatIfAuthorizationErrors(deploymentName string,
 
 	// if Subscription scoped, we need to specify deployment location
 
-	fullTemplate := map[string]interface{}{
-		"properties": map[string]interface{}{
+	fullTemplate := map[string]any{
+		"properties": map[string]any{
 			"mode":       "Incremental",
 			"template":   template,
 			"parameters": parameters,

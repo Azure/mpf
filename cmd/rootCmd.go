@@ -44,16 +44,16 @@ var (
 	envPrefix                  = "MPF"
 	replaceHyphenWithCamelCase = false
 
-	flgSubscriptionID      string
-	flgTenantID            string
-	flgSPClientID          string
-	flgSPObjectID          string
-	flgSPClientSecret      string
-	flgShowDetailedOutput  bool
-	flgJSONOutput          bool
-	flgVerbose             bool
-	flgDebug               bool
-	flgInitialPermissions  string
+	flgSubscriptionID     string
+	flgTenantID           string
+	flgSPClientID         string
+	flgSPObjectID         string
+	flgSPClientSecret     string
+	flgShowDetailedOutput bool
+	flgJSONOutput         bool
+	flgVerbose            bool
+	flgDebug              bool
+	flgInitialPermissions string
 	// RootCmd            *cobra.Command
 )
 
@@ -222,8 +222,8 @@ func parseInitialPermissions(value string) ([]string, error) {
 	}
 
 	// Check if it's a file reference (starts with @)
-	if strings.HasPrefix(value, "@") {
-		filePath := strings.TrimPrefix(value, "@")
+	if after, ok := strings.CutPrefix(value, "@"); ok {
+		filePath := after
 		absPath, err := getAbsolutePath(filePath)
 		if err != nil {
 			return nil, fmt.Errorf("error getting absolute path for permissions file: %w", err)
