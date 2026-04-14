@@ -6,11 +6,18 @@ set -euo pipefail
 readonly GITHUB_OWNER="rhysd"
 readonly GITHUB_REPO="actionlint"
 readonly TOOL_NAME="actionlint"
-readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/scripts/download-actionlint.bash"
-
-# Configuration (can be overridden by env)
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in github.Taskfile.yml GITHUB_INSTALLER_SHA.actionlint
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
+[[ "${INSTALL_SCRIPT_SHA}" =~ ^[0-9a-fA-F]{40}$ ]] || {
+  echo "X Error: INSTALLER_SHA must be a full 40-character hexadecimal commit SHA" >&2
+  exit 1
+}
+readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${INSTALL_SCRIPT_SHA}/scripts/download-actionlint.bash"
 VERSION="${1:-${VERSION:-latest}}"
 INSTALL_DIR="${2:-${INSTALL_DIR:-}}"
+
+tempDir=""
 
 # Logging helper
 log() {
@@ -23,6 +30,13 @@ die() {
   exit "${2:-1}"
 }
 
+cleanup() {
+  if [[ -n "${tempDir}" && -d "${tempDir}" ]]; then
+    rm -rf "${tempDir}"
+  fi
+}
+trap cleanup EXIT INT TERM
+
 # Help message
 usage() {
   cat <<EOF
@@ -32,16 +46,20 @@ Positional arguments:
   VERSION           Version to install (default: latest)
   INSTALL_DIR       Custom install directory
 
-Environment variables:
+Environment variables (required):
+  INSTALLER_SHA     Full 40-char hex commit SHA for the installer script (set by Taskfile)
+
+Environment variables (optional):
   VERSION           Desired version (default: latest)
   INSTALL_DIR       Install directory override
   GITHUB_TOKEN      GitHub token for API authentication
 
 Examples:
-  $0                      # Install latest
-  $0 1.2.3                # Install 1.2.3
-  $0 1.2.3 ~/.local/bin   # Install 1.2.3 to ~/.local/bin
-  VERSION=v1.2.3 $0       # Install 1.2.3 via env
+  INSTALLER_SHA=<sha> $0                      # Install latest
+  INSTALLER_SHA=<sha> $0 1.2.3                # Install 1.2.3
+  INSTALLER_SHA=<sha> $0 1.2.3 ~/.local/bin   # Install 1.2.3 to ~/.local/bin
+
+Note: Normally invoked via Taskfile (e.g., task install:actionlint), which sets INSTALLER_SHA automatically.
 EOF
 }
 
@@ -84,9 +102,18 @@ else
   ghAuthHeader=()
 fi
 
-# Execute remote installation script
-log "Fetching and executing official installation script"
-if ! curl "${ghAuthHeader[@]}" -fsSL "${INSTALL_SCRIPT_URL}" | /bin/bash -s -- "${VERSION}" "${INSTALL_DIR}"; then
+# Download installation script to temp file (avoid piping curl to shell)
+tempDir="$(mktemp -d)" || die "Failed to create temp directory"
+INSTALL_SCRIPT="${tempDir}/download-actionlint.bash"
+log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+if ! curl "${ghAuthHeader[@]}" -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+  die "Failed to download installation script. Check network connection."
+fi
+chmod +x "${INSTALL_SCRIPT}"
+
+# Execute downloaded script
+log "Executing installation script"
+if ! /bin/bash "${INSTALL_SCRIPT}" "${VERSION}" "${INSTALL_DIR}"; then
   die "Installation failed. Check version or network connection."
 fi
 

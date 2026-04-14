@@ -11,6 +11,10 @@ vars:
       pinact: latest
       ghalint: latest
       gh: latest
+  GITHUB_INSTALLER_SHA:
+    map:
+      actionlint: 62c50a97a146fe36a8951a2a365158c4a4795ba8 # v1.7.11 rhysd/actionlint scripts/download-actionlint.bash
+      act: fe017a109f2b78fa5d8cdd3ad2c5691443665c89 # 2024-12-25 nektos/act install.sh
 
 tasks:
   # * Install Actionlint
@@ -25,7 +29,7 @@ tasks:
         vars:
           APP: actionlint@{{.GITHUB_VERSION.actionlint}}
       - cmd: |
-          ./scripts/install_actionlint.sh "{{.GITHUB_VERSION.actionlint}}"
+          INSTALLER_SHA="{{.GITHUB_INSTALLER_SHA.actionlint}}" ./scripts/install_actionlint.sh "{{.GITHUB_VERSION.actionlint}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
 
@@ -41,7 +45,7 @@ tasks:
         vars:
           APP: act@{{.GITHUB_VERSION.act}}
       - cmd: |
-          ./scripts/install_act.sh "{{.GITHUB_VERSION.act}}"
+          INSTALLER_SHA="{{.GITHUB_INSTALLER_SHA.act}}" ./scripts/install_act.sh "{{.GITHUB_VERSION.act}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
 

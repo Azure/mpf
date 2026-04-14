@@ -10,6 +10,9 @@ vars:
       fnm: latest
       pwsh: latest
       golang: latest
+  RUNTIME_INSTALLER_SHA:
+    map:
+      fnm: bfb186034978b1ddaf87501eb1633bdc42a5c0a6 # 2026-03-09 Schniz/fnm .ci/install.sh
   PYTHON_VERSION:
     sh: |
       [ -f .python-version ] && cat .python-version || echo "3.14"
@@ -67,7 +70,7 @@ tasks:
     desc: fnm setup
     cmds:
       - cmd: |
-          ./scripts/setup_fnm.sh "{{.RUNTIME_VERSION.fnm}}"
+          INSTALLER_SHA="{{.RUNTIME_INSTALLER_SHA.fnm}}" ./scripts/setup_fnm.sh "{{.RUNTIME_VERSION.fnm}}"
         platforms: [linux]
       - task: :internal:_install:brew
         vars:

@@ -4,11 +4,18 @@ set -euo pipefail
 
 # Constants
 readonly TOOL_NAME="tofu"
-readonly INSTALL_SCRIPT_URL="https://get.opentofu.org/install-opentofu.sh"
-
-# Configuration (can be overridden by env)
+# Installer script SHA provided via INSTALLER_SHA env var from Taskfile
+# To update: change the SHA in terraform.Taskfile.yml TERRAFORM_INSTALLER_SHA.opentofu
+readonly INSTALL_SCRIPT_SHA="${INSTALLER_SHA:?INSTALLER_SHA env var is required — set in Taskfile}"
+[[ "${INSTALL_SCRIPT_SHA}" =~ ^[0-9a-fA-F]{40}$ ]] || {
+  echo "X Error: INSTALLER_SHA must be a full 40-character hexadecimal commit SHA" >&2
+  exit 1
+}
+readonly INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/opentofu/get.opentofu.org/${INSTALL_SCRIPT_SHA}/static/install-opentofu.sh"
 VERSION="${1:-${VERSION:-latest}}"
 INSTALL_DIR="${2:-${INSTALL_DIR:-}}"
+
+tempDir=""
 
 # Logging helper
 log() {
@@ -21,6 +28,13 @@ die() {
   exit "${2:-1}"
 }
 
+cleanup() {
+  if [[ -n "${tempDir}" && -d "${tempDir}" ]]; then
+    rm -rf "${tempDir}"
+  fi
+}
+trap cleanup EXIT INT TERM
+
 # Help message
 usage() {
   cat <<EOF
@@ -30,16 +44,20 @@ Positional arguments:
   VERSION           Version to install (default: latest)
   INSTALL_DIR       Custom install directory
 
-Environment variables:
+Environment variables (required):
+  INSTALLER_SHA     Full 40-char hex commit SHA for the installer script (set by Taskfile)
+
+Environment variables (optional):
   VERSION           Desired version (default: latest)
   INSTALL_DIR       Install directory override
   GITHUB_TOKEN      GitHub token for API authentication
 
 Examples:
-  $0                       # Install latest
-  $0 1.2.3                 # Install 1.2.3
-  $0 1.2.3 ~/.local/bin    # Install 1.2.3 to ~/.local/bin
-  VERSION=v1.2.3 $0        # Install 1.2.3 via env
+  INSTALLER_SHA=<sha> $0                       # Install latest
+  INSTALLER_SHA=<sha> $0 1.2.3                 # Install 1.2.3
+  INSTALLER_SHA=<sha> $0 1.2.3 ~/.local/bin    # Install 1.2.3 to ~/.local/bin
+
+Note: Normally invoked via Taskfile (e.g., task install:opentofu), which sets INSTALLER_SHA automatically.
 EOF
 }
 
@@ -75,9 +93,18 @@ fi
 
 log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
-# Execute remote installation script
-log "Fetching and executing official installation script"
-if ! curl -fsSL "${INSTALL_SCRIPT_URL}" | sh -s -- --install-method standalone --opentofu-version "${VERSION}" --install-path "${INSTALL_DIR}"; then
+# Download installation script to temp file (avoid piping curl to shell)
+tempDir="$(mktemp -d)" || die "Failed to create temp directory"
+INSTALL_SCRIPT="${tempDir}/install-opentofu.sh"
+log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+  die "Failed to download installation script. Check network connection."
+fi
+chmod +x "${INSTALL_SCRIPT}"
+
+# Execute downloaded script
+log "Executing installation script"
+if ! /bin/bash "${INSTALL_SCRIPT}" --install-method standalone --opentofu-version "${VERSION}" --install-path "${INSTALL_DIR}"; then
   die "Installation failed. Check version or network connection."
 fi
 

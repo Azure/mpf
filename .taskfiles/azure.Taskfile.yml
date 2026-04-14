@@ -9,6 +9,9 @@ vars:
       az: latest
       azd: latest
       bicep: latest
+  AZURE_INSTALLER_SHA:
+    map:
+      azd: 0340065907dee7ca71cd68ed132033cabb38cbce # 2025-03-27 Azure/azure-dev cli/installer/install-azd.sh
 
 tasks:
   # * Install Azure CLI
@@ -43,7 +46,7 @@ tasks:
         vars:
           APP: azd@{{.AZURE_VERSION.azd}}
       - cmd: |
-          ./scripts/install_azd.sh "{{.AZURE_VERSION.azd}}"
+          INSTALLER_SHA="{{.AZURE_INSTALLER_SHA.azd}}" ./scripts/install_azd.sh "{{.AZURE_VERSION.azd}}"
         platforms: [linux]
     dir: "{{.TASKFILE_DIR}}"
 
