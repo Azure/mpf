@@ -467,7 +467,7 @@ func TestARMTemplatAksPrivateSubnetTemplateFullDeployment(t *testing.T) {
 		t.Error(err)
 	}
 
-	//check if mpfResult.RequiredPermissions is not empty and has 8 permissions for scope ResourceGroupResourceID
+	//check if mpfResult.RequiredPermissions is not empty and has 9 permissions for scope ResourceGroupResourceID
 	// Microsoft.ContainerService/managedClusters/read
 	// Microsoft.ContainerService/managedClusters/write
 	// Microsoft.Network/virtualNetworks/read
