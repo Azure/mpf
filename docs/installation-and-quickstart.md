@@ -132,6 +132,145 @@ Microsoft.Resources/deployments/write
 
 ```
 
+#### ARM with JSON Output
+
+To get the output in JSON format (which includes per-resource permission details by default), use the `--jsonOutput` flag:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --jsonOutput --verbose
+```
+
+Output (verbose INFO lines omitted for brevity):
+
+```json
+{
+  "SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write",
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/subnets/join/action",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write",
+    "Microsoft.Network/virtualNetworks/write",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet": [
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-OJ2zCNA/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet": [
+    "Microsoft.Network/virtualNetworks/subnets/join/action",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write"
+  ]
+}
+```
+
+The JSON output is a map where the subscription ID key contains all aggregate permissions, and each resource scope key contains permissions specific to that resource. The `--showDetailedOutput` flag is not needed with `--jsonOutput` (they are mutually exclusive). For more display options, see [display options](display-options.MD).
+
+#### ARM with Initial Permissions
+
+The `--initialPermissions` flag allows you to seed known permissions before MPF starts its analysis. This can reduce execution time by avoiding extra permission-discovery iterations. It accepts either a comma-separated list or a JSON file reference (prefixed with `@`).
+
+##### Comma-separated format
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
+  --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
+  --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" `
+  --verbose
+```
+
+##### JSON file format
+
+For many permissions, a JSON file is cleaner. Create a file (e.g., `arm-initial-permissions.json`):
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Network/virtualNetworks/read",
+      "Microsoft.Network/virtualNetworks/write",
+      "Microsoft.Network/virtualNetworks/subnets/read",
+      "Microsoft.Network/virtualNetworks/subnets/write",
+      "Microsoft.Network/virtualNetworks/subnets/join/action"
+    ]
+  }
+}
+```
+
+Then reference it with the `@` prefix:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
+  --initialPermissions @arm-initial-permissions.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
+  --initialPermissions @arm-initial-permissions.json `
+  --verbose
+```
+
+For full details on the `--initialPermissions` flag, see [Initial Permissions](commandline-flags-and-env-variables.md#initial-permissions).
+
 ### Bicep
 
 ```shell
@@ -288,6 +427,163 @@ Microsoft.Resources/subscriptions/resourcegroups/write
 ------------------------------------------------------------------------------------------------------------------------------------------
 
 ```
+
+#### Terraform with JSON Output
+
+To get the output in JSON format, use the `--jsonOutput` flag:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH="TERRAFORM_EXECUTABLE_PATH"
+
+$ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars --jsonOutput --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
+
+.\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" --jsonOutput --verbose
+```
+
+Output (verbose INFO lines omitted for brevity):
+
+```json
+{
+  "SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS": [
+    "Microsoft.ContainerInstance/containerGroups/delete",
+    "Microsoft.ContainerInstance/containerGroups/read",
+    "Microsoft.ContainerInstance/containerGroups/write",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/write",
+    "Microsoft.Resources/subscriptions/resourcegroups/delete",
+    "Microsoft.Resources/subscriptions/resourcegroups/read",
+    "Microsoft.Resources/subscriptions/resourcegroups/write"
+  ]
+}
+```
+
+The JSON output is a map where the subscription ID key contains all aggregate permissions, and each resource scope key contains permissions specific to that resource. The `--showDetailedOutput` flag is not needed with `--jsonOutput` (they are mutually exclusive). For more display options, see [display options](display-options.MD).
+
+#### Terraform with Module Targeting
+
+When working with Terraform configurations that contain multiple modules, you can use the `--targetModule` flag to scope MPF analysis to a specific module. This is useful for large configurations where you only need permissions for a subset of resources.
+
+The following example targets only the `module.law` module within the `module-test-with-targetting` sample:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH="TERRAFORM_EXECUTABLE_PATH"
+
+# Ensure terraform is initialized first
+# pushd ./samples/terraform/module-test-with-targetting && $MPF_TFPATH init && popd
+
+$ ./azmpf terraform --workingDir `pwd`/samples/terraform/module-test-with-targetting --varFilePath `pwd`/samples/terraform/module-test-with-targetting/terraform.tfvars --targetModule "module.law" --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
+
+# Ensure terraform is initialized first
+# Push-Location .\samples\terraform\module-test-with-targetting\; & $env:MPF_TFPATH init; Pop-Location
+
+.\azmpf.exe terraform --workingDir "$PWD\samples\terraform\module-test-with-targetting" --varFilePath "$PWD\samples\terraform\module-test-with-targetting\terraform.tfvars" --targetModule "module.law" --verbose
+```
+
+> **Note**: The `--targetModule` value uses Terraform's module address syntax (e.g., `module.law`). Only the targeted module's resources will be deployed, and only the permissions required for that module will be reported.
+
+#### Terraform with Initial Permissions
+
+The `--initialPermissions` flag is especially useful for Terraform when using a **remote backend** (e.g., Azure Storage for state). MPF removes all existing role assignments from the service principal before analysis, which can cause Terraform to fail with a 403 error when accessing the backend state store (see [#172](https://github.com/Azure/mpf/issues/172)).
+
+##### Using a JSON file for remote backend permissions
+
+Create a file called `backend-permissions.json` (a sample is provided at `samples/terraform/backend-permissions.json`):
+
+```json
+{
+  "RequiredPermissions": {
+    "": [
+      "Microsoft.Storage/storageAccounts/read",
+      "Microsoft.Storage/storageAccounts/listKeys/action",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+      "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write"
+    ]
+  }
+}
+```
+
+Then reference it with the `@` prefix:
+
+```shell
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH=$(which terraform)
+
+$ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars \
+  --initialPermissions @backend-permissions.json \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
+
+.\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" `
+  --initialPermissions @backend-permissions.json `
+  --verbose
+```
+
+##### Using comma-separated permissions
+
+For fewer permissions, you can specify them inline:
+
+```shell
+$ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars \
+  --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action" \
+  --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+.\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" `
+  --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action" `
+  --verbose
+```
+
+For full details on the `--initialPermissions` flag, see [Initial Permissions](commandline-flags-and-env-variables.md#initial-permissions). For more context on the remote backend issue, see [Known Issues - Remote Backend Access Denied](known-issues-and-workarounds.MD#remote-backend-access-denied).
 
 It is also possible to additionally view detailed resource-level permissions required as shown in the [display options](./display-options.MD) document.
 

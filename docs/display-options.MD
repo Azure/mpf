@@ -117,7 +117,7 @@ export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
 export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
 export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 
-$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --outputFormat json --verbose
+$ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput --verbose
 ```
 
 Or using PowerShell on Windows:
@@ -129,12 +129,12 @@ $env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
 $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
-.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --outputFormat json --verbose
+.\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --jsonOutput --verbose
 ```
 
 Output:
 
-```
+```text
 INFO[0000] Executing MPF for ARM
 INFO[0000] TemplateFilePath: .\samples\templates\aks-private-subnet.json
 INFO[0000] ParametersFilePath: .\samples\templates\aks-private-subnet-parameters.json
@@ -163,7 +163,7 @@ INFO[0434] *************************
 INFO[0447] Role definition deleted successfully
 INFO[0452] Resource group deletion initiated successfully...
 {
-  "permissions": [
+  "SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS": [
     "Microsoft.ContainerService/managedClusters/read",
     "Microsoft.ContainerService/managedClusters/write",
     "Microsoft.Network/virtualNetworks/read",
@@ -174,33 +174,25 @@ INFO[0452] Resource group deletion initiated successfully...
     "Microsoft.Resources/deployments/read",
     "Microsoft.Resources/deployments/write"
   ],
-  "permissionsByResourceScope": [
-    {
-      "resourceScope": "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-Uqc4z3E/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet",
-      "permissions": [
-        "Microsoft.Network/virtualNetworks/read",
-        "Microsoft.Network/virtualNetworks/write"
-      ]
-    },
-    {
-      "resourceScope": "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-Uqc4z3E/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet",
-      "permissions": [
-        "Microsoft.Network/virtualNetworks/subnets/join/action",
-        "Microsoft.Network/virtualNetworks/subnets/read",
-        "Microsoft.Network/virtualNetworks/subnets/write"
-      ]
-    },
-    {
-      "resourceScope": "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-Uqc4z3E/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster",
-      "permissions": [
-        "Microsoft.ContainerService/managedClusters/read",
-        "Microsoft.ContainerService/managedClusters/write"
-      ]
-    }
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-Uqc4z3E/providers/Microsoft.ContainerService/managedClusters/azmpfakstestcluster": [
+    "Microsoft.ContainerService/managedClusters/read",
+    "Microsoft.ContainerService/managedClusters/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-Uqc4z3E/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet": [
+    "Microsoft.Network/virtualNetworks/read",
+    "Microsoft.Network/virtualNetworks/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-Uqc4z3E/providers/Microsoft.Network/virtualNetworks/azmpfakstestvnet/subnets/azmpfakstestsubnet": [
+    "Microsoft.Network/virtualNetworks/subnets/join/action",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/write"
   ]
 }
 
 ```
+
+The JSON output is a map where the subscription ID key contains all aggregate permissions, and each resource scope key contains permissions specific to that resource.
+
 ### Bicep JSON Output
 
 Similar to ARM templates, Bicep deployments can produce JSON output which shows detailed permission breakdowns. The following is a sample of JSON output:
@@ -234,6 +226,90 @@ azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --param
 ```
 
 Output shows permissions aggregated and broken down by resource scope (similar to ARM detailed output example above).
+
+### Terraform JSON Output
+
+Terraform deployments also support JSON output. The following example uses the ACI (Azure Container Instances) sample:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH=$(which terraform)
+
+cd samples/terraform/aci
+terraform init
+
+azmpf terraform --workingDir $(pwd) --varFilePath $(pwd)/dev.vars.tfvars --jsonOutput --verbose
+```
+
+On Windows (PowerShell):
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TFPATH = (Get-Command terraform).Source
+
+cd samples\terraform\aci
+terraform init
+
+azmpf terraform --workingDir (Get-Location).Path --varFilePath (Join-Path (Get-Location) dev.vars.tfvars) --jsonOutput --verbose
+```
+
+Sample JSON output:
+
+```json
+{
+  "SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS": [
+    "Microsoft.ContainerInstance/containerGroups/delete",
+    "Microsoft.ContainerInstance/containerGroups/read",
+    "Microsoft.ContainerInstance/containerGroups/write",
+    "Microsoft.Resources/deployments/read",
+    "Microsoft.Resources/deployments/write",
+    "Microsoft.Resources/subscriptions/resourceGroups/delete",
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Resources/subscriptions/resourceGroups/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/rg-AbCdEfG/providers/Microsoft.ContainerInstance/containerGroups/aci-test": [
+    "Microsoft.ContainerInstance/containerGroups/delete",
+    "Microsoft.ContainerInstance/containerGroups/read",
+    "Microsoft.ContainerInstance/containerGroups/write"
+  ],
+  "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/rg-AbCdEfG": [
+    "Microsoft.Resources/subscriptions/resourceGroups/delete",
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Resources/subscriptions/resourceGroups/write"
+  ]
+}
+```
+
+The JSON output is a map where the subscription ID key contains all aggregate permissions, and each resource scope key contains permissions specific to that resource.
+
+### Terraform Detailed Output
+
+For a detailed breakdown of permissions by resource with Terraform:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_TFPATH=$(which terraform)
+
+cd samples/terraform/aci
+terraform init
+
+azmpf terraform --workingDir $(pwd) --varFilePath $(pwd)/dev.vars.tfvars --showDetailedOutput --verbose
+```
+
+Output shows permissions aggregated and broken down by resource scope (similar to ARM detailed output example above).
+
 ### Viewing info, warn, or debug level logs
 
 By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of default logging (error level only):
@@ -262,7 +338,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
+```text
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
 Microsoft.ContainerService/managedClusters/read
@@ -305,7 +381,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 Output:
 
-```
+```text
 Permissions Required:
 ------------------------------------------------------------------------------------------------------------------------------------------
 Microsoft.Authorization/roleAssignments/read
