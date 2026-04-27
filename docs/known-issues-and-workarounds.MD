@@ -4,7 +4,7 @@
 
 ### Parameter File Format
 
-Currently only ARM type [parameters files](https://github.com/Azure/mpf/blob/main/samples/bicep/aks-private-subnet-invalid-params.json) are supported even for bicep executions. Bicep type parameters files are currently not supported and result in an error. A new feature request has been created to track this issue [issue #12](https://github.com/Azure/mpf/issues/12).
+Both ARM-style JSON parameters files and Bicep-native `.bicepparam` files are supported for Bicep executions. When a `.bicepparam` file is provided via `--parametersFilePath`, MPF automatically compiles it to ARM JSON format using `bicep build-params` before deployment. See the [quickstart guide](installation-and-quickstart.md) for examples of both formats.
 
 ## Terraform
 
