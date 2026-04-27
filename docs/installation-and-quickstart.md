@@ -230,7 +230,9 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 $env:MPF_BICEPEXECPATH = (Get-Command bicep).Source # Dynamically resolves to the Bicep executable path, works across different installation locations
 
 .\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.json --jsonOutput --verbose
-```#### Bicep with .bicepparam Parameters File
+```
+
+#### Bicep with .bicepparam Parameters File
 
 MPF also supports Bicep-native `.bicepparam` parameter files. These are automatically compiled to ARM JSON format using `bicep build-params` before deployment. The `.bicepparam` file uses a `using` directive to reference the Bicep template:
 
@@ -263,7 +265,7 @@ $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 $env:MPF_BICEPEXECPATH = (Get-Command bicep).Source
 
-.\.azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.bicepparam --jsonOutput --verbose
+.\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.bicepparam --jsonOutput --verbose
 ```
 
 ### Terraform
