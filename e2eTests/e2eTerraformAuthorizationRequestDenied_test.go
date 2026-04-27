@@ -1,0 +1,86 @@
+//     MIT License
+//
+//     Copyright (c) Microsoft Corporation.
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in all
+//     copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//     SOFTWARE
+
+package e2etests
+
+import (
+	"os"
+	"path"
+	"runtime"
+	"strings"
+	"testing"
+
+	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/terraform"
+	rgm "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
+	spram "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
+	"github.com/Azure/mpf/pkg/usecase"
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+)
+
+// TestTerraformAuthorizationRequestDenied exercises the Authorization_RequestDenied
+// path end-to-end. The sample creates an azuread_group, which requires Microsoft
+// Graph application permissions (admin consent / Global Administrator) that MPF
+// cannot auto-discover. MPF should fail with a clear guidance error instead of
+// silently looping or producing a misleading parse error.
+func TestTerraformAuthorizationRequestDenied(t *testing.T) {
+	mpfArgs, err := getTestingMPFArgs()
+	if err != nil {
+		t.Skip("required environment variables not set, skipping end to end test")
+	}
+	mpfArgs.MPFMode = "terraform"
+
+	if os.Getenv("MPF_TFPATH") == "" {
+		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
+	}
+	tfpath := os.Getenv("MPF_TFPATH")
+
+	_, filename, _, _ := runtime.Caller(0)
+	curDir := path.Dir(filename)
+	log.Infof("curDir: %s", curDir)
+	wrkDir := path.Join(curDir, "../samples/terraform/authorization-request-denied")
+	log.Infof("wrkDir: %s", wrkDir)
+
+	// Clean up Terraform artifacts before and after test
+	cleanTerraformWorkingDir(t, wrkDir)
+	t.Cleanup(func() { cleanTerraformWorkingDir(t, wrkDir) })
+
+	ctx := t.Context()
+
+	mpfConfig := getMPFConfig(mpfArgs)
+
+	var rgManager usecase.ResourceGroupManager = rgm.NewResourceGroupManager(mpfArgs.SubscriptionID)
+	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager = spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
+
+	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	deploymentAuthorizationCheckerCleaner := terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
+	mpfService := usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
+
+	_, err = mpfService.GetMinimumPermissionsRequired()
+	assert.Error(t, err)
+	if err != nil {
+		assert.True(t,
+			strings.Contains(err.Error(), "Authorization_RequestDenied"),
+			"expected error to mention Authorization_RequestDenied, got: %v", err)
+	}
+}

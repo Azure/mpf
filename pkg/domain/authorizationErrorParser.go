@@ -32,9 +32,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// ErrAuthorizationRequestDenied is returned when an Authorization_RequestDenied error
+// is detected from Microsoft Graph / Azure AD and no other parseable Azure RBAC
+// authorization errors can be extracted from the error message. Callers can use
+// errors.Is to detect this case programmatically.
+var ErrAuthorizationRequestDenied = errors.New("Authorization_RequestDenied: insufficient Azure AD / Microsoft Graph API privileges. " +
+	"These permissions require admin consent or Global Administrator role and cannot be automatically discovered by MPF. " +
+	"See https://learn.microsoft.com/en-us/graph/permissions-reference for Microsoft Graph permissions " +
+	"and https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/guides/service_principal_configuration for Terraform AzureAD provider setup")
+
 func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, error) {
 	log.Debugf("Attempting to Parse Authorization Error: %s", authErrMesg)
-	if authErrMesg != "" && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") && !strings.Contains(authErrMesg, "LinkedAccessCheckFailed") && !strings.Contains(authErrMesg, "LackOfPermissions") {
+
+	hasAuthorizationRequestDenied := strings.Contains(authErrMesg, "Authorization_RequestDenied")
+
+	if authErrMesg != "" && !hasAuthorizationRequestDenied && !strings.Contains(authErrMesg, "AuthorizationFailed") && !strings.Contains(authErrMesg, "Authorization failed") && !strings.Contains(authErrMesg, "AuthorizationPermissionMismatch") && !strings.Contains(authErrMesg, "LinkedAccessCheckFailed") && !strings.Contains(authErrMesg, "LackOfPermissions") {
 		log.Warnln("Non Authorization Error when creating deployment:", authErrMesg)
 		return nil, errors.New("could not parse deployment error, potentially due to a non-authorization error")
 	}
@@ -109,6 +121,13 @@ func GetScopePermissionsFromAuthError(authErrMesg string) (map[string][]string, 
 
 	// If map is empty, return error
 	if len(resMap) == 0 {
+		// If the original error contained Authorization_RequestDenied and nothing
+		// else parseable was found, surface the dedicated guidance message so the
+		// user knows this requires admin consent / Global Administrator privileges.
+		if hasAuthorizationRequestDenied {
+			log.Warnln("Authorization_RequestDenied error detected. This error originates from Microsoft Graph / Azure AD and cannot be resolved by MPF.")
+			return nil, ErrAuthorizationRequestDenied
+		}
 		return nil, fmt.Errorf("could not parse deployment error for scope/permissions: %s", authErrMesg)
 	}
 
