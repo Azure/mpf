@@ -32,6 +32,7 @@ import (
 
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
 	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateDeployment"
+	"github.com/Azure/mpf/pkg/infrastructure/bicepUtils"
 	mpfSharedUtils "github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
 	rgm "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
 	spram "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
@@ -198,33 +199,37 @@ func TestBicepWithBicepparamFile(t *testing.T) {
 	}
 
 	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
-	bicepFilePath := "../samples/bicep/storage-account-simple.bicep"
-	parametersFilePath := "../samples/bicep/storage-account-simple-params.bicepparam"
 
-	bicepFilePath, _ = getAbsolutePath(bicepFilePath)
-	parametersFilePath, _ = getAbsolutePath(parametersFilePath)
-
-	// Compile .bicepparam to ARM JSON parameters
-	compiledParamsPath := strings.TrimSuffix(parametersFilePath, filepath.Ext(parametersFilePath)) + ".parameters.json"
-	buildParamsCmd := exec.Command(bicepExecPath, "build-params", parametersFilePath, "--outfile", compiledParamsPath)
-	buildParamsCmd.Dir = filepath.Dir(parametersFilePath)
-
-	output, err := buildParamsCmd.CombinedOutput()
+	bicepFilePath, err := getAbsolutePath("../samples/bicep/storage-account-simple.bicep")
 	if err != nil {
-		log.Errorf("error running bicep build-params: %s\n%s", err, string(output))
-		t.Fatal(err)
+		t.Fatalf("failed to resolve absolute path for bicep file: %v", err)
+	}
+	parametersFilePath, err := getAbsolutePath("../samples/bicep/storage-account-simple-params.bicepparam")
+	if err != nil {
+		t.Fatalf("failed to resolve absolute path for parameters file: %v", err)
+	}
+
+	// Exercise the same compile helper used by the bicep CLI command so this
+	// test covers the auto-compile-on-.bicepparam code path.
+	if !bicepUtils.IsBicepParamFile(parametersFilePath) {
+		t.Fatalf("expected %q to be detected as a .bicepparam file", parametersFilePath)
+	}
+	compiledParamsPath, err := bicepUtils.CompileBicepParamsToTempFile(bicepExecPath, parametersFilePath)
+	if err != nil {
+		t.Fatalf("error compiling .bicepparam file: %v", err)
 	}
 	t.Cleanup(func() { _ = os.Remove(compiledParamsPath) })
 
 	// Build bicep to ARM template
 	armTemplatePath := strings.TrimSuffix(bicepFilePath, ".bicep") + ".json"
+	t.Cleanup(func() { _ = os.Remove(armTemplatePath) })
+
 	bicepCmd := exec.Command(bicepExecPath, "build", bicepFilePath, "--outfile", armTemplatePath)
 	bicepCmd.Dir = filepath.Dir(bicepFilePath)
 
-	_, err = bicepCmd.CombinedOutput()
+	output, err := bicepCmd.CombinedOutput()
 	if err != nil {
-		log.Error(err)
-		t.Error(err)
+		t.Fatalf("error running bicep build: %s\n%s", err, string(output))
 	}
 
 	ctx := t.Context()
@@ -256,13 +261,13 @@ func TestBicepWithBicepparamFile(t *testing.T) {
 		t.Error(err)
 	}
 
-	// Storage account deployment requires these permissions:
+	// Storage account deployment requires exactly these 4 permissions:
 	// Microsoft.Resources/deployments/read
 	// Microsoft.Resources/deployments/write
 	// Microsoft.Storage/storageAccounts/read
 	// Microsoft.Storage/storageAccounts/write
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.GreaterOrEqual(t, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]), 4)
+	assert.Equal(t, 4, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func getAbsolutePath(path string) (string, error) {
