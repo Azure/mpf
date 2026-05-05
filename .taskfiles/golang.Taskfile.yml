@@ -19,7 +19,7 @@ vars:
       goreleaser: latest
   GO_INSTALLER_SHA:
     map:
-      golangciLint: 870ddc133592c3609f26af3b6f05ce2dd4a7afda # 2025-10-13 golangci/golangci-lint install.sh
+      golangciLint: 35b2189782a6a059489289257e6523550167cb64 # 2026-05-01 golangci/golangci-lint install.sh
 
 tasks:
   # * Install GoReleaser
