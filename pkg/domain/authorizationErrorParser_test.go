@@ -24,6 +24,7 @@ package domain
 
 // test parseMultiAuthorizationFailedErrors
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -84,4 +85,42 @@ func TestMultiAuthorizationSpaceFailedErrors(t *testing.T) {
 	lastMatch := spm["/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg/providers/Microsoft.KeyVault/vaults/keyvault-zcrtnp4zt4k44"]
 	assert.Equal(t, "Microsoft.KeyVault/vaults/write", lastMatch[0])
 
+}
+
+func TestAuthorizationRequestDeniedError(t *testing.T) {
+	authRequestDeniedError := `Error: Creating group "Group-name-axtwb"
+
+  with azuread_group.res_ds_group[0],
+  on rbac.tf line 3, in resource "azuread_group" "res_ds_group":
+   3: resource "azuread_group" "res_ds_group" {
+
+GroupsClient.BaseClient.Post(): unexpected status 403 with OData error:
+Authorization_RequestDenied: Insufficient privileges to complete the operation.`
+	spm, err := GetScopePermissionsFromAuthError(authRequestDeniedError)
+	assert.NotNil(t, err)
+	assert.Nil(t, spm)
+	assert.Contains(t, err.Error(), "Authorization_RequestDenied")
+	assert.Contains(t, err.Error(), "Azure AD / Microsoft Graph API privileges")
+	assert.True(t, errors.Is(err, ErrAuthorizationRequestDenied), "expected error to wrap ErrAuthorizationRequestDenied")
+}
+
+// TestMixedAuthorizationRequestDeniedAndAuthorizationFailedError ensures that when
+// an error message contains both Authorization_RequestDenied and parseable
+// AuthorizationFailed entries, MPF still extracts the parseable scope/permissions
+// pairs instead of bailing out with the Authorization_RequestDenied guidance.
+func TestMixedAuthorizationRequestDeniedAndAuthorizationFailedError(t *testing.T) {
+	mixedError := `Error: multiple errors occurred during plan/apply:
+
+GroupsClient.BaseClient.Post(): unexpected status 403 with OData error:
+Authorization_RequestDenied: Insufficient privileges to complete the operation.
+
+{"error":{"code":"AuthorizationFailed","message":"The client 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX' with object id 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX' does not have authorization to perform action 'Microsoft.Storage/storageAccounts/write' over scope '/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourcegroups/testdeployrg/providers/Microsoft.Storage/storageAccounts/sa1' or the scope is invalid. If access was recently granted, please refresh your credentials."}}`
+
+	spm, err := GetScopePermissionsFromAuthError(mixedError)
+	assert.Nil(t, err)
+	assert.NotNil(t, spm)
+	assert.GreaterOrEqual(t, len(spm), 1)
+
+	match := spm["/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourcegroups/testdeployrg/providers/Microsoft.Storage/storageAccounts/sa1"]
+	assert.Contains(t, match, "Microsoft.Storage/storageAccounts/write")
 }
