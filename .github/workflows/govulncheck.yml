@@ -38,14 +38,19 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: 🚧 Setup Task
+        uses: go-task/setup-task@01a4adf9db2d14c1de7a560f09170b6e0df736aa # v2.1.0
+        with:
+          repo-token: ${{ github.token }}
+
       - name: 🔨 Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+        run: task go:install:govulncheck
 
       - name: 🔎 Run govulncheck
         id: scan
         run: |
           set +e
-          govulncheck -json -test ./... > govulncheck.json
+          task --silent go:run:govulncheck -- -json -test ./... > govulncheck.json
           status=$?
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
 

@@ -178,8 +178,10 @@ tasks:
         msg: "❌ Error: govulncheck is not installed. Please run 'task go:install:govulncheck'"
       - sh: task internal:command:version -- "govulncheck --version" "{{.GO_VERSION.govulncheck}}"
         msg: "❌ Version Mismatch: You are not using {{.GO_VERSION.govulncheck}} version. Please run 'task go:install:govulncheck'"
+    vars:
+      ARGS: "{{if gt (len (splitArgs .CLI_ARGS)) 0}}{{.CLI_ARGS}}{{else}}-test -show verbose ./...{{end}}"
     cmds:
-      - govulncheck -test -show verbose ./...
+      - govulncheck {{.ARGS}}
 
   # * Run GolangCI-Lint
   run:golangci-lint:
