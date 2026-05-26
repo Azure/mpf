@@ -1,0 +1,284 @@
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
+---
+name: 🔎 Go Vulnerability Check
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  govulncheck:
+    name: 🔎 Go Vulnerability Check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GOTOOLCHAIN: local
+      ISSUE_LABEL: govulncheck
+      ISSUE_TITLE: govulncheck detected vulnerabilities
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 🔨 Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: 🔎 Run govulncheck
+        id: scan
+        run: |
+          set +e
+          govulncheck -json -test ./... > govulncheck.json
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+
+          if [ "$status" -ne 0 ] && [ "$status" -ne 3 ]; then
+            exit "$status"
+          fi
+
+      - name: 📝 Prepare issue body
+        id: issue
+        run: |
+          node <<'EOF'
+          const fs = require("fs");
+          const reportPath = "govulncheck.json";
+          const outputPath = process.env.GITHUB_OUTPUT;
+          const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+
+          const report = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf8") : "";
+          const advisories = new Map();
+          const rawFindings = [];
+
+          function messages(text) {
+            const entries = [];
+            let depth = 0;
+            let start = -1;
+            let inString = false;
+            let escaped = false;
+
+            for (let index = 0; index < text.length; index += 1) {
+              const char = text[index];
+
+              if (inString) {
+                if (escaped) {
+                  escaped = false;
+                } else if (char === "\\") {
+                  escaped = true;
+                } else if (char === "\"") {
+                  inString = false;
+                }
+                continue;
+              }
+
+              if (char === "\"") {
+                inString = true;
+              } else if (char === "{") {
+                if (depth === 0) {
+                  start = index;
+                }
+                depth += 1;
+              } else if (char === "}") {
+                depth -= 1;
+                if (depth === 0 && start >= 0) {
+                  entries.push(JSON.parse(text.slice(start, index + 1)));
+                  start = -1;
+                }
+              }
+            }
+
+            return entries;
+          }
+
+          for (const entry of messages(report)) {
+            if (entry.osv) {
+              advisories.set(entry.osv.id, entry.osv);
+            }
+            if (entry.finding) {
+              rawFindings.push(entry.finding);
+            }
+          }
+
+          function fixedVersions(osv) {
+            const versions = new Set();
+            for (const affected of osv?.affected ?? []) {
+              for (const range of affected.ranges ?? []) {
+                for (const event of range.events ?? []) {
+                  if (event.fixed) {
+                    versions.add(`v${event.fixed.replace(/^v/, "")}`);
+                  }
+                }
+              }
+            }
+            return [...versions].join(", ");
+          }
+
+          function moduleName(finding, osv) {
+            return (
+              finding.trace?.find((frame) => frame.module)?.module ||
+              osv?.affected?.[0]?.package?.name ||
+              "unknown"
+            );
+          }
+
+          function findingScore(finding) {
+            const hasPosition = finding.trace?.some((frame) => frame.position) ? 100 : 0;
+            return hasPosition + (finding.trace?.length || 0);
+          }
+
+          const findingByKey = new Map();
+          for (const finding of rawFindings) {
+            const osv = advisories.get(finding.osv);
+            const key = `${finding.osv}\0${moduleName(finding, osv)}`;
+            const existing = findingByKey.get(key);
+            if (!existing || findingScore(finding) > findingScore(existing)) {
+              findingByKey.set(key, finding);
+            }
+          }
+
+          const findings = [...findingByKey.values()];
+
+          const hasFindings = findings.length > 0;
+          fs.appendFileSync(outputPath, `has_findings=${hasFindings}\n`);
+
+          if (!hasFindings) {
+            fs.writeFileSync(
+              "issue-body.md",
+              `govulncheck did not detect vulnerabilities.\n\nLast checked by ${runUrl}.\n`,
+            );
+            process.exit(0);
+          }
+
+          function foundVersion(finding) {
+            const version = finding.trace?.find((frame) => frame.version)?.version;
+            return version ? `v${version.replace(/^v/, "")}` : "";
+          }
+
+          function position(finding) {
+            const frame = finding.trace?.filter((item) => item.position).at(-1);
+            if (!frame?.position?.filename) {
+              return "";
+            }
+
+            const { filename, line } = frame.position;
+            return line ? `${filename}:${line}` : filename;
+          }
+
+          function tableCell(value) {
+            return String(value || "")
+              .replace(/\r?\n/g, " ")
+              .replace(/\|/g, "\\|")
+              .trim();
+          }
+
+          const rows = findings
+            .map((finding) => {
+              const osv = advisories.get(finding.osv);
+              return {
+                id: finding.osv,
+                summary: osv?.summary || osv?.details?.split(/\r?\n/)[0] || "No summary provided",
+                module: moduleName(finding, osv),
+                found: foundVersion(finding),
+                fixed: finding.fixed_version || fixedVersions(osv),
+                position: position(finding),
+              };
+            })
+            .sort((left, right) => (
+              left.module.localeCompare(right.module) ||
+              left.id.localeCompare(right.id)
+            ));
+
+          const modules = new Map();
+          for (const row of rows) {
+            const current = modules.get(row.module) || {
+              module: row.module,
+              found: new Set(),
+              fixed: new Set(),
+              count: 0,
+            };
+            current.count += 1;
+            if (row.found) {
+              current.found.add(row.found);
+            }
+            if (row.fixed) {
+              current.fixed.add(row.fixed);
+            }
+            modules.set(row.module, current);
+          }
+
+          const body = [
+            "govulncheck detected vulnerabilities in this repository.",
+            "",
+            `Last checked by ${runUrl}.`,
+            "",
+            "## Summary",
+            "",
+            "| Module | Current | Fixed In | Vuln Count |",
+            "| --- | --- | --- | ---: |",
+            ...[...modules.values()]
+              .sort((left, right) => left.module.localeCompare(right.module))
+              .map((item) => (
+                `| ${tableCell(item.module)} | ${tableCell([...item.found].join(", ") || "unknown")} | ${tableCell([...item.fixed].join(", ") || "unknown")} | ${item.count} |`
+              )),
+            "",
+            "## Vulnerabilities",
+            "",
+            "| ID | Module | Found In | Fixed In | Location | Summary |",
+            "| --- | --- | --- | --- | --- | --- |",
+            ...rows.map((row) => (
+              `| ${tableCell(row.id)} | ${tableCell(row.module)} | ${tableCell(row.found || "unknown")} | ${tableCell(row.fixed || "unknown")} | ${tableCell(row.position || "n/a")} | ${tableCell(row.summary)} |`
+            )),
+            "",
+            "Update the affected dependencies to the fixed versions, then rerun this workflow. This issue will close automatically when govulncheck no longer reports findings.",
+            "",
+          ].join("\n");
+
+          fs.writeFileSync("issue-body.md", body);
+          EOF
+
+      - name: 🧾 Sync tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HAS_FINDINGS: ${{ steps.issue.outputs.has_findings }}
+        run: |
+          set -euo pipefail
+
+          if ! gh label view "$ISSUE_LABEL" >/dev/null 2>&1; then
+            gh label create "$ISSUE_LABEL" \
+              --description "Findings reported by govulncheck" \
+              --color d73a4a
+          fi
+
+          issues_json="$(gh issue list --state open --label "$ISSUE_LABEL" --json number,title --limit 100)"
+          issue_number="$(
+            printf '%s' "$issues_json" |
+              TITLE="$ISSUE_TITLE" node -e 'const fs = require("fs"); const issues = JSON.parse(fs.readFileSync(0, "utf8")); const match = issues.find((issue) => issue.title === process.env.TITLE); if (match) process.stdout.write(String(match.number));'
+          )"
+
+          if [ "$HAS_FINDINGS" = "true" ]; then
+            if [ -n "$issue_number" ]; then
+              gh issue edit "$issue_number" --title "$ISSUE_TITLE" --body-file issue-body.md
+            else
+              gh issue create --title "$ISSUE_TITLE" --body-file issue-body.md --label "$ISSUE_LABEL"
+            fi
+          elif [ -n "$issue_number" ]; then
+            gh issue comment "$issue_number" \
+              --body "govulncheck did not detect vulnerabilities in ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. Closing this issue."
+            gh issue close "$issue_number" --reason completed
+          fi
