@@ -87,6 +87,7 @@ jobs:
             echo ''
             echo '1. Open the [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) to review vulnerability details'
             echo '2. Update affected dependencies to their fixed versions'
+            # shellcheck disable=SC2016
             echo '3. Run `go mod tidy` and verify with `govulncheck -test ./...`'
             echo ''
             echo '> This issue is automatically created and updated by the [GoVulnCheck workflow](https://github.com/${{ github.repository }}/actions/workflows/govulncheck.yml).'
