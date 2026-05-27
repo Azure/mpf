@@ -6,7 +6,8 @@ version: "3"
 vars:
   JAVASCRIPT_VERSION:
     map:
-      prettier: latest
+      prettier: 3.8.3
+      prettierPluginMultilineArrays: 4.1.8
 
 tasks:
   # * Install Prettier
@@ -18,7 +19,7 @@ tasks:
           APP: prettier@{{.JAVASCRIPT_VERSION.prettier}}
       - task: :internal:_install:npm
         vars:
-          APP: prettier-plugin-multiline-arrays
+          APP: prettier-plugin-multiline-arrays@{{.JAVASCRIPT_VERSION.prettierPluginMultilineArrays}}
           OPTS: --no-save
 
   # * Tools

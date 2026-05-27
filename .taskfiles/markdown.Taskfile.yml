@@ -6,8 +6,8 @@ version: "3"
 vars:
   MARKDOWN_VERSION:
     map:
-      markdownlintCli2: latest
-      markdownTableFormatter: latest
+      markdownlintCli2: 0.22.1
+      markdownTableFormatter: 1.7.0
 
 tasks:
   # * Install markdownlint-cli2
@@ -46,7 +46,7 @@ tasks:
     preconditions:
       - sh: task internal:command -- markdownlint-cli2
         msg: "❌ Error: markdownlint-cli2 is not installed. Please run 'task md:install:markdownlint-cli2'"
-      - sh: task internal:command:version -- "markdownlint-cli2 --help" "{{.MARKDOWN_VERSION.markdownlintCli2}}"
+      - sh: task internal:command:version -- "markdownlint-cli2 --version" "{{.MARKDOWN_VERSION.markdownlintCli2}}"
         msg: "❌ Version Mismatch: You are not using {{.MARKDOWN_VERSION.markdownlintCli2}} version. Please run 'task md:install:markdownlint-cli2'"
     sources:
       - "**/*.md"

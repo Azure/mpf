@@ -67,11 +67,11 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
-# Normalize VERSION: empty/whitespace -> "latest", numeric -> add "v" prefix
+# Normalize VERSION: empty/whitespace -> "latest", optional release tag -> upstream script version
 if [[ -z "${VERSION//[[:space:]]/}" ]]; then
   VERSION="latest"
-elif [[ "${VERSION}" != "latest" && "${VERSION}" =~ ^[0-9] ]]; then
-  VERSION="v${VERSION}"
+elif [[ "${VERSION}" != "latest" ]]; then
+  VERSION="${VERSION#v}"
 fi
 
 # Determine install directory

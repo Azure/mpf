@@ -42,14 +42,19 @@ tasks:
     cmds:
       - cmd: |
           {{if ne .VER "latest"}}
-            {{.CMD}} | grep -F "{{.VER}}"
+            version="{{.VER}}"
+            normalized="${version#v}"
+            output="$({{.CMD}})"
+            printf '%s\n' "${output}" | grep -F "${version}" >/dev/null || printf '%s\n' "${output}" | grep -F "${normalized}" >/dev/null
           {{end}}
         platforms: [linux, darwin]
       - cmd: |
           {{if ne .VER "latest"}}
             {{.PWSH}} '
-              $match = (& {{.CMD}}) | Select-String -Pattern "{{.VER}}" -SimpleMatch
-              if (-not $match) { exit 1 }
+              $version = "{{.VER}}"
+              $normalized = $version -replace "^v", ""
+              $output = (& {{.CMD}}) | Out-String
+              if (-not $output.Contains($version) -and -not $output.Contains($normalized)) { exit 1 }
             '
           {{end}}
         platforms: [windows]

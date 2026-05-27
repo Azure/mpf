@@ -6,13 +6,19 @@ version: "3"
 vars:
   RUNTIME_VERSION:
     map:
-      uv: latest
-      fnm: latest
-      pwsh: latest
-      golang: latest
+      uv: 0.11.16
+      fnm: 1.39.0
+      pwsh: 7.6.2
+      golang: 1.26.3
   RUNTIME_INSTALLER_SHA:
     map:
       fnm: bfb186034978b1ddaf87501eb1633bdc42a5c0a6 # 2026-03-09 Schniz/fnm .ci/install.sh
+  RUNTIME_SHA256:
+    map:
+      pwshLinuxX64: 6cbcfbf20e376aa62ffd91c973493c41a7a52ddfd5a5db3ff9bc12f0d0fe9292
+      pwshLinuxArm64: a8d4e386dfafda385d0604045eed03ce6f3a843d45fc8f0b9588b836ca17cdb8
+      pwshOsxX64: 3ce51ba39fd3c816212866ea461d582d69c5c9c3d35a1fd6cd789d23803758a2
+      pwshOsxArm64: 4b10e8a8e3dba067cf68c09bd92ee137ccac00b7c05ed31a0ae136309ef107b6
   PYTHON_VERSION:
     sh: |
       [ -f .python-version ] && cat .python-version || echo "3.14"
@@ -85,10 +91,10 @@ tasks:
     desc: pwsh setup
     cmds:
       - cmd: |
-          sudo ./scripts/setup_pwsh.sh "{{.RUNTIME_VERSION.pwsh}}"
+          sudo env PWSH_SHA256_LINUX_X64="{{.RUNTIME_SHA256.pwshLinuxX64}}" PWSH_SHA256_LINUX_ARM64="{{.RUNTIME_SHA256.pwshLinuxArm64}}" ./scripts/setup_pwsh.sh "{{.RUNTIME_VERSION.pwsh}}"
         platforms: [linux]
       - cmd: |
-          ./scripts/setup_pwsh.sh "{{.RUNTIME_VERSION.pwsh}}"
+          PWSH_SHA256_OSX_X64="{{.RUNTIME_SHA256.pwshOsxX64}}" PWSH_SHA256_OSX_ARM64="{{.RUNTIME_SHA256.pwshOsxArm64}}" ./scripts/setup_pwsh.sh "{{.RUNTIME_VERSION.pwsh}}"
         platforms: [darwin]
       - task: :internal:_install:winget
         vars:

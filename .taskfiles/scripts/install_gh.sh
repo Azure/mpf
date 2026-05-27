@@ -65,6 +65,8 @@ fi
 # Normalize VERSION: empty/whitespace -> "latest"
 if [[ -z "${VERSION//[[:space:]]/}" ]]; then
   VERSION="latest"
+elif [[ "${VERSION}" != "latest" ]]; then
+  VERSION="${VERSION#v}"
 fi
 
 # Main execution

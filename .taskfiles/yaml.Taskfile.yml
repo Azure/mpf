@@ -6,7 +6,7 @@ version: "3"
 vars:
   YAML_VERSION:
     map:
-      yamllint: latest
+      yamllint: 1.38.0
 
 tasks:
   # * Install YAMLlint
