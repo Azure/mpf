@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
+---
+name: 🛡️ GoVulnCheck
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # yamllint disable-line rule:quoted-strings
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+env:
+  ISSUE_TITLE: "govulncheck: vulnerabilities detected on main"
+  ISSUE_LABEL: govulncheck
+
+jobs:
+  govulncheck:
+    name: 🛡️ GoVulnCheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: ⤵️ Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: 🚧 Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: go.mod
+
+      - name: 🚧 Setup Task
+        uses: go-task/setup-task@01a4adf9db2d14c1de7a560f09170b6e0df736aa # v2.1.0
+        with:
+          repo-token: ${{ github.token }}
+
+      - name: 🔨 Install govulncheck
+        run: task go:install:govulncheck
+
+      - name: 🔍 Run govulncheck
+        id: vulncheck
+        run: |
+          set +e
+          govulncheck -test -json ./... | tee govulncheck.json
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$status" -ne 0 ] && [ "$status" -ne 3 ]; then
+            echo "govulncheck failed with unexpected exit code: $status"
+            exit "$status"
+          fi
+
+          if jq -e 'select(.finding != null)' govulncheck.json > /dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          elif jq empty govulncheck.json 2>/dev/null; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::govulncheck produced invalid JSON"
+            exit 1
+          fi
+
+      - name: 📋 Build issue body
+        if: steps.vulncheck.outputs.found == 'true'
+        shell: bash
+        run: |
+          {
+            echo '## 🛡️ govulncheck: vulnerabilities detected on main'
+            echo ''
+            echo 'The govulncheck workflow has detected known vulnerabilities in project dependencies.'
+            echo ''
+            echo "**Latest run:** [GitHub Actions](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo "**Commit:** \`${{ github.sha }}\`"
+            echo "**Date:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo ''
+            echo '### Next steps'
+            echo ''
+            echo '1. Open the [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) to review vulnerability details'
+            echo '2. Update affected dependencies to their fixed versions'
+            # shellcheck disable=SC2016
+            echo '3. Run `go mod tidy` and verify with `govulncheck -test ./...`'
+            echo ''
+            echo '> This issue is automatically created and updated by the [GoVulnCheck workflow](https://github.com/${{ github.repository }}/actions/workflows/govulncheck.yml).'
+          } > govulncheck-issue-body.md
+
+      - name: 🏷️ Ensure label exists
+        if: steps.vulncheck.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create "$ISSUE_LABEL" \
+            --description "Automated govulncheck vulnerability reports" \
+            --color "D93F0B" \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+
+      - name: 🔎 Find existing issue
+        id: find-issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          issue_number=$(gh issue list \
+            --label "$ISSUE_LABEL" \
+            --state open \
+            --search "in:title $ISSUE_TITLE" \
+            --json number \
+            --jq '.[0].number // empty' \
+            --repo "${{ github.repository }}" 2>/dev/null || true)
+          echo "number=${issue_number}" >> "$GITHUB_OUTPUT"
+
+      - name: 📝 Create or update issue
+        if: steps.vulncheck.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "${{ steps.find-issue.outputs.number }}" ]; then
+            gh issue edit "${{ steps.find-issue.outputs.number }}" \
+              --body-file govulncheck-issue-body.md \
+              --repo "${{ github.repository }}"
+            echo "✅ Updated issue #${{ steps.find-issue.outputs.number }}"
+          else
+            gh issue create \
+              --title "$ISSUE_TITLE" \
+              --label "$ISSUE_LABEL" \
+              --body-file govulncheck-issue-body.md \
+              --repo "${{ github.repository }}"
+            echo "✅ Created new issue"
+          fi
+
+      - name: ✅ Close issue if no vulnerabilities
+        if: steps.vulncheck.outputs.found == 'false' && steps.find-issue.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue close "${{ steps.find-issue.outputs.number }}" \
+            --comment "🎉 All govulncheck vulnerabilities have been resolved as of commit ${{ github.sha }}." \
+            --repo "${{ github.repository }}"
+          echo "✅ Closed issue #${{ steps.find-issue.outputs.number }}"
