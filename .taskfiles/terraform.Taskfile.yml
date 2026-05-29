@@ -6,8 +6,8 @@ version: "3"
 vars:
   TERRAFORM_VERSION:
     map:
-      terraform: latest
-      opentofu: latest
+      terraform: 1.15.4
+      opentofu: 1.12.1
   TERRAFORM_INSTALLER_SHA:
     map:
       opentofu: c4f7de951e69f7c11b04e2e97b72b1e4e447e5bc # 2024-12-26 opentofu/get.opentofu.org static/install-opentofu.sh

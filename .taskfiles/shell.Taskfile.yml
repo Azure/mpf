@@ -6,8 +6,8 @@ version: "3"
 vars:
   SHELL_VERSION:
     map:
-      shellcheck: latest
-      shfmt: latest
+      shellcheck: 0.11.0
+      shfmt: 3.13.1
 
 tasks:
   # * Install shellcheck
