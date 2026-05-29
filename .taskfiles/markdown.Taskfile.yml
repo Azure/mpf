@@ -7,7 +7,7 @@ vars:
   MARKDOWN_VERSION:
     map:
       markdownlintCli2: latest
-      markdownTableFormatter: latest
+      markdownTableFormatter: 1.7.0
 
 tasks:
   # * Install markdownlint-cli2

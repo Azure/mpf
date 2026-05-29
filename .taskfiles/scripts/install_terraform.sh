@@ -84,8 +84,13 @@ log "Installing ${TOOL_NAME}"
 if [[ "${VERSION}" == "latest" ]]; then
   apt-get install -y terraform || die "Failed to install ${TOOL_NAME}"
 else
-  # Try to install specific version (format: terraform=version)
-  apt-get install -y "terraform=${VERSION}" || die "Failed to install ${TOOL_NAME} version ${VERSION}"
+  # HashiCorp apt packages sometimes carry a Debian revision suffix
+  # (e.g. terraform=1.15.4-1). Try the bare version first, then fall
+  # back to the -1 suffix so a pinned semver like 1.15.4 resolves
+  # regardless of which form the apt repo currently publishes.
+  apt-get install -y "terraform=${VERSION}" \
+    || apt-get install -y "terraform=${VERSION}-1" \
+    || die "Failed to install ${TOOL_NAME} version ${VERSION} (tried ${VERSION} and ${VERSION}-1)"
 fi
 
 log "✓ Successfully installed ${TOOL_NAME}"

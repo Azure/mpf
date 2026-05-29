@@ -6,10 +6,10 @@ version: "3"
 vars:
   RUNTIME_VERSION:
     map:
-      uv: latest
-      fnm: latest
+      uv: 0.11.16
+      fnm: 1.39.0
       pwsh: latest
-      golang: latest
+      golang: 1.26.3
   RUNTIME_INSTALLER_SHA:
     map:
       fnm: bfb186034978b1ddaf87501eb1633bdc42a5c0a6 # 2026-03-09 Schniz/fnm .ci/install.sh

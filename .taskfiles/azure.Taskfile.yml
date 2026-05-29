@@ -6,9 +6,9 @@ version: "3"
 vars:
   AZURE_VERSION:
     map:
-      az: latest
-      azd: latest
-      bicep: latest
+      az: 2.86.0
+      azd: 1.25.2
+      bicep: 0.43.8
   AZURE_INSTALLER_SHA:
     map:
       azd: 0340065907dee7ca71cd68ed132033cabb38cbce # 2025-03-27 Azure/azure-dev cli/installer/install-azd.sh
