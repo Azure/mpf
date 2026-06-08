@@ -265,7 +265,7 @@ $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
-  --initialPermissions @arm-initial-permissions.json `
+  --initialPermissions "@arm-initial-permissions.json" `
   --verbose
 ```
 

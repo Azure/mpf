@@ -158,7 +158,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
   --verbose
 ```
 
-### Example: ARM with JSON File Format
+### Example: ARM with Known Permissions (JSON File format)
 
 For ARM templates with many pre-requisite permissions, using a JSON file is cleaner. Create a file called `arm-initial-permissions.json`:
 
@@ -202,7 +202,7 @@ $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm `
-  --initialPermissions @arm-initial-permissions.json `
+  --initialPermissions "@arm-initial-permissions.json" `
   --templateFilePath .\samples\templates\aks-private-subnet.json `
   --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
   --verbose
@@ -290,7 +290,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 $env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
 
 .\azmpf.exe bicep `
-  --initialPermissions @bicep-backend-permissions.json `
+  --initialPermissions "@bicep-backend-permissions.json" `
   --bicepFilePath .\samples\bicep\aks-private-subnet.bicep `
   --parametersFilePath .\samples\bicep\aks-private-subnet-params.json `
   --verbose
