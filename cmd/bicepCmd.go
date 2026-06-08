@@ -33,6 +33,7 @@ import (
 	"github.com/Azure/mpf/pkg/domain"
 	"github.com/Azure/mpf/pkg/infrastructure/ARMTemplateShared"
 	"github.com/Azure/mpf/pkg/infrastructure/authorizationCheckers/ARMTemplateDeployment"
+	"github.com/Azure/mpf/pkg/infrastructure/bicepUtils"
 	"github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
 	resourceGroupManager "github.com/Azure/mpf/pkg/infrastructure/resourceGroupManager"
 	sproleassignmentmanager "github.com/Azure/mpf/pkg/infrastructure/spRoleAssignmentManager"
@@ -69,7 +70,7 @@ func NewBicepCommand() *cobra.Command {
 		log.Errorf("Error marking flag required for Bicep file path: %v\n", err)
 	}
 
-	bicepCmd.Flags().StringVarP(&flgParametersFilePath, "parametersFilePath", "", "", "Path to bicep Parameters File")
+	bicepCmd.Flags().StringVarP(&flgParametersFilePath, "parametersFilePath", "", "", "Path to bicep Parameters File (.json or .bicepparam)")
 	err = bicepCmd.MarkFlagRequired("parametersFilePath")
 	if err != nil {
 		log.Errorf("Error marking flag required for Bicep parameters file path: %v\n", err)
@@ -127,6 +128,28 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 	flgParametersFilePath, err := getAbsolutePath(flgParametersFilePath)
 	if err != nil {
 		log.Errorf("Error getting absolute path for parameters file: %v\n", err)
+	}
+
+	// If the parameters file is a .bicepparam file, compile it to ARM JSON format.
+	// Compilation goes to a temp file (rather than next to the source) so we never
+	// silently clobber an existing "<name>.parameters.json" the user already has,
+	// and so the artifact is reliably cleaned up on exit.
+	if bicepUtils.IsBicepParamFile(flgParametersFilePath) {
+		log.Infoln("Detected .bicepparam file, compiling to ARM parameters JSON format")
+
+		compiledParamsPath, err := bicepUtils.CompileBicepParamsToTempFile(flgBicepExecPath, flgParametersFilePath)
+		if err != nil {
+			log.Fatalf("error compiling .bicepparam file: %v", err)
+		}
+
+		defer func(path string) {
+			if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+				log.Warnf("error removing temporary ARM parameters file %q: %v", path, err)
+			}
+		}(compiledParamsPath)
+
+		log.Infoln("Bicep parameters compiled successfully, temporary ARM Parameters JSON created at:", compiledParamsPath)
+		flgParametersFilePath = compiledParamsPath
 	}
 
 	armTemplatePath := strings.TrimSuffix(flgBicepFilePath, ".bicep") + ".json"

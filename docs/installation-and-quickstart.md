@@ -232,6 +232,42 @@ $env:MPF_BICEPEXECPATH = (Get-Command bicep).Source # Dynamically resolves to th
 .\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.json --jsonOutput --verbose
 ```
 
+#### Bicep with .bicepparam Parameters File
+
+MPF also supports Bicep-native `.bicepparam` parameter files. These are automatically compiled to ARM JSON format using `bicep build-params` before deployment. The `.bicepparam` file uses a `using` directive to reference the Bicep template:
+
+```bicep
+using './storage-account-simple.bicep'
+
+param storageAccountName = 'myazdemostg'
+```
+
+To use a `.bicepparam` file, simply pass it as the `--parametersFilePath`:
+
+```bash
+export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANTID="YOUR_TENANT_ID"
+export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
+export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_BICEPEXECPATH=$(which bicep)
+
+./azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.bicepparam --jsonOutput --verbose
+```
+
+Or using PowerShell on Windows:
+
+```powershell
+$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANTID = "YOUR_TENANT_ID"
+$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEPEXECPATH = (Get-Command bicep).Source
+
+.\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.bicepparam --jsonOutput --verbose
+```
+
 ### Terraform
 
 ```shell
