@@ -208,7 +208,7 @@ export MPF_BICEPEXECPATH=$(which bicep)
 azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --jsonOutput --verbose
 ```
 
-Output shows JSON with permissions array and permissionsByResourceScope details (similar to ARM example above).
+The Bicep JSON output uses the same format as the ARM example above: a flat map where the subscription ID key contains all aggregate permissions, and each resource scope key contains permissions specific to that resource.
 
 ### Bicep Detailed Output
 

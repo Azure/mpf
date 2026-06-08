@@ -265,7 +265,7 @@ $env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
 $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
-  --initialPermissions @arm-initial-permissions.json `
+  --initialPermissions "@arm-initial-permissions.json" `
   --verbose
 ```
 
@@ -519,7 +519,7 @@ The `--initialPermissions` flag is especially useful for Terraform when using a 
 
 ##### Using a JSON file for remote backend permissions
 
-Create a file called `backend-permissions.json` (a sample is provided at `samples/terraform/backend-permissions.json`):
+Use the sample provided at `samples/terraform/backend-permissions.json` (shown below), or create your own:
 
 ```json
 {
@@ -546,7 +546,7 @@ export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
 export MPF_TFPATH=$(which terraform)
 
 $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars \
-  --initialPermissions @backend-permissions.json \
+  --initialPermissions @./samples/terraform/backend-permissions.json \
   --verbose
 ```
 
@@ -561,7 +561,7 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 $env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
 
 .\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" `
-  --initialPermissions @backend-permissions.json `
+  --initialPermissions "@./samples/terraform/backend-permissions.json" `
   --verbose
 ```
 
