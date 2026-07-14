@@ -42,7 +42,7 @@ import (
 )
 
 func checkBicepTestEnvVars() bool {
-	return os.Getenv("MPF_BICEPEXECPATH") == ""
+	return mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH") == ""
 }
 
 // func TestBicepAks(t *testing.T) {
@@ -56,7 +56,7 @@ func checkBicepTestEnvVars() bool {
 // 		t.Skip("required environment variables not set, skipping end to end test")
 // 	}
 
-// 	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+// 	bicepExecPath := mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH")
 // 	bicepFilePath := "../samples/bicep/aks-private-subnet.bicep"
 // 	parametersFilePath := "../samples/bicep/aks-private-subnet-params.json"
 
@@ -127,7 +127,7 @@ func TestBicepAksFullDeployment(t *testing.T) {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
 
-	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+	bicepExecPath := mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH")
 	bicepFilePath := "../samples/bicep/aks-private-subnet.bicep"
 	parametersFilePath := "../samples/bicep/aks-private-subnet-params.json"
 
@@ -198,7 +198,7 @@ func TestBicepWithBicepparamFile(t *testing.T) {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
 
-	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+	bicepExecPath := mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH")
 
 	bicepFilePath, err := getAbsolutePath("../samples/bicep/storage-account-simple.bicep")
 	if err != nil {

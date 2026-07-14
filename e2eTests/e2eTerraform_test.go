@@ -73,10 +73,10 @@ func TestTerraformACI(t *testing.T) {
 	mpfArgs.MPFMode = "terraform"
 
 	var tfpath string
-	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
+	tfpath = mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
+	if tfpath == "" {
+		t.Skip("Terraform Path MPF_TFPATH/MPF_TF_PATH not set, skipping end to end test")
 	}
-	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
@@ -126,10 +126,10 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	mpfArgs.MPFMode = "terraform"
 
 	var tfpath string
-	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
+	tfpath = mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
+	if tfpath == "" {
+		t.Skip("Terraform Path MPF_TFPATH/MPF_TF_PATH not set, skipping end to end test")
 	}
-	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
@@ -176,10 +176,10 @@ func TestTerraformModuleTest(t *testing.T) {
 	mpfArgs.MPFMode = "terraform"
 
 	var tfpath string
-	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
+	tfpath = mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
+	if tfpath == "" {
+		t.Skip("Terraform Path MPF_TFPATH/MPF_TF_PATH not set, skipping end to end test")
 	}
-	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
@@ -308,10 +308,10 @@ func TestTerraformACIWithInitialPermissions(t *testing.T) {
 	mpfArgs.MPFMode = "terraform"
 
 	var tfpath string
-	if os.Getenv("MPF_TFPATH") == "" {
-		t.Skip("Terraform Path MPF_TFPATH not set, skipping end to end test")
+	tfpath = mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
+	if tfpath == "" {
+		t.Skip("Terraform Path MPF_TFPATH/MPF_TF_PATH not set, skipping end to end test")
 	}
-	tfpath = os.Getenv("MPF_TFPATH")
 
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
