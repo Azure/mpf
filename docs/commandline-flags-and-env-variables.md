@@ -2,6 +2,8 @@
 
 **Note**: Environment variables can be set using bash/shell syntax (e.g., `export MPF_SUBSCRIPTIONID=value`) on Linux/macOS, or using PowerShell syntax (e.g., `$env:MPF_SUBSCRIPTIONID = "value"`) on Windows.
 
+**Note**: Each environment variable can also be provided in `snake_case` form for readability. For every variable listed below, MPF additionally accepts a variant where the flag name is split on word boundaries with underscores. For example, `MPF_SUBSCRIPTIONID` can also be supplied as `MPF_SUBSCRIPTION_ID`, and `MPF_SPCLIENTSECRET` as `MPF_SP_CLIENT_SECRET`. The original concatenated form keeps working, so existing configurations are unaffected. If both forms are set, the concatenated form takes precedence.
+
 ## Global Flags (Common to all providers)
 
 | Flag               | Environment Variable   | Required / Optional | Description                                                                                                                       |

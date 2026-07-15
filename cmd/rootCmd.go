@@ -158,6 +158,11 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			configName = strings.ReplaceAll(f.Name, "-", "")
 		}
 
+		// Bind the flag to its environment variables. In addition to the legacy
+		// concatenated form (e.g. MPF_SUBSCRIPTIONID), also accept a snake_case form
+		// (e.g. MPF_SUBSCRIPTION_ID) so environment variables are easier to read.
+		bindEnvVars(v, configName)
+
 		// Apply the viper config value to the flag when the flag is not set and viper has a value
 		if !f.Changed && v.IsSet(configName) {
 			val := v.Get(configName)
@@ -167,6 +172,47 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			}
 		}
 	})
+}
+
+// bindEnvVars binds a viper config key to its supported environment variables. Both the
+// legacy concatenated form (e.g. MPF_SUBSCRIPTIONID) and a snake_case form
+// (e.g. MPF_SUBSCRIPTION_ID) are accepted so that existing setups keep working while
+// newer, more readable variable names are also supported.
+func bindEnvVars(v *viper.Viper, configName string) {
+	legacyEnv := envPrefix + "_" + strings.ToUpper(strings.ReplaceAll(configName, "-", ""))
+	snakeEnv := envPrefix + "_" + camelCaseToSnakeUpper(configName)
+
+	var err error
+	if snakeEnv != legacyEnv {
+		err = v.BindEnv(configName, legacyEnv, snakeEnv)
+	} else {
+		err = v.BindEnv(configName, legacyEnv)
+	}
+	if err != nil {
+		log.Errorf("Error binding environment variables for %s: %v\n", configName, err)
+	}
+}
+
+// camelCaseToSnakeUpper converts a camelCase identifier to an UPPER_SNAKE_CASE string.
+// For example, "subscriptionID" becomes "SUBSCRIPTION_ID" and "spClientID" becomes "SP_CLIENT_ID".
+func camelCaseToSnakeUpper(s string) string {
+	var b strings.Builder
+	runes := []rune(strings.ReplaceAll(s, "-", "_"))
+	for i, r := range runes {
+		if i > 0 && r >= 'A' && r <= 'Z' {
+			prev := runes[i-1]
+			prevIsLowerOrDigit := (prev >= 'a' && prev <= 'z') || (prev >= '0' && prev <= '9')
+			nextIsLower := i+1 < len(runes) && runes[i+1] >= 'a' && runes[i+1] <= 'z'
+			// Insert an underscore at a lowercase->uppercase boundary (e.g. "subscriptionID" -> "subscription_ID")
+			// or at an acronym->word boundary (e.g. "APIVersion" -> "API_Version"), but not between
+			// consecutive acronym letters (e.g. the "ID" in "subscriptionID" stays together).
+			if prevIsLowerOrDigit || (nextIsLower && prev != '_') {
+				b.WriteRune('_')
+			}
+		}
+		b.WriteRune(r)
+	}
+	return strings.ToUpper(b.String())
 }
 
 func setLogLevel() {

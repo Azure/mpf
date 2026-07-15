@@ -27,6 +27,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestParseInitialPermissions(t *testing.T) {
@@ -137,6 +139,102 @@ func TestParseInitialPermissions(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("parseInitialPermissions() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCamelCaseToSnakeUpper(t *testing.T) {
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{"subscriptionID", "SUBSCRIPTION_ID"},
+		{"tenantID", "TENANT_ID"},
+		{"spClientID", "SP_CLIENT_ID"},
+		{"spObjectID", "SP_OBJECT_ID"},
+		{"spClientSecret", "SP_CLIENT_SECRET"},
+		{"initialPermissions", "INITIAL_PERMISSIONS"},
+		{"showDetailedOutput", "SHOW_DETAILED_OUTPUT"},
+		{"jsonOutput", "JSON_OUTPUT"},
+		{"verbose", "VERBOSE"},
+		{"debug", "DEBUG"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
+			if got := camelCaseToSnakeUpper(tt.in); got != tt.want {
+				t.Errorf("camelCaseToSnakeUpper(%q) = %q, want %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}
+
+// setOnlyEnv unsets every env var in relatedKeys (restoring the originals when the test
+// finishes) and then sets setKey to setVal. This keeps each subtest isolated from any
+// MPF_* variables that may already exist in the developer's shell.
+func setOnlyEnv(t *testing.T, setKey, setVal string, relatedKeys ...string) {
+	t.Helper()
+	for _, k := range relatedKeys {
+		if orig, ok := os.LookupEnv(k); ok {
+			key, val := k, orig
+			t.Cleanup(func() { _ = os.Setenv(key, val) })
+		} else {
+			key := k
+			t.Cleanup(func() { _ = os.Unsetenv(key) })
+		}
+		_ = os.Unsetenv(k)
+	}
+	t.Setenv(setKey, setVal)
+}
+
+func TestBindEnvVars(t *testing.T) {
+	tests := []struct {
+		name        string
+		configName  string
+		envKey      string
+		envValue    string
+		relatedKeys []string
+	}{
+		{
+			name:        "legacy concatenated subscription id",
+			configName:  "subscriptionID",
+			envKey:      "MPF_SUBSCRIPTIONID",
+			envValue:    "sub-legacy",
+			relatedKeys: []string{"MPF_SUBSCRIPTIONID", "MPF_SUBSCRIPTION_ID"},
+		},
+		{
+			name:        "snake_case subscription id",
+			configName:  "subscriptionID",
+			envKey:      "MPF_SUBSCRIPTION_ID",
+			envValue:    "sub-snake",
+			relatedKeys: []string{"MPF_SUBSCRIPTIONID", "MPF_SUBSCRIPTION_ID"},
+		},
+		{
+			name:        "legacy concatenated client secret",
+			configName:  "spClientSecret",
+			envKey:      "MPF_SPCLIENTSECRET",
+			envValue:    "secret-legacy",
+			relatedKeys: []string{"MPF_SPCLIENTSECRET", "MPF_SP_CLIENT_SECRET"},
+		},
+		{
+			name:        "snake_case client secret",
+			configName:  "spClientSecret",
+			envKey:      "MPF_SP_CLIENT_SECRET",
+			envValue:    "secret-snake",
+			relatedKeys: []string{"MPF_SPCLIENTSECRET", "MPF_SP_CLIENT_SECRET"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			setOnlyEnv(t, tt.envKey, tt.envValue, tt.relatedKeys...)
+
+			v := viper.New()
+			bindEnvVars(v, tt.configName)
+
+			if got := v.GetString(tt.configName); got != tt.envValue {
+				t.Errorf("v.GetString(%q) = %q, want %q", tt.configName, got, tt.envValue)
 			}
 		})
 	}
