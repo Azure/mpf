@@ -54,6 +54,7 @@ var (
 	flgVerbose            bool
 	flgDebug              bool
 	flgInitialPermissions string
+	flgSuggestRoles       bool
 	// RootCmd            *cobra.Command
 )
 
@@ -88,6 +89,7 @@ func NewRootCommand() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&flgVerbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&flgDebug, "debug", "d", false, "debug output")
 	rootCmd.PersistentFlags().StringVarP(&flgInitialPermissions, "initialPermissions", "", "", "Initial permissions to add to the custom role before starting MPF analysis. Can be a comma-separated list (e.g., 'perm1,perm2') or @path/to/file.json to load from a JSON file with format: {\"RequiredPermissions\":{\"\":[\"perm1\",\"perm2\"]}}.")
+	rootCmd.PersistentFlags().BoolVarP(&flgSuggestRoles, "suggestRoles", "", false, "After computing the minimum permissions, suggest Azure built-in role(s) that cover them")
 
 	err := rootCmd.MarkPersistentFlagRequired("subscriptionID")
 	if err != nil {

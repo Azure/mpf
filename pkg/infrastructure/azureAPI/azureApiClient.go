@@ -38,9 +38,9 @@ import (
 type AzureAPIClients struct {
 	RoleAssignmentsClient         *armauthorization.RoleAssignmentsClient
 	RoleAssignmentsDeletionClient *armauthorization.RoleAssignmentsClient
-	// RoleDefinitionsClient authorization.RoleDefinitionsClient
-	DeploymentsClient    *armresources.DeploymentsClient
-	ResourceGroupsClient *armresources.ResourceGroupsClient
+	RoleDefinitionsClient         *armauthorization.RoleDefinitionsClient
+	DeploymentsClient             *armresources.DeploymentsClient
+	ResourceGroupsClient          *armresources.ResourceGroupsClient
 
 	// Default CLI Creds
 	CLICred                             *azidentity.AzureCLICredential
@@ -100,9 +100,11 @@ func (a *AzureAPIClients) SetApiClients(subscriptionId string) error {
 		log.Fatalf("failed to create role assignments deletion client: %v", err)
 	}
 
-	// Set RoleDefinitionsClient
-	// a.RoleDefinitionsClient = authorization.NewRoleDefinitionsClient(subscriptionId)
-	// a.RoleDefinitionsClient.Authorizer = authorizer
+	// Set RoleDefinitionsClient (scope based, used to enumerate built-in roles)
+	a.RoleDefinitionsClient, err = armauthorization.NewRoleDefinitionsClient(a.DefaultCred, nil)
+	if err != nil {
+		log.Fatalf("failed to create role definitions client: %v", err)
+	}
 
 	resourcesClientFactory, err := armresources.NewClientFactory(subscriptionId, a.DefaultCred, nil)
 	if err != nil {

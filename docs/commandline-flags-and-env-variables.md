@@ -16,6 +16,7 @@
 | verbose            | MPF_VERBOSE            | Optional            | If set to true, verbose output with informational messages is displayed                                                           |
 | debug              | MPF_DEBUG              | Optional            | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens                 |
 | initialPermissions | MPF_INITIALPERMISSIONS | Optional            | Initial permissions to seed the custom role with before MPF analysis. See [Initial Permissions](#initial-permissions) for details |
+| suggestRoles       | MPF_SUGGESTROLES       | Optional            | If set to true, after computing the minimum permissions MPF suggests Azure built-in role(s) that cover them. See [Suggest Built-In Roles](#suggest-built-in-roles) for details |
 
 When used for Terraform, the verbose and debug flags show detailed logs from Terraform.
 
@@ -87,6 +88,30 @@ terraform init
 ```
 
 The `--targetModule` value follows Terraform's module address syntax (e.g., `module.law`). You can combine this with other flags like `--jsonOutput` or `--initialPermissions`.
+
+## Suggest Built-In Roles
+
+The `--suggestRoles` flag makes MPF, after it has computed the minimum permissions, query the Azure built-in role definitions and suggest which built-in role(s) cover those permissions. This helps when you would rather assign an existing built-in role than create a custom role.
+
+The suggestion output contains three parts:
+
+- **Single-role matches**: built-in roles that each cover every required permission on their own. They are ordered from most specific (least privilege) to broadest, so narrowly scoped roles appear first and broad roles such as `Contributor` and `Owner` appear last.
+- **Minimal combination**: a small set of built-in roles that together cover the required permissions, chosen with a greedy least-privilege heuristic. This is useful when no single built-in role covers everything.
+- **Uncovered permissions**: any required permissions that no built-in role grants. When present, a custom role is still required for those.
+
+### Usage
+
+```bash
+azmpf arm \
+  --templateFilePath ./template.json \
+  --parametersFilePath ./parameters.json \
+  --suggestRoles \
+  # ... other flags
+```
+
+Use `--suggestRoles --jsonOutput` to receive the suggestion as JSON for further processing.
+
+> Note: The suggestion is based on the control-plane actions discovered by MPF and Azure's built-in role definitions at the time the command runs. Always review the suggested role's full permission set before assigning it.
 
 ## Initial Permissions
 
