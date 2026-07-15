@@ -175,7 +175,6 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 		TemplateFilePath:   armTemplatePath,
 		ParametersFilePath: flgParametersFilePath,
 		DeploymentName:     deploymentName,
-		Location:           flgLocation,
 	}
 
 	var rgManager usecase.ResourceGroupManager

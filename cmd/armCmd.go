@@ -127,7 +127,6 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 		TemplateFilePath:   flgTemplateFilePath,
 		ParametersFilePath: flgParametersFilePath,
 		DeploymentName:     deploymentName,
-		Location:           flgLocation,
 	}
 
 	var rgManager usecase.ResourceGroupManager
