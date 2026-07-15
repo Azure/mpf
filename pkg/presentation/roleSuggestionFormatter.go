@@ -55,51 +55,74 @@ func displayRoleSuggestionJSON(w io.Writer, suggestion domain.RoleSuggestion) er
 	return err
 }
 
+// errWriter wraps an io.Writer and remembers the first write error so callers
+// can check it once at the end instead of after every write.
+type errWriter struct {
+	w   io.Writer
+	err error
+}
+
+func (ew *errWriter) println(a ...any) {
+	if ew.err != nil {
+		return
+	}
+	_, ew.err = fmt.Fprintln(ew.w, a...)
+}
+
+func (ew *errWriter) printf(format string, a ...any) {
+	if ew.err != nil {
+		return
+	}
+	_, ew.err = fmt.Fprintf(ew.w, format, a...)
+}
+
 func displayRoleSuggestionText(w io.Writer, suggestion domain.RoleSuggestion) error {
-	fmt.Fprintln(w, roleSuggestionSeparator)
-	fmt.Fprintln(w, "Suggested Built-In Roles:")
-	fmt.Fprintln(w, roleSuggestionSeparator)
+	ew := &errWriter{w: w}
+
+	ew.println(roleSuggestionSeparator)
+	ew.println("Suggested Built-In Roles:")
+	ew.println(roleSuggestionSeparator)
 
 	if len(suggestion.SingleRoleMatches) > 0 {
-		fmt.Fprintln(w, "The following built-in role(s) each cover ALL required permissions (most specific first):")
-		fmt.Fprintln(w)
+		ew.println("The following built-in role(s) each cover ALL required permissions (most specific first):")
+		ew.println()
 		displayCount := len(suggestion.SingleRoleMatches)
 		if displayCount > maxSingleRoleMatchesDisplayed {
 			displayCount = maxSingleRoleMatchesDisplayed
 		}
 		for _, sr := range suggestion.SingleRoleMatches[:displayCount] {
-			fmt.Fprintf(w, "  - %s (%s)\n", sr.Role.RoleName, sr.Role.RoleDefinitionID)
+			ew.printf("  - %s (%s)\n", sr.Role.RoleName, sr.Role.RoleDefinitionID)
 		}
 		if len(suggestion.SingleRoleMatches) > displayCount {
-			fmt.Fprintf(w, "  ... and %d more\n", len(suggestion.SingleRoleMatches)-displayCount)
+			ew.printf("  ... and %d more\n", len(suggestion.SingleRoleMatches)-displayCount)
 		}
-		fmt.Fprintln(w)
+		ew.println()
 	} else {
-		fmt.Fprintln(w, "No single built-in role covers all required permissions.")
-		fmt.Fprintln(w)
+		ew.println("No single built-in role covers all required permissions.")
+		ew.println()
 	}
 
 	if len(suggestion.MinimalCombination) > 0 {
-		fmt.Fprintln(w, "Suggested minimal combination of built-in roles to cover the required permissions:")
-		fmt.Fprintln(w)
+		ew.println("Suggested minimal combination of built-in roles to cover the required permissions:")
+		ew.println()
 		for _, sr := range suggestion.MinimalCombination {
-			fmt.Fprintf(w, "  - %s (%s) covers %d permission(s):\n", sr.Role.RoleName, sr.Role.RoleDefinitionID, len(sr.CoveredPermissions))
+			ew.printf("  - %s (%s) covers %d permission(s):\n", sr.Role.RoleName, sr.Role.RoleDefinitionID, len(sr.CoveredPermissions))
 			for _, perm := range sr.CoveredPermissions {
-				fmt.Fprintf(w, "      %s\n", perm)
+				ew.printf("      %s\n", perm)
 			}
 		}
-		fmt.Fprintln(w)
+		ew.println()
 	}
 
 	if len(suggestion.UncoveredPermissions) > 0 {
-		fmt.Fprintln(w, "The following required permissions are NOT covered by any built-in role.")
-		fmt.Fprintln(w, "A custom role is required to grant these:")
+		ew.println("The following required permissions are NOT covered by any built-in role.")
+		ew.println("A custom role is required to grant these:")
 		for _, perm := range suggestion.UncoveredPermissions {
-			fmt.Fprintf(w, "  %s\n", perm)
+			ew.printf("  %s\n", perm)
 		}
-		fmt.Fprintln(w)
+		ew.println()
 	}
 
-	fmt.Fprintln(w, roleSuggestionSeparator)
-	return nil
+	ew.println(roleSuggestionSeparator)
+	return ew.err
 }

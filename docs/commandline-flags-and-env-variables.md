@@ -4,18 +4,18 @@
 
 ## Global Flags (Common to all providers)
 
-| Flag               | Environment Variable   | Required / Optional | Description                                                                                                                       |
-|--------------------|------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| subscriptionID     | MPF_SUBSCRIPTIONID     | Required            |                                                                                                                                   |
-| tenantID           | MPF_TENANTID           | Required            |                                                                                                                                   |
-| spClientID         | MPF_SPCLIENTID         | Required            |                                                                                                                                   |
-| spObjectID         | MPF_SPOBJECTID         | Required            | Note this is the SP Object id and is different from the Client ID                                                                 |
-| spClientSecret     | MPF_SPCLIENTSECRET     | Required            |                                                                                                                                   |
-| showDetailedOutput | MPF_SHOWDETAILEDOUTPUT | Optional            | If set to true, the output shows details of permissions resource wise as well. This is not needed if --jsonOutput is specified    |
-| jsonOutput         | MPF_JSONOUTPUT         | Optional            | If set to true, the detailed output is printed in JSON format                                                                     |
-| verbose            | MPF_VERBOSE            | Optional            | If set to true, verbose output with informational messages is displayed                                                           |
-| debug              | MPF_DEBUG              | Optional            | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens                 |
-| initialPermissions | MPF_INITIALPERMISSIONS | Optional            | Initial permissions to seed the custom role with before MPF analysis. See [Initial Permissions](#initial-permissions) for details |
+| Flag               | Environment Variable   | Required / Optional | Description                                                                                                                                                                    |
+|--------------------|------------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| subscriptionID     | MPF_SUBSCRIPTIONID     | Required            |                                                                                                                                                                                |
+| tenantID           | MPF_TENANTID           | Required            |                                                                                                                                                                                |
+| spClientID         | MPF_SPCLIENTID         | Required            |                                                                                                                                                                                |
+| spObjectID         | MPF_SPOBJECTID         | Required            | Note this is the SP Object id and is different from the Client ID                                                                                                              |
+| spClientSecret     | MPF_SPCLIENTSECRET     | Required            |                                                                                                                                                                                |
+| showDetailedOutput | MPF_SHOWDETAILEDOUTPUT | Optional            | If set to true, the output shows details of permissions resource wise as well. This is not needed if --jsonOutput is specified                                                 |
+| jsonOutput         | MPF_JSONOUTPUT         | Optional            | If set to true, the detailed output is printed in JSON format                                                                                                                  |
+| verbose            | MPF_VERBOSE            | Optional            | If set to true, verbose output with informational messages is displayed                                                                                                        |
+| debug              | MPF_DEBUG              | Optional            | If set to true, output with detailed debug messages is displayed. The debug messages may contain sensitive tokens                                                              |
+| initialPermissions | MPF_INITIALPERMISSIONS | Optional            | Initial permissions to seed the custom role with before MPF analysis. See [Initial Permissions](#initial-permissions) for details                                              |
 | suggestRoles       | MPF_SUGGESTROLES       | Optional            | If set to true, after computing the minimum permissions MPF suggests Azure built-in role(s) that cover them. See [Suggest Built-In Roles](#suggest-built-in-roles) for details |
 
 When used for Terraform, the verbose and debug flags show detailed logs from Terraform.
