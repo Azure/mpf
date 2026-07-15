@@ -8,6 +8,8 @@ vars:
     map:
       uv: 0.11.16
       fnm: 1.39.0
+      # pwsh stays "latest": its installers use the Microsoft package repo /
+      # Homebrew, which only provide the latest release and reject version pins.
       pwsh: latest
       golang: 1.26.5
   RUNTIME_INSTALLER_SHA:
