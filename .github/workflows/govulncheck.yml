@@ -61,7 +61,13 @@ jobs:
             exit "$status"
           fi
 
-          if jq -e 'select(.finding != null)' govulncheck.json > /dev/null 2>&1; then
+          # Only alert on vulnerabilities that actually affect our code, i.e.
+          # findings whose call stack reaches a vulnerable symbol (trace[0]
+          # has a function). Module-level findings for dependencies we require
+          # but never call (for example the unmaintained
+          # golang.org/x/crypto/openpgp package, which has no fixed version)
+          # are not actionable and should not open an issue.
+          if jq -e 'select(.finding.trace[0].function != null)' govulncheck.json > /dev/null 2>&1; then
             echo "found=true" >> "$GITHUB_OUTPUT"
           elif jq empty govulncheck.json 2>/dev/null; then
             echo "found=false" >> "$GITHUB_OUTPUT"
