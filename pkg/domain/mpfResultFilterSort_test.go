@@ -113,3 +113,81 @@ func TestGetMapWithUniqueValues(t *testing.T) {
 	}
 
 }
+
+func TestFilterOutPermissions(t *testing.T) {
+	const scopeA = "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS"
+	const scopeB = "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X44"
+
+	tests := []struct {
+		name                string
+		input               map[string][]string
+		permissionsToRemove []string
+		expected            map[string][]string
+	}{
+		{
+			name: "Nothing to remove returns input unchanged",
+			input: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/write"},
+			},
+			permissionsToRemove: nil,
+			expected: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/write"},
+			},
+		},
+		{
+			name: "Removes matching permission from all scopes",
+			input: map[string][]string{
+				scopeA: {
+					"Microsoft.ContainerRegistry/registries/write",
+					"Microsoft.Resources/subscriptions/resourcegroups/operationStatuses/read",
+				},
+				scopeB: {
+					"Microsoft.Resources/subscriptions/resourcegroups/operationStatuses/read",
+				},
+			},
+			permissionsToRemove: []string{"Microsoft.Resources/subscriptions/resourcegroups/operationStatuses/read"},
+			expected: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/write"},
+				scopeB: {},
+			},
+		},
+		{
+			name: "Match is case insensitive",
+			input: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/OperationStatuses/read"},
+			},
+			permissionsToRemove: []string{"microsoft.containerregistry/registries/operationstatuses/read"},
+			expected: map[string][]string{
+				scopeA: {},
+			},
+		},
+		{
+			name: "Permission not present is a no-op",
+			input: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/write"},
+			},
+			permissionsToRemove: []string{"Microsoft.Storage/storageAccounts/write"},
+			expected: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/write"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := FilterOutPermissions(tt.input, tt.permissionsToRemove)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestFilterOutPermissionsDoesNotMutateInput(t *testing.T) {
+	const scope = "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS"
+	input := map[string][]string{
+		scope: {"Microsoft.ContainerRegistry/registries/write", "Microsoft.Bogus/things/operationStatuses/read"},
+	}
+
+	_ = FilterOutPermissions(input, []string{"Microsoft.Bogus/things/operationStatuses/read"})
+
+	assert.Len(t, input[scope], 2)
+}

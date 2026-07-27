@@ -35,22 +35,24 @@ import (
 const RetryDeploymentResponseErrorMessage = "RetryGetDeploymentAuthorizationErrors"
 
 type MPFService struct {
-	ctx                                 context.Context
-	rgManager                           ResourceGroupManager
-	spRoleAssignmentManager             ServicePrincipalRolemAssignmentManager
-	deploymentAuthCheckerCleaner        DeploymentAuthorizationCheckerCleaner
-	mpfConfig                           domain.MPFConfig
-	initialPermissionsToAdd             []string
-	permissionsToAddToResult            []string
-	requiredPermissions                 map[string][]string
-	autoAddReadPermissionForEachWrite   bool
-	autoAddDeletePermissionForEachWrite bool
-	autoCreateResourceGroup             bool
-	iterationCount                      int
+	ctx                                  context.Context
+	rgManager                            ResourceGroupManager
+	spRoleAssignmentManager              ServicePrincipalRolemAssignmentManager
+	deploymentAuthCheckerCleaner         DeploymentAuthorizationCheckerCleaner
+	mpfConfig                            domain.MPFConfig
+	initialPermissionsToAdd              []string
+	permissionsToAddToResult             []string
+	requiredPermissions                  map[string][]string
+	autoAddReadPermissionForEachWrite    bool
+	autoAddDeletePermissionForEachWrite  bool
+	autoAddOperationStatusesReadForWrite bool
+	autoCreateResourceGroup              bool
+	invalidActions                       []string
+	iterationCount                       int
 }
 
-func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnMgr ServicePrincipalRolemAssignmentManager, deploymentAuthChkCln DeploymentAuthorizationCheckerCleaner, mpfConfig domain.MPFConfig, initialPermissionsToAdd []string, permissionsToAddToResult []string, autoAddReadPermissionForEachWrite bool, autoAddDeletePermissionForEachWrite bool, autoCreateResourceGroup bool) *MPFService {
-	return &MPFService{
+func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnMgr ServicePrincipalRolemAssignmentManager, deploymentAuthChkCln DeploymentAuthorizationCheckerCleaner, mpfConfig domain.MPFConfig, initialPermissionsToAdd []string, permissionsToAddToResult []string, autoAddReadPermissionForEachWrite bool, autoAddDeletePermissionForEachWrite bool, autoCreateResourceGroup bool, opts ...MPFServiceOption) *MPFService {
+	s := &MPFService{
 		ctx:                                 ctx,
 		rgManager:                           rgMgr,
 		spRoleAssignmentManager:             spRoleAssgnMgr,
@@ -63,10 +65,41 @@ func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnM
 		autoAddDeletePermissionForEachWrite: autoAddDeletePermissionForEachWrite,
 		autoCreateResourceGroup:             autoCreateResourceGroup,
 	}
+
+	for _, opt := range opts {
+		opt(s)
+	}
+
+	return s
+}
+
+// MPFServiceOption configures optional MPFService behaviour.
+type MPFServiceOption func(*MPFService)
+
+// WithAutoAddOperationStatusesReadForWrite enables appending the
+// RESOURCE_TYPE/operationStatuses/read permission for every RESOURCE_TYPE/write permission
+// discovered during the MPF run. This is required by azurerm provider resources that are
+// created through a long running operation (LRO) flavoured API.
+// See https://github.com/Azure/mpf/issues/62
+func WithAutoAddOperationStatusesReadForWrite(enabled bool) MPFServiceOption {
+	return func(s *MPFService) {
+		s.autoAddOperationStatusesReadForWrite = enabled
+	}
+}
+
+// recordInvalidActions keeps track of actions Azure rejected when updating the custom role so
+// that they can be excluded from the final result.
+func (s *MPFService) recordInvalidActions(invalidActions []string) {
+	if len(invalidActions) == 0 {
+		return
+	}
+	log.Warnf("The following invalid actions were removed from the role: %v", invalidActions)
+	s.invalidActions = append(s.invalidActions, invalidActions...)
 }
 
 func (s *MPFService) returnMPFResult(err error) (domain.MPFResult, error) {
-	mpfResult := domain.GetMPFResultWithIterationCount(s.requiredPermissions, s.iterationCount)
+	requiredPermissions := domain.FilterOutPermissions(s.requiredPermissions, s.invalidActions)
+	mpfResult := domain.GetMPFResultWithIterationCount(requiredPermissions, s.iterationCount)
 
 	if err != nil && len(mpfResult.RequiredPermissions) == 0 {
 		return domain.MPFResult{}, err
@@ -120,9 +153,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		log.Warn(err)
 		return s.returnMPFResult(err)
 	}
-	if len(invalidActions) > 0 {
-		log.Warnf("The following invalid actions were removed from the role: %v", invalidActions)
-	}
+	s.recordInvalidActions(invalidActions)
 	log.Infoln("Custom role initialized successfully")
 
 	// Assign new custom role to service principal
@@ -192,6 +223,11 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 			}
 		}
 
+		// auto add the LRO polling permission for each discovered write permission
+		if s.autoAddOperationStatusesReadForWrite {
+			scpMp = domain.AppendOperationStatusesReadPermissions(scpMp)
+		}
+
 		log.Infoln("Adding mising scopes/permissions to final result map...")
 		for k, v := range scpMp {
 			s.requiredPermissions[k] = append(s.requiredPermissions[k], v...)
@@ -212,9 +248,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 			log.Warn(err)
 			return s.returnMPFResult(err)
 		}
-		if len(invalidActions) > 0 {
-			log.Warnf("The following invalid actions were removed from the role during iteration: %v", invalidActions)
-		}
+		s.recordInvalidActions(invalidActions)
 		log.Infoln("Permission/scope added to role successfully")
 
 		// Wait for Azure RBAC propagation before retrying deployment
