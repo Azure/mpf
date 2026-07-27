@@ -42,14 +42,14 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 
 ## Terraform Flags
 
-| Flag                                  | Environment Variable                      | Required / Optional | Description                                                                                                                                                                       |
-|---------------------------------------|-------------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| tfPath                                | MPF_TFPATH                                | Required            | Path to the Terraform executable                                                                                                                                                  |
-| workingDir                            | MPF_WORKINGDIR                            | Required            | Path to the Terraform module directory                                                                                                                                            |
-| varFilePath                           | MPF_VARFILEPATH                           | Optional            | Path to the Terraform variables file                                                                                                                                              |
-| importExistingResourcesToState        | MPF_IMPORTEXISTINGRESOURCESTOSTATE        | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
-| targetModule                          | MPF_TARGETMODULE                          | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
-| autoAddOperationStatusesReadPermission | MPF_AUTOADDOPERATIONSTATUSESREADPERMISSION | Optional            | Default value is true. See [Long Running Operation polling permissions](#long-running-operation-polling-permissions)                                                               |
+| Flag                                   | Environment Variable                       | Required / Optional | Description                                                                                                                                                                       |
+|----------------------------------------|--------------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| tfPath                                 | MPF_TFPATH                                 | Required            | Path to the Terraform executable                                                                                                                                                  |
+| workingDir                             | MPF_WORKINGDIR                             | Required            | Path to the Terraform module directory                                                                                                                                            |
+| varFilePath                            | MPF_VARFILEPATH                            | Optional            | Path to the Terraform variables file                                                                                                                                              |
+| importExistingResourcesToState         | MPF_IMPORTEXISTINGRESOURCESTOSTATE         | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
+| targetModule                           | MPF_TARGETMODULE                           | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
+| autoAddOperationStatusesReadPermission | MPF_AUTOADDOPERATIONSTATUSESREADPERMISSION | Optional            | Default value is true. See [Long Running Operation polling permissions](#long-running-operation-polling-permissions)                                                              |
 
 ### Long Running Operation polling permissions
 
@@ -61,7 +61,7 @@ Because the polling URL is only known at runtime, MPF cannot discover this permi
 
 | Discovered permission                          | Permission added automatically                                  |
 |------------------------------------------------|-----------------------------------------------------------------|
-| `Microsoft.ContainerRegistry/registries/write`  | `Microsoft.ContainerRegistry/registries/operationStatuses/read`  |
+| `Microsoft.ContainerRegistry/registries/write` | `Microsoft.ContainerRegistry/registries/operationStatuses/read` |
 
 Resource providers that do not define an `operationStatuses` action reject it with `InvalidActionOrNotAction`. MPF removes those actions from the custom role and excludes them from the final result, so the reported permission set only contains actions Azure recognises.
 
