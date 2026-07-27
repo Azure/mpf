@@ -47,6 +47,7 @@ type MPFService struct {
 	autoAddDeletePermissionForEachWrite  bool
 	autoAddOperationStatusesReadForWrite bool
 	autoCreateResourceGroup              bool
+	autoAddedPermissions                 map[string]bool
 	invalidActions                       []string
 	iterationCount                       int
 }
@@ -61,6 +62,7 @@ func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnM
 		initialPermissionsToAdd:             initialPermissionsToAdd,
 		permissionsToAddToResult:            permissionsToAddToResult,
 		requiredPermissions:                 make(map[string][]string),
+		autoAddedPermissions:                make(map[string]bool),
 		autoAddReadPermissionForEachWrite:   autoAddReadPermissionForEachWrite,
 		autoAddDeletePermissionForEachWrite: autoAddDeletePermissionForEachWrite,
 		autoCreateResourceGroup:             autoCreateResourceGroup,
@@ -87,14 +89,19 @@ func WithAutoAddOperationStatusesReadForWrite(enabled bool) MPFServiceOption {
 	}
 }
 
-// recordInvalidActions keeps track of actions Azure rejected when updating the custom role so
-// that they can be excluded from the final result.
+// recordInvalidActions keeps track of actions Azure rejected when updating the custom role.
+// Only permissions MPF added itself are excluded from the final result: actions that originate
+// from the deployment error messages are reported as-is, which is the long standing behaviour.
 func (s *MPFService) recordInvalidActions(invalidActions []string) {
 	if len(invalidActions) == 0 {
 		return
 	}
 	log.Warnf("The following invalid actions were removed from the role: %v", invalidActions)
-	s.invalidActions = append(s.invalidActions, invalidActions...)
+	for _, invalidAction := range invalidActions {
+		if s.autoAddedPermissions[strings.ToLower(invalidAction)] {
+			s.invalidActions = append(s.invalidActions, invalidAction)
+		}
+	}
 }
 
 func (s *MPFService) returnMPFResult(err error) (domain.MPFResult, error) {
@@ -226,6 +233,13 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		// auto add the LRO polling permission for each discovered write permission
 		if s.autoAddOperationStatusesReadForWrite {
 			scpMp = domain.AppendOperationStatusesReadPermissions(scpMp)
+			for _, permissions := range scpMp {
+				for _, permission := range permissions {
+					if strings.HasSuffix(strings.ToLower(permission), strings.ToLower(domain.OperationStatusesReadSuffix)) {
+						s.autoAddedPermissions[strings.ToLower(permission)] = true
+					}
+				}
+			}
 		}
 
 		log.Infoln("Adding mising scopes/permissions to final result map...")
