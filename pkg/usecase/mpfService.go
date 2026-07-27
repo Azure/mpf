@@ -48,7 +48,8 @@ type MPFService struct {
 	autoAddOperationStatusesReadForWrite bool
 	autoCreateResourceGroup              bool
 	autoAddedPermissions                 map[string]bool
-	invalidActions                       []string
+	rejectedAutoAdded                    map[string]bool
+	rejectedAutoAddedList                []string
 	iterationCount                       int
 }
 
@@ -63,6 +64,7 @@ func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnM
 		permissionsToAddToResult:            permissionsToAddToResult,
 		requiredPermissions:                 make(map[string][]string),
 		autoAddedPermissions:                make(map[string]bool),
+		rejectedAutoAdded:                   make(map[string]bool),
 		autoAddReadPermissionForEachWrite:   autoAddReadPermissionForEachWrite,
 		autoAddDeletePermissionForEachWrite: autoAddDeletePermissionForEachWrite,
 		autoCreateResourceGroup:             autoCreateResourceGroup,
@@ -89,24 +91,41 @@ func WithAutoAddOperationStatusesReadForWrite(enabled bool) MPFServiceOption {
 	}
 }
 
-// recordInvalidActions keeps track of actions Azure rejected when updating the custom role.
-// Only permissions MPF added itself are excluded from the final result: actions that originate
-// from the deployment error messages are reported as-is, which is the long standing behaviour.
+// recordInvalidActions handles the actions Azure rejected when updating the custom role.
+//
+// Only permissions MPF appended itself are acted upon: actions that originate from the deployment
+// error messages are reported as-is, which is the long standing behaviour.
+//
+// A rejected permission is dropped from the required permissions and remembered, so that it is
+// neither resubmitted on the next iteration nor reported in the result. Resubmitting it would
+// make every subsequent custom role update spend a retry on the same rejection, and
+// CreateUpdateCustomRole only retries a limited number of times.
 func (s *MPFService) recordInvalidActions(invalidActions []string) {
 	if len(invalidActions) == 0 {
 		return
 	}
 	log.Warnf("The following invalid actions were removed from the role: %v", invalidActions)
+
+	var newlyRejected []string
 	for _, invalidAction := range invalidActions {
-		if s.autoAddedPermissions[strings.ToLower(invalidAction)] {
-			s.invalidActions = append(s.invalidActions, invalidAction)
+		key := strings.ToLower(invalidAction)
+		if !s.autoAddedPermissions[key] || s.rejectedAutoAdded[key] {
+			continue
 		}
+		s.rejectedAutoAdded[key] = true
+		s.rejectedAutoAddedList = append(s.rejectedAutoAddedList, invalidAction)
+		newlyRejected = append(newlyRejected, invalidAction)
 	}
+
+	if len(newlyRejected) == 0 {
+		return
+	}
+	log.Debugf("Dropping auto added permissions rejected by Azure: %v", newlyRejected)
+	s.requiredPermissions = domain.FilterOutPermissions(s.requiredPermissions, newlyRejected)
 }
 
 func (s *MPFService) returnMPFResult(err error) (domain.MPFResult, error) {
-	requiredPermissions := domain.FilterOutPermissions(s.requiredPermissions, s.invalidActions)
-	mpfResult := domain.GetMPFResultWithIterationCount(requiredPermissions, s.iterationCount)
+	mpfResult := domain.GetMPFResultWithIterationCount(s.requiredPermissions, s.iterationCount)
 
 	if err != nil && len(mpfResult.RequiredPermissions) == 0 {
 		return domain.MPFResult{}, err
@@ -233,6 +252,8 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		// auto add the LRO polling permission for each discovered write permission
 		if s.autoAddOperationStatusesReadForWrite {
 			scpMp = domain.AppendOperationStatusesReadPermissions(scpMp)
+			// candidates Azure already rejected must not be added back
+			scpMp = domain.FilterOutPermissions(scpMp, s.rejectedAutoAddedList)
 			for _, permissions := range scpMp {
 				for _, permission := range permissions {
 					if strings.HasSuffix(strings.ToLower(permission), strings.ToLower(domain.OperationStatusesReadSuffix)) {

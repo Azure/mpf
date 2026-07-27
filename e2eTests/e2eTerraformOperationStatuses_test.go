@@ -37,15 +37,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestTerraformACRWithOperationStatusesReadPermissions verifies that the LRO polling permission is
-// reported for a resource type which exposes an operationStatuses action.
+// TestTerraformMultiResourceWithOperationStatusesReadPermissions verifies that the LRO polling
+// permission is reported for resource types which expose an operationStatuses action, and that
+// the candidates Azure rejects are discarded again.
 //
 // Microsoft.ContainerRegistry/registries is created through a long running operation, so the
 // azurerm provider polls the operationStatuses URL after the PUT returns. The registry therefore
 // needs Microsoft.ContainerRegistry/registries/operationStatuses/read on top of the write
 // permission.
+//
+// The sample also deploys storage, network and log analytics resources whose providers do not
+// expose a nested operationStatuses resource type. MPF appends a candidate permission for each of
+// their write actions as well, so this test additionally covers the path where several rejected
+// candidates have to be removed from a single custom role update.
 // See https://github.com/Azure/mpf/issues/62
-func TestTerraformACRWithOperationStatusesReadPermissions(t *testing.T) {
+func TestTerraformMultiResourceWithOperationStatusesReadPermissions(t *testing.T) {
 	mpfArgs, err := getTestingMPFArgs()
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
@@ -59,7 +65,7 @@ func TestTerraformACRWithOperationStatusesReadPermissions(t *testing.T) {
 
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := path.Dir(filename)
-	wrkDir := path.Join(curDir, "../samples/terraform/acr")
+	wrkDir := path.Join(curDir, "../samples/terraform/lro-multi-resource")
 	log.Infof("wrkDir: %s", wrkDir)
 
 	cleanTerraformWorkingDir(t, wrkDir)
@@ -92,6 +98,14 @@ func TestTerraformACRWithOperationStatusesReadPermissions(t *testing.T) {
 	// The registry write permission and its LRO polling permission must both be reported
 	assert.Contains(t, perms, "Microsoft.ContainerRegistry/registries/write")
 	assert.Contains(t, perms, "Microsoft.ContainerRegistry/registries/operationStatuses/read")
+
+	// The write permissions of the providers without an operationStatuses resource type must still
+	// be discovered, which proves the custom role was updated successfully even though several
+	// appended candidates were rejected along the way
+	assert.Contains(t, perms, "Microsoft.Storage/storageAccounts/write")
+	assert.Contains(t, perms, "Microsoft.Network/virtualNetworks/write")
+	assert.Contains(t, perms, "Microsoft.Network/virtualNetworks/subnets/write")
+	assert.Contains(t, perms, "Microsoft.OperationalInsights/workspaces/write")
 
 	// Resource types without an operationStatuses action must not pollute the result, the
 	// candidates that Azure rejects as invalid actions are filtered out again

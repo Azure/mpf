@@ -32,11 +32,16 @@ func newInvalidActionTestService() *MPFService {
 	return &MPFService{
 		requiredPermissions:  make(map[string][]string),
 		autoAddedPermissions: make(map[string]bool),
+		rejectedAutoAdded:    make(map[string]bool),
 	}
 }
 
-func TestRecordInvalidActionsOnlyFiltersAutoAddedPermissions(t *testing.T) {
+func TestRecordInvalidActionsOnlyDropsAutoAddedPermissions(t *testing.T) {
 	s := newInvalidActionTestService()
+	s.requiredPermissions["sub"] = []string{
+		"Microsoft.ContainerRegistry/registries/operationStatuses/read",
+		"Microsoft.Insights/components/currentbillingfeatures/delete",
+	}
 	s.autoAddedPermissions["microsoft.containerregistry/registries/operationstatuses/read"] = true
 
 	s.recordInvalidActions([]string{
@@ -44,15 +49,31 @@ func TestRecordInvalidActionsOnlyFiltersAutoAddedPermissions(t *testing.T) {
 		"Microsoft.Insights/components/currentbillingfeatures/delete",
 	})
 
-	assert.Equal(t, []string{"Microsoft.ContainerRegistry/registries/operationStatuses/read"}, s.invalidActions)
+	assert.Equal(t, []string{"Microsoft.ContainerRegistry/registries/operationStatuses/read"}, s.rejectedAutoAddedList)
+	// the auto added action is dropped, the deployment reported one is left untouched
+	assert.Equal(t, []string{"Microsoft.Insights/components/currentbillingfeatures/delete"}, s.requiredPermissions["sub"])
 }
 
 func TestRecordInvalidActionsKeepsDeploymentReportedActions(t *testing.T) {
 	s := newInvalidActionTestService()
+	s.requiredPermissions["sub"] = []string{"Microsoft.Insights/components/currentbillingfeatures/delete"}
 
 	s.recordInvalidActions([]string{"Microsoft.Insights/components/currentbillingfeatures/delete"})
 
-	assert.Empty(t, s.invalidActions)
+	assert.Empty(t, s.rejectedAutoAddedList)
+	assert.Equal(t, []string{"Microsoft.Insights/components/currentbillingfeatures/delete"}, s.requiredPermissions["sub"])
+}
+
+func TestRecordInvalidActionsDoesNotRecordTheSameRejectionTwice(t *testing.T) {
+	s := newInvalidActionTestService()
+	s.requiredPermissions["sub"] = []string{"Microsoft.Storage/storageAccounts/operationStatuses/read"}
+	s.autoAddedPermissions["microsoft.storage/storageaccounts/operationstatuses/read"] = true
+
+	s.recordInvalidActions([]string{"Microsoft.Storage/storageAccounts/operationStatuses/read"})
+	s.recordInvalidActions([]string{"Microsoft.Storage/storageAccounts/operationStatuses/read"})
+
+	assert.Equal(t, []string{"Microsoft.Storage/storageAccounts/operationStatuses/read"}, s.rejectedAutoAddedList)
+	assert.Empty(t, s.requiredPermissions["sub"])
 }
 
 func TestRecordInvalidActionsIgnoresEmptyInput(t *testing.T) {
@@ -60,10 +81,10 @@ func TestRecordInvalidActionsIgnoresEmptyInput(t *testing.T) {
 
 	s.recordInvalidActions(nil)
 
-	assert.Empty(t, s.invalidActions)
+	assert.Empty(t, s.rejectedAutoAddedList)
 }
 
-func TestReturnMPFResultExcludesAutoAddedInvalidActions(t *testing.T) {
+func TestReturnMPFResultExcludesRejectedAutoAddedPermissions(t *testing.T) {
 	s := newInvalidActionTestService()
 	s.requiredPermissions["sub"] = []string{
 		"Microsoft.ContainerRegistry/registries/write",
