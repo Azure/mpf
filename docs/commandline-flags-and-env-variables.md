@@ -42,13 +42,36 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 
 ## Terraform Flags
 
-| Flag                           | Environment Variable               | Required / Optional | Description                                                                                                                                                                       |
-|--------------------------------|------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| tfPath                         | MPF_TFPATH                         | Required            | Path to the Terraform executable                                                                                                                                                  |
-| workingDir                     | MPF_WORKINGDIR                     | Required            | Path to the Terraform module directory                                                                                                                                            |
-| varFilePath                    | MPF_VARFILEPATH                    | Optional            | Path to the Terraform variables file                                                                                                                                              |
-| importExistingResourcesToState | MPF_IMPORTEXISTINGRESOURCESTOSTATE | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
-| targetModule                   | MPF_TARGETMODULE                   | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
+| Flag                                   | Environment Variable                       | Required / Optional | Description                                                                                                                                                                       |
+|----------------------------------------|--------------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| tfPath                                 | MPF_TFPATH                                 | Required            | Path to the Terraform executable                                                                                                                                                  |
+| workingDir                             | MPF_WORKINGDIR                             | Required            | Path to the Terraform module directory                                                                                                                                            |
+| varFilePath                            | MPF_VARFILEPATH                            | Optional            | Path to the Terraform variables file                                                                                                                                              |
+| importExistingResourcesToState         | MPF_IMPORTEXISTINGRESOURCESTOSTATE         | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
+| targetModule                           | MPF_TARGETMODULE                           | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
+| autoAddOperationStatusesReadPermission | MPF_AUTOADDOPERATIONSTATUSESREADPERMISSION | Optional            | Default value is true. See [Long Running Operation polling permissions](#long-running-operation-polling-permissions)                                                              |
+
+### Long Running Operation polling permissions
+
+Many `azurerm` provider resources are created through a Long Running Operation (LRO) flavoured ARM API. The provider issues a `PUT` that returns `201`/`202`, then polls the `operationStatuses` URL returned in the response until the operation completes.
+
+Polling is protected by a separate action, `RESOURCE_TYPE/operationStatuses/read`. Without it, Terraform reports an authorization failure even though the resource was created, so the resource is never written to the Terraform state. On the next run Terraform then asks for the resource to be imported.
+
+Because the polling URL is only known at runtime, MPF cannot discover this permission from the deployment error alone. With `--autoAddOperationStatusesReadPermission` enabled (the default), MPF adds `RESOURCE_TYPE/operationStatuses/read` for every `RESOURCE_TYPE/write` permission it discovers, for example:
+
+| Discovered permission                          | Permission added automatically                                  |
+|------------------------------------------------|-----------------------------------------------------------------|
+| `Microsoft.ContainerRegistry/registries/write` | `Microsoft.ContainerRegistry/registries/operationStatuses/read` |
+
+Resource providers that do not define an `operationStatuses` action reject it with `InvalidActionOrNotAction`. MPF removes those actions from the custom role and excludes them from the final result, so the reported permission set only contains actions Azure recognises.
+
+Set the flag to `false` to disable this behaviour:
+
+```bash
+azmpf terraform --autoAddOperationStatusesReadPermission=false --workingDir ./my-terraform
+```
+
+See [Azure/mpf#62](https://github.com/Azure/mpf/issues/62) and [hashicorp/terraform-provider-azurerm#29047](https://github.com/hashicorp/terraform-provider-azurerm/issues/29047) for background.
 
 ### Example: Terraform Module Targeting
 
