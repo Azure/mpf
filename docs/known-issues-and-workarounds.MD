@@ -51,6 +51,25 @@ When ```Microsoft.Insights/components/read``` is detected ```Microsoft.Insights/
 
 This issue is also related to the [GitHub Issue](https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2520407658). The utility retries the request to work around this issue.
 
+### Retrieving Static Website Properties Error
+
+When analyzing a private Storage Account, Terraform may fail with an error like:
+
+```text
+Error: retrieving static website properties for Storage Account (Subscription: "SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS"
+Resource Group Name: "rg-example"
+Storage Account Name: "saexample"): executing request: unexpected status 404 (404 The specified resource does not exist.) with ResourceNotFound: The specified resource does not exist.
+```
+
+Setting and retrieving static website properties uses the Storage [data plane API](https://github.com/hashicorp/terraform-provider-azurerm/issues/24982#issuecomment-1972246655), which is served from the storage account's own endpoint. That endpoint is subject to the same network access restrictions as the account itself, so when the account has a private endpoint or its network rules deny public access, the request is only reachable from a network location that can resolve and reach the private endpoint.
+
+Because this is a network reachability failure rather than a control-plane authorization failure, the returned error carries no missing-permission details, so the utility cannot infer or append any RBAC permission to resolve it.
+
+**Workarounds**:
+
+- Run the utility from a network location that can reach the storage account's private endpoint, such as a virtual machine or self-hosted runner joined to the account's virtual network (or a peered/linked network) with private DNS resolution configured for the storage account's `web` sub-resource.
+- Alternatively, if the goal is only to determine the minimum permissions, temporarily allow public network access on the storage account (or remove the private endpoint / network rules) in the Terraform configuration during analysis, then restore the private configuration afterwards.
+
 ### Authorization_RequestDenied Error
 
 Currently if you attempt perform actions like adding an Azure AD group via terraform, a Authorization_RequestDenied Error is received.
