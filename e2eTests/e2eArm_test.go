@@ -25,7 +25,6 @@ package e2etests
 import (
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/Azure/mpf/pkg/domain"
@@ -86,11 +85,12 @@ func getMPFConfig(mpfArgs MpfCLIArgs) domain.MPFConfig {
 }
 
 func getTestingMPFArgs() (MpfCLIArgs, error) {
-	subscriptionID := os.Getenv("MPF_SUBSCRIPTIONID")
-	servicePrincipalClientID := os.Getenv("MPF_SPCLIENTID")
-	servicePrincipalObjectID := os.Getenv("MPF_SPOBJECTID")
-	servicePrincipalClientSecret := os.Getenv("MPF_SPCLIENTSECRET")
-	tenantID := os.Getenv("MPF_TENANTID")
+	// Accept legacy concatenated names and snake_case (legacy first for compatibility).
+	subscriptionID := mpfEnv("MPF_SUBSCRIPTIONID", "MPF_SUBSCRIPTION_ID")
+	servicePrincipalClientID := mpfEnv("MPF_SPCLIENTID", "MPF_SP_CLIENT_ID")
+	servicePrincipalObjectID := mpfEnv("MPF_SPOBJECTID", "MPF_SP_OBJECT_ID")
+	servicePrincipalClientSecret := mpfEnv("MPF_SPCLIENTSECRET", "MPF_SP_CLIENT_SECRET")
+	tenantID := mpfEnv("MPF_TENANTID", "MPF_TENANT_ID")
 	resourceGroupNamePfx := "e2eTest"
 	deploymentNamePfx := "e2eTest"
 	location := "eastus2"

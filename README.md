@@ -103,21 +103,21 @@ To run the unit tests, run `task testunit`.
 To run the end-to-end tests for ARM, you need to have the following environment variables set, and then execute `task teste2e:arm`:
 
 ```shell
-# bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+# bash (snake_case preferred; legacy names like MPF_SUBSCRIPTIONID still work for the CLI)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 ```
 
 ```powershell
 # powershell
-$env:MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID="YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID="YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 ```
 
 ```shell
@@ -130,22 +130,22 @@ To run the end-to-end tests for Bicep, you need to have the following environmen
 
 ```shell
 # bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH="/opt/homebrew/bin/bicep" # Path to the Bicep executable
 ```
 
 ```powershell
 # powershell
-$env:MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID="YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH=$(where.exe bicep)
+$env:MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID="YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+$env:MPF_BICEP_EXEC_PATH=$(where.exe bicep)
 ```
 
 ```shell
@@ -158,22 +158,22 @@ The Terraform end-to-end tests can take a long time to execute, depending on the
 
 ```shell
 # bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH=$(which terraform) # Path to the Terraform executable
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH=$(which terraform) # Path to the Terraform executable
 ```
 
 ```powershell
 # powershell
-$env:MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID="YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH=$(where.exe terraform)
+$env:MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID="YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH=$(where.exe terraform)
 ```
 
 ```shell
