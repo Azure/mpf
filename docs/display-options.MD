@@ -18,11 +18,11 @@ The utility by default prints the overall required permissions. It is also possi
 
 ```shell
 # Detailed Text output
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --showDetailedOutput --verbose
 ```
@@ -31,11 +31,11 @@ Or using PowerShell on Windows:
 
 ```powershell
 # Detailed Text output
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --showDetailedOutput --verbose
 ```
@@ -111,11 +111,11 @@ Microsoft.ContainerService/managedClusters/write
 It is possible to also get the JSON output, which by default shows details as well. The following is a sample of JSON output:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput --verbose
 ```
@@ -123,11 +123,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --jsonOutput --verbose
 ```
@@ -198,12 +198,12 @@ The JSON output is a map where the subscription ID key contains all aggregate pe
 Similar to ARM templates, Bicep deployments can produce JSON output which shows detailed permission breakdowns. The following is a sample of JSON output:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --jsonOutput --verbose
 ```
@@ -215,12 +215,12 @@ The Bicep JSON output uses the same format as the ARM example above: a flat map 
 For a detailed breakdown of permissions by resource with Bicep templates:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --showDetailedOutput --verbose
 ```
@@ -232,12 +232,12 @@ Output shows permissions aggregated and broken down by resource scope (similar t
 Terraform deployments also support JSON output. The following example uses the ACI (Azure Container Instances) sample:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH=$(which terraform)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH=$(which terraform)
 
 cd samples/terraform/aci
 terraform init
@@ -248,12 +248,12 @@ azmpf terraform --workingDir $(pwd) --varFilePath $(pwd)/dev.vars.tfvars --jsonO
 On Windows (PowerShell):
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH = (Get-Command terraform).Source
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH = (Get-Command terraform).Source
 
 cd samples\terraform\aci
 terraform init
@@ -295,12 +295,12 @@ The JSON output is a map where the subscription ID key contains all aggregate pe
 For a detailed breakdown of permissions by resource with Terraform:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH=$(which terraform)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH=$(which terraform)
 
 cd samples/terraform/aci
 terraform init
@@ -315,11 +315,11 @@ Output shows permissions aggregated and broken down by resource scope (similar t
 By default, the log level is error. More verbose logs can be viewed by setting the LOG_LEVEL environment variable to info, warn, or debug. Additionally, the global flag --verbose can be used to view info level logging and --debug can be used to view debug level logging. The following is a sample of default logging (error level only):
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json
 ```
@@ -327,11 +327,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json
 ```
@@ -358,11 +358,11 @@ Microsoft.Resources/deployments/write
 Let us look at the detailed output of a more complex ARM template. The following is the command used to run the sample:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/multi-resource-template.json --parametersFilePath ./samples/templates/multi-resource-parameters.json --showDetailedOutput
 ```
@@ -370,11 +370,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/multi-resource-template.jso
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\multi-resource-template.json --parametersFilePath .\samples\templates\multi-resource-parameters.json --showDetailedOutput
 ```
