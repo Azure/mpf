@@ -6,10 +6,10 @@
 
 Each flag accepts **two** environment variable name styles (prefix is always `MPF_`):
 
-| Style | Example for `subscriptionID` | Recommended |
-|-------|------------------------------|-------------|
-| **Snake_case** (preferred) | `MPF_SUBSCRIPTION_ID` | Yes — clearer and conventional for env vars |
-| **Legacy concatenated** | `MPF_SUBSCRIPTIONID` | Still supported for backward compatibility |
+| Style                      | Example for `subscriptionID` | Recommended                                 |
+|----------------------------|------------------------------|---------------------------------------------|
+| **Snake_case** (preferred) | `MPF_SUBSCRIPTION_ID`        | Yes — clearer and conventional for env vars |
+| **Legacy concatenated**    | `MPF_SUBSCRIPTIONID`         | Still supported for backward compatibility  |
 
 Rules:
 
@@ -58,13 +58,13 @@ When used for Terraform, the verbose and debug flags show detailed logs from Ter
 
 ## Terraform Flags
 
-| Flag                           | Environment Variable (preferred)          | Legacy Environment Variable        | Required / Optional | Description                                                                                                                                                                       |
-|--------------------------------|-------------------------------------------|------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| tfPath                         | MPF_TF_PATH                               | MPF_TFPATH                         | Required            | Path to the Terraform executable                                                                                                                                                  |
-| workingDir                     | MPF_WORKING_DIR                           | MPF_WORKINGDIR                     | Required            | Path to the Terraform module directory                                                                                                                                            |
-| varFilePath                    | MPF_VAR_FILE_PATH                         | MPF_VARFILEPATH                    | Optional            | Path to the Terraform variables file                                                                                                                                              |
-| importExistingResourcesToState | MPF_IMPORT_EXISTING_RESOURCES_TO_STATE    | MPF_IMPORTEXISTINGRESOURCESTOSTATE | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
-| targetModule                   | MPF_TARGET_MODULE                         | MPF_TARGETMODULE                   | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
+| Flag                           | Environment Variable (preferred)       | Legacy Environment Variable        | Required / Optional | Description                                                                                                                                                                       |
+|--------------------------------|----------------------------------------|------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| tfPath                         | MPF_TF_PATH                            | MPF_TFPATH                         | Required            | Path to the Terraform executable                                                                                                                                                  |
+| workingDir                     | MPF_WORKING_DIR                        | MPF_WORKINGDIR                     | Required            | Path to the Terraform module directory                                                                                                                                            |
+| varFilePath                    | MPF_VAR_FILE_PATH                      | MPF_VARFILEPATH                    | Optional            | Path to the Terraform variables file                                                                                                                                              |
+| importExistingResourcesToState | MPF_IMPORT_EXISTING_RESOURCES_TO_STATE | MPF_IMPORTEXISTINGRESOURCESTOSTATE | Optional            | Default Value is true. This is required for some scenarios as described in the [Known Issues - Import Errors](./known-issues-and-workarounds.MD#existing-resource--import-errors) |
+| targetModule                   | MPF_TARGET_MODULE                      | MPF_TARGETMODULE                   | Optional            | Target module to be used for the Terraform deployment                                                                                                                             |
 
 ### Example: Terraform Module Targeting
 
@@ -173,12 +173,12 @@ The workaround is to seed the required backend permissions using `--initialPermi
 Then run MPF with:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH=$(which terraform)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH=$(which terraform)
 
 cd my-terraform
 terraform init
@@ -192,12 +192,12 @@ azmpf terraform \
 On Windows (PowerShell):
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH = (Get-Command terraform).Source
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH = (Get-Command terraform).Source
 
 cd my-terraform
 terraform init
@@ -213,11 +213,11 @@ terraform init
 When deploying ARM templates where you already know some of the required permissions (e.g., from a previous MPF run or from documentation), you can seed them upfront to reduce execution time:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 azmpf arm \
   --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" \
@@ -229,11 +229,11 @@ azmpf arm \
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm `
   --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" `
@@ -263,11 +263,11 @@ For ARM templates with many pre-requisite permissions, using a JSON file is clea
 Then run MPF with:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 azmpf arm \
   --initialPermissions @arm-initial-permissions.json \
@@ -279,11 +279,11 @@ azmpf arm \
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm `
   --initialPermissions "@arm-initial-permissions.json" `
@@ -297,11 +297,11 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 When deploying ARM templates where you already know some of the required permissions (e.g., from a previous MPF run or from documentation), you can seed them upfront to reduce execution time:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 azmpf arm \
   --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" \
@@ -313,11 +313,11 @@ azmpf arm \
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm `
   --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" `
@@ -347,11 +347,11 @@ For ARM templates with many pre-requisite permissions, using a JSON file is clea
 Then run MPF with:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 azmpf arm \
   --initialPermissions @arm-initial-permissions.json \
@@ -363,11 +363,11 @@ azmpf arm \
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm `
   --initialPermissions "@arm-initial-permissions.json" `
@@ -381,12 +381,12 @@ $env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
 When deploying Bicep templates that depend on pre-existing Azure Storage (for configuration, state, or secrets), you can use comma-separated permissions to speed up analysis:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 azmpf bicep \
   --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action,Microsoft.Storage/storageAccounts/blobServices/containers/read" \
@@ -398,12 +398,12 @@ azmpf bicep \
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEP_EXEC_PATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
 
 .\azmpf.exe bicep `
   --initialPermissions "Microsoft.Storage/storageAccounts/read,Microsoft.Storage/storageAccounts/listKeys/action,Microsoft.Storage/storageAccounts/blobServices/containers/read" `
@@ -433,12 +433,12 @@ For complex deployments with many pre-requisite permissions, using a JSON file i
 Then run MPF with:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 azmpf bicep \
   --initialPermissions @bicep-backend-permissions.json \
@@ -450,12 +450,12 @@ azmpf bicep \
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEP_EXEC_PATH = "C:\Program Files\Azure Bicep CLI\bicep.exe"
 
 .\azmpf.exe bicep `
   --initialPermissions "@bicep-backend-permissions.json" `

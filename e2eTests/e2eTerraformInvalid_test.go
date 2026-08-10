@@ -42,8 +42,7 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 	}
 	mpfArgs.MPFMode = "terraform"
 
-	var tfpath string
-	tfpath = mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
+	tfpath := mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
 	if tfpath == "" {
 		t.Skip("Terraform Path MPF_TFPATH/MPF_TF_PATH not set, skipping end to end test")
 	}
@@ -90,8 +89,7 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 	}
 	mpfArgs.MPFMode = "terraform"
 
-	var tfpath string
-	tfpath = mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
+	tfpath := mpfEnv("MPF_TFPATH", "MPF_TF_PATH")
 	if tfpath == "" {
 		t.Skip("Terraform Path MPF_TFPATH/MPF_TF_PATH not set, skipping end to end test")
 	}

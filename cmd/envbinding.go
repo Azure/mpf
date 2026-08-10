@@ -104,7 +104,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 		envNames := envNamesForFlag(configName)
 		bindArgs := append([]string{configName}, envNames...)
 		if err := v.BindEnv(bindArgs...); err != nil {
-			log.Errorf("Error binding env vars for flag %s: %v\n", f.Name, err)
+			log.Errorf("Error binding env vars for flag %s: %v", f.Name, err)
 		}
 
 		// Apply the viper config value to the flag when the flag is not set and viper has a value
@@ -112,7 +112,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			val := v.Get(configName)
 			err := cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
 			if err != nil {
-				log.Errorf("Error setting flag %s: %v\n", f.Name, err)
+				log.Errorf("Error setting flag %s: %v", f.Name, err)
 			}
 		}
 	})
