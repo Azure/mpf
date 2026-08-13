@@ -69,11 +69,13 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
-# Normalize VERSION: empty/whitespace -> "latest", numeric -> add "v" prefix
+# Normalize VERSION: empty/whitespace -> "latest". The pinned
+# download-actionlint.bash expects a bare semantic version (e.g. 1.7.12) or
+# "latest", so strip any leading "v" prefix from a specific version.
 if [[ -z "${VERSION//[[:space:]]/}" ]]; then
   VERSION="latest"
-elif [[ "${VERSION}" != "latest" && "${VERSION}" =~ ^[0-9] ]]; then
-  VERSION="v${VERSION}"
+elif [[ "${VERSION}" != "latest" ]]; then
+  VERSION="${VERSION#v}"
 fi
 
 # Determine install directory
