@@ -42,13 +42,13 @@ tasks:
     cmds:
       - cmd: |
           {{if ne .VER "latest"}}
-            {{.CMD}} | grep -F "{{.VER}}"
+            { {{.CMD}} 2>&1 || true; } | grep -F "{{.VER}}"
           {{end}}
         platforms: [linux, darwin]
       - cmd: |
           {{if ne .VER "latest"}}
             {{.PWSH}} '
-              $match = (& {{.CMD}}) | Select-String -Pattern "{{.VER}}" -SimpleMatch
+              $match = (& {{.CMD}} 2>&1) | Select-String -Pattern "{{.VER}}" -SimpleMatch
               if (-not $match) { exit 1 }
             '
           {{end}}

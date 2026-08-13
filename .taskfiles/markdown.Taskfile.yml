@@ -6,7 +6,7 @@ version: "3"
 vars:
   MARKDOWN_VERSION:
     map:
-      markdownlintCli2: latest
+      markdownlintCli2: 0.23.0
       markdownTableFormatter: 1.7.0
 
 tasks:
