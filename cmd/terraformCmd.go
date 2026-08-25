@@ -176,6 +176,5 @@ func getMPFTerraform(cmd *cobra.Command, args []string) {
 		_ = terraform.DeleteTFFile(flgWorkingDir, FoundPermissionsFromFailedRunFilename)
 	}
 
-	displayResult(mpfResult, displayOptions)
-
+	displayResultAndRoleSuggestion(ctx, mpfConfig.SubscriptionID, mpfResult, displayOptions)
 }

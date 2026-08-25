@@ -23,6 +23,7 @@
 package presentation
 
 import (
+	"encoding/json"
 	"io"
 
 	"github.com/Azure/mpf/pkg/domain"
@@ -55,4 +56,25 @@ func (d *displayConfig) DisplayResult(w io.Writer) error {
 		return d.displayJSON(w)
 	}
 	return d.displayText(w)
+}
+
+// CombinedJSONResult keeps stdout a single valid JSON document when the required
+// permissions and the built-in role suggestion are both emitted as JSON.
+type CombinedJSONResult struct {
+	RequiredPermissions map[string][]string   `json:"requiredPermissions"`
+	RoleSuggestion      domain.RoleSuggestion `json:"roleSuggestion"`
+}
+
+// DisplayCombinedJSON writes the permissions result and the role suggestion as one
+// JSON object, rather than two concatenated documents.
+func DisplayCombinedJSON(w io.Writer, result domain.MPFResult, suggestion domain.RoleSuggestion) error {
+	jsonBytes, err := json.MarshalIndent(CombinedJSONResult{
+		RequiredPermissions: result.RequiredPermissions,
+		RoleSuggestion:      suggestion,
+	}, "", "  ")
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(jsonBytes)
+	return err
 }
