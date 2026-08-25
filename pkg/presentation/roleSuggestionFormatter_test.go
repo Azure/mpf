@@ -25,6 +25,7 @@ package presentation
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"testing"
 
 	"github.com/Azure/mpf/pkg/domain"
@@ -108,4 +109,31 @@ func TestDisplayRoleSuggestion_Text_CapsSingleMatches(t *testing.T) {
 	err := DisplayRoleSuggestion(&buf, suggestion, false)
 	assert.NoError(t, err)
 	assert.Contains(t, buf.String(), "and 5 more")
+}
+
+func TestDisplayCombinedJSON_IsSingleDocument(t *testing.T) {
+	result := domain.MPFResult{
+		RequiredPermissions: map[string][]string{
+			"/subscriptions/sub-id": {"Microsoft.Storage/storageAccounts/read"},
+		},
+	}
+	suggestion := domain.RoleSuggestion{
+		SingleRoleMatches: []domain.SuggestedRole{
+			{Role: domain.BuiltInRole{RoleName: "Owner", RoleDefinitionID: "id-owner"}},
+		},
+	}
+
+	var buf bytes.Buffer
+	err := DisplayCombinedJSON(&buf, result, suggestion)
+	assert.NoError(t, err)
+
+	decoder := json.NewDecoder(&buf)
+	var decoded CombinedJSONResult
+	assert.NoError(t, decoder.Decode(&decoded))
+	// Anything after the first document would make stdout invalid JSON.
+	assert.Equal(t, io.EOF, decoder.Decode(new(json.RawMessage)))
+
+	assert.Equal(t, []string{"Microsoft.Storage/storageAccounts/read"}, decoded.RequiredPermissions["/subscriptions/sub-id"])
+	assert.Len(t, decoded.RoleSuggestion.SingleRoleMatches, 1)
+	assert.Equal(t, "Owner", decoded.RoleSuggestion.SingleRoleMatches[0].Role.RoleName)
 }

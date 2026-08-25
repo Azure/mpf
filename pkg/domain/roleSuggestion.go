@@ -26,6 +26,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 )
 
 // BuiltInRole represents an Azure built-in role definition and the control-plane
@@ -278,6 +279,11 @@ func roleCoversPermission(role BuiltInRole, permission string) bool {
 	return true
 }
 
+// compiledPatternCache memoises the regexp built for each wildcard action pattern.
+// SuggestBuiltInRoles matches every role action against every required permission,
+// so the same handful of patterns would otherwise be recompiled many times.
+var compiledPatternCache sync.Map
+
 // actionMatchesPattern reports whether an Azure action pattern (which may contain
 // '*' wildcards matching any sequence of characters) matches the given action.
 // Matching is case-insensitive, consistent with Azure RBAC evaluation.
@@ -287,6 +293,26 @@ func actionMatchesPattern(pattern string, action string) bool {
 	}
 	if !strings.Contains(pattern, "*") {
 		return strings.EqualFold(pattern, action)
+	}
+	if pattern == "*" {
+		return true
+	}
+	// "Microsoft.Storage/*" style prefixes are the most common wildcard form.
+	if strings.Count(pattern, "*") == 1 && strings.HasSuffix(pattern, "*") {
+		prefix := strings.TrimSuffix(pattern, "*")
+		return len(action) >= len(prefix) && strings.EqualFold(action[:len(prefix)], prefix)
+	}
+
+	re, err := compilePattern(pattern)
+	if err != nil {
+		return false
+	}
+	return re.MatchString(action)
+}
+
+func compilePattern(pattern string) (*regexp.Regexp, error) {
+	if cached, ok := compiledPatternCache.Load(pattern); ok {
+		return cached.(*regexp.Regexp), nil
 	}
 
 	var sb strings.Builder
@@ -300,9 +326,10 @@ func actionMatchesPattern(pattern string, action string) bool {
 
 	re, err := regexp.Compile(regexStr)
 	if err != nil {
-		return false
+		return nil, err
 	}
-	return re.MatchString(action)
+	cached, _ := compiledPatternCache.LoadOrStore(pattern, re)
+	return cached.(*regexp.Regexp), nil
 }
 
 func normalizePermissions(permissions []string) []string {

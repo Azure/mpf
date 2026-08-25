@@ -166,9 +166,7 @@ func getMPFARM(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	displayResult(mpfResult, displayOptions)
-
-	suggestAndDisplayRoles(ctx, mpfConfig.SubscriptionID, mpfResult)
+	displayResultAndRoleSuggestion(ctx, mpfConfig.SubscriptionID, mpfResult, displayOptions)
 }
 
 func getDislayOptions(flgShowDetailedOutput bool, flgJSONOutput bool, subscriptionID string) presentation.DisplayOptions {

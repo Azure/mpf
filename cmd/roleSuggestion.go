@@ -33,20 +33,43 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// suggestAndDisplayRoles fetches the Azure built-in role definitions, matches them
-// against the required permissions discovered by MPF, and displays the suggested
-// role(s). It is a no-op unless the --suggestRoles flag is set. Failures are
-// logged but do not abort the command, since the primary permissions result has
-// already been displayed.
-func suggestAndDisplayRoles(ctx context.Context, subscriptionID string, mpfResult domain.MPFResult) {
-	if !flgSuggestRoles {
+// displayResultAndRoleSuggestion writes the permissions result and, when
+// --suggestRoles is set, the suggested built-in role(s). With --jsonOutput both are
+// emitted as a single JSON document so that stdout stays valid JSON.
+func displayResultAndRoleSuggestion(ctx context.Context, subscriptionID string, mpfResult domain.MPFResult, displayOptions presentation.DisplayOptions) {
+	suggestion, ok := getRoleSuggestion(ctx, subscriptionID, mpfResult)
+
+	if ok && displayOptions.JSONOutput {
+		if err := presentation.DisplayCombinedJSON(os.Stdout, mpfResult, suggestion); err != nil {
+			log.Errorf("Error displaying result: %v", err)
+		}
 		return
+	}
+
+	displayResult(mpfResult, displayOptions)
+
+	if !ok {
+		return
+	}
+
+	if err := presentation.DisplayRoleSuggestion(os.Stdout, suggestion, displayOptions.JSONOutput); err != nil {
+		log.Errorf("Error displaying role suggestion: %v", err)
+	}
+}
+
+// getRoleSuggestion fetches the Azure built-in role definitions and matches them
+// against the required permissions discovered by MPF. The second return value is
+// false when the suggestion was not requested or could not be produced, in which
+// case failures are logged but do not abort the command.
+func getRoleSuggestion(ctx context.Context, subscriptionID string, mpfResult domain.MPFResult) (domain.RoleSuggestion, bool) {
+	if !flgSuggestRoles {
+		return domain.RoleSuggestion{}, false
 	}
 
 	requiredPermissions := flattenRequiredPermissions(mpfResult.RequiredPermissions)
 	if len(requiredPermissions) == 0 {
 		log.Warnln("No permissions available to suggest built-in roles for")
-		return
+		return domain.RoleSuggestion{}, false
 	}
 
 	log.Infoln("Fetching Azure built-in role definitions to suggest matching roles...")
@@ -54,14 +77,10 @@ func suggestAndDisplayRoles(ctx context.Context, subscriptionID string, mpfResul
 	builtInRoles, err := roleProvider.GetBuiltInRoles(ctx, subscriptionID)
 	if err != nil {
 		log.Errorf("Error fetching built-in roles for role suggestion: %v", err)
-		return
+		return domain.RoleSuggestion{}, false
 	}
 
-	suggestion := domain.SuggestBuiltInRoles(requiredPermissions, builtInRoles)
-
-	if err := presentation.DisplayRoleSuggestion(os.Stdout, suggestion, flgJSONOutput); err != nil {
-		log.Errorf("Error displaying role suggestion: %v", err)
-	}
+	return domain.SuggestBuiltInRoles(requiredPermissions, builtInRoles), true
 }
 
 // flattenRequiredPermissions collects the unique permissions across all scopes in

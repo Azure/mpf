@@ -228,7 +228,5 @@ func getMPFBicep(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	displayResult(mpfResult, displayOptions)
-
-	suggestAndDisplayRoles(ctx, mpfConfig.SubscriptionID, mpfResult)
+	displayResultAndRoleSuggestion(ctx, mpfConfig.SubscriptionID, mpfResult, displayOptions)
 }

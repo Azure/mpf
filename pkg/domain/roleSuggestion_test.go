@@ -47,10 +47,16 @@ func TestActionMatchesPattern(t *testing.T) {
 		{"middle wildcard mismatch action", "Microsoft.Compute/*/read", "Microsoft.Compute/virtualMachines/write", false},
 		{"empty pattern", "", "Microsoft.Storage/storageAccounts/read", false},
 		{"resource type wildcard", "Microsoft.Storage/storageAccounts/*", "Microsoft.Storage/storageAccounts/blobServices/read", true},
+		{"prefix wildcard is case insensitive", "Microsoft.Storage/*", "microsoft.storage/storageaccounts/read", true},
+		{"prefix wildcard action shorter than prefix", "Microsoft.Storage/*", "Microsoft.Sto", false},
+		{"prefix wildcard requires trailing separator", "Microsoft.Storage/*", "Microsoft.StorageSync/services/read", false},
+		{"multiple wildcards", "Microsoft.*/storageAccounts/*", "Microsoft.Storage/storageAccounts/blobServices/read", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, actionMatchesPattern(tt.pattern, tt.action))
+			// Second call exercises the memoised pattern.
 			assert.Equal(t, tt.expected, actionMatchesPattern(tt.pattern, tt.action))
 		})
 	}
