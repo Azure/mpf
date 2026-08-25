@@ -67,7 +67,7 @@ Because this is a network reachability failure rather than a control-plane autho
 
 **Workarounds**:
 
-- Run the utility from a network location that can reach the storage account's private endpoint, such as a virtual machine or self-hosted runner joined to the account's virtual network (or a peered or linked network), with private DNS resolution configured for the storage account's `blob` sub-resource.
+- Run the utility from a network location that can reach the storage account's private endpoint, such as a virtual machine or self-hosted runner joined to the account's virtual network (or a peered or linked network), with private DNS resolution configured for the storage account's `blob` subresource.
 - Alternatively, temporarily allowlist the public IP address of the machine running the utility in the storage account's network rules for the duration of the analysis, and remove it afterwards.
 
 Avoid removing the private endpoint or the network rules from the Terraform configuration to work around this error. Doing so changes the deployment that the utility analyzes, so the reported permission set may omit permissions that those resources require.
