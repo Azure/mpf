@@ -61,14 +61,16 @@ Resource Group Name: "rg-example"
 Storage Account Name: "saexample"): executing request: unexpected status 404 (404 The specified resource does not exist.) with ResourceNotFound: The specified resource does not exist.
 ```
 
-Setting and retrieving static website properties uses the Storage [data plane API](https://github.com/hashicorp/terraform-provider-azurerm/issues/24982#issuecomment-1972246655), which is served from the storage account's own endpoint. That endpoint is subject to the same network access restrictions as the account itself, so when the account has a private endpoint or its network rules deny public access, the request is only reachable from a network location that can resolve and reach the private endpoint.
+Setting and retrieving static website properties use the Storage [data plane API](https://github.com/hashicorp/terraform-provider-azurerm/issues/24982#issuecomment-1972246655), which is served from the storage account's blob endpoint. That endpoint is subject to the same network access restrictions as the account itself, so when the account denies public network access and is reachable only through a private endpoint, the request succeeds only from a network location that can resolve and reach that private endpoint.
 
 Because this is a network reachability failure rather than a control-plane authorization failure, the returned error carries no missing-permission details, so the utility cannot infer or append any RBAC permission to resolve it.
 
 **Workarounds**:
 
-- Run the utility from a network location that can reach the storage account's private endpoint, such as a virtual machine or self-hosted runner joined to the account's virtual network (or a peered/linked network) with private DNS resolution configured for the storage account's `web` sub-resource.
-- Alternatively, if the goal is only to determine the minimum permissions, temporarily allow public network access on the storage account (or remove the private endpoint / network rules) in the Terraform configuration during analysis, then restore the private configuration afterwards.
+- Run the utility from a network location that can reach the storage account's private endpoint, such as a virtual machine or self-hosted runner joined to the account's virtual network (or a peered or linked network), with private DNS resolution configured for the storage account's `blob` sub-resource.
+- Alternatively, temporarily allowlist the public IP address of the machine running the utility in the storage account's network rules for the duration of the analysis, and remove it afterwards.
+
+Avoid removing the private endpoint or the network rules from the Terraform configuration to work around this error. Doing so changes the deployment that the utility analyzes, so the reported permission set may omit permissions that those resources require.
 
 ### Authorization_RequestDenied Error
 
