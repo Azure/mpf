@@ -28,6 +28,8 @@ import "strings"
 // long running operation (LRO) polling endpoint is protected by.
 const OperationStatusesReadSuffix = "/operationStatuses/read"
 
+const writeActionSuffix = "/write"
+
 // GetOperationStatusesReadPermission returns the LRO polling permission that corresponds to
 // the supplied write permission, for example:
 //
@@ -44,11 +46,12 @@ const OperationStatusesReadSuffix = "/operationStatuses/read"
 func GetOperationStatusesReadPermission(permission string) (string, bool) {
 	permission = strings.TrimSpace(permission)
 
-	if !strings.HasSuffix(permission, "/write") {
+	// Azure action names are case-insensitive, so "/Write" has to map as well as "/write".
+	if !strings.HasSuffix(strings.ToLower(permission), writeActionSuffix) {
 		return "", false
 	}
 
-	resourceType := strings.TrimSuffix(permission, "/write")
+	resourceType := permission[:len(permission)-len(writeActionSuffix)]
 
 	// A resource type action is at minimum <Namespace>/<resourceType>, so it needs to contain
 	// a namespace segment and at least one resource type segment.
@@ -70,22 +73,45 @@ func GetOperationStatusesReadPermission(permission string) (string, bool) {
 	return resourceType + OperationStatusesReadSuffix, true
 }
 
-// AppendOperationStatusesReadPermissions appends the LRO polling read permission for every
-// resource type write permission found in the supplied scope/permission map.
+// AppendOperationStatusesReadPermissions returns a copy of the supplied scope/permission map
+// with the LRO polling read permission added for every resource type write permission. The
+// supplied map and its slices are not modified.
+//
+// The second return value lists the permissions that were actually appended, so callers can
+// distinguish them from operationStatuses actions that the deployment error already reported.
+// A candidate that is already present for a scope is not appended again.
 //
 // Permissions that Azure does not recognise are removed later on, when the custom role update
 // reports them as InvalidActionOrNotAction.
-func AppendOperationStatusesReadPermissions(scpPerms map[string][]string) map[string][]string {
+func AppendOperationStatusesReadPermissions(scpPerms map[string][]string) (map[string][]string, []string) {
+	result := make(map[string][]string, len(scpPerms))
+	var appended []string
+
 	for scope, perms := range scpPerms {
-		var toAppend []string
+		present := make(map[string]bool, len(perms))
 		for _, perm := range perms {
-			if opStatusPerm, ok := GetOperationStatusesReadPermission(perm); ok {
-				toAppend = append(toAppend, opStatusPerm)
+			present[normalizeActionKey(perm)] = true
+		}
+
+		updated := make([]string, len(perms))
+		copy(updated, perms)
+
+		for _, perm := range perms {
+			opStatusPerm, ok := GetOperationStatusesReadPermission(perm)
+			if !ok {
+				continue
 			}
+			key := normalizeActionKey(opStatusPerm)
+			if present[key] {
+				continue
+			}
+			present[key] = true
+			updated = append(updated, opStatusPerm)
+			appended = append(appended, opStatusPerm)
 		}
-		if len(toAppend) > 0 {
-			scpPerms[scope] = append(scpPerms[scope], toAppend...)
-		}
+
+		result[scope] = updated
 	}
-	return scpPerms
+
+	return result, appended
 }

@@ -27,24 +27,27 @@ import (
 	"strings"
 )
 
+// normalizeActionKey returns the comparison key for an Azure action name. Azure action
+// names are case-insensitive and may carry surrounding whitespace.
+func normalizeActionKey(action string) string {
+	return strings.ToLower(strings.TrimSpace(action))
+}
+
 // FilterOutPermissions removes the supplied permissions from every scope of the
 // scope/permission map. Comparison is case-insensitive because Azure action names
-// are case-insensitive. The supplied map is not modified.
+// are case-insensitive. A new map is always returned and the supplied map is not
+// modified, so callers can never alias the input through the result.
 func FilterOutPermissions(scpPerms map[string][]string, permissionsToRemove []string) map[string][]string {
-	if len(permissionsToRemove) == 0 {
-		return scpPerms
-	}
-
 	removeSet := make(map[string]bool, len(permissionsToRemove))
 	for _, perm := range permissionsToRemove {
-		removeSet[strings.ToLower(strings.TrimSpace(perm))] = true
+		removeSet[normalizeActionKey(perm)] = true
 	}
 
 	filtered := make(map[string][]string, len(scpPerms))
 	for scope, perms := range scpPerms {
 		kept := make([]string, 0, len(perms))
 		for _, perm := range perms {
-			if removeSet[strings.ToLower(strings.TrimSpace(perm))] {
+			if removeSet[normalizeActionKey(perm)] {
 				continue
 			}
 			kept = append(kept, perm)

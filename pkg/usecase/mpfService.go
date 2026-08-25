@@ -108,7 +108,7 @@ func (s *MPFService) recordInvalidActions(invalidActions []string) {
 
 	var newlyRejected []string
 	for _, invalidAction := range invalidActions {
-		key := strings.ToLower(invalidAction)
+		key := strings.ToLower(strings.TrimSpace(invalidAction))
 		if !s.autoAddedPermissions[key] || s.rejectedAutoAdded[key] {
 			continue
 		}
@@ -251,15 +251,12 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 
 		// auto add the LRO polling permission for each discovered write permission
 		if s.autoAddOperationStatusesReadForWrite {
-			scpMp = domain.AppendOperationStatusesReadPermissions(scpMp)
+			var autoAdded []string
+			scpMp, autoAdded = domain.AppendOperationStatusesReadPermissions(scpMp)
 			// candidates Azure already rejected must not be added back
 			scpMp = domain.FilterOutPermissions(scpMp, s.rejectedAutoAddedList)
-			for _, permissions := range scpMp {
-				for _, permission := range permissions {
-					if strings.HasSuffix(strings.ToLower(permission), strings.ToLower(domain.OperationStatusesReadSuffix)) {
-						s.autoAddedPermissions[strings.ToLower(permission)] = true
-					}
-				}
+			for _, permission := range autoAdded {
+				s.autoAddedPermissions[strings.ToLower(strings.TrimSpace(permission))] = true
 			}
 		}
 

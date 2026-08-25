@@ -1,4 +1,4 @@
 variable "location" {
-  description = "The supported azure location where the resource exists"
+  description = "The supported Azure location where the resource exists"
   type        = string
 }

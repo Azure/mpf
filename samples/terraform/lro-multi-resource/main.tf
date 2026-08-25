@@ -1,7 +1,20 @@
-terraform {}
+terraform {
+  required_version = ">= 1.9.6, < 2.0.0"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.114.0, < 4.0.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
+  }
+}
 
 provider "azurerm" {
   features {}
+  skip_provider_registration = "true"
 }
 
 resource "random_id" "rg" {

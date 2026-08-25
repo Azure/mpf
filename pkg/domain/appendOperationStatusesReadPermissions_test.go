@@ -2,6 +2,7 @@ package domain
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -92,9 +93,10 @@ func TestAppendOperationStatusesReadPermissions(t *testing.T) {
 	const scopeB = "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS/resourceGroups/testdeployrg-1Gb2X45"
 
 	tests := []struct {
-		name     string
-		input    map[string][]string
-		expected map[string][]string
+		name             string
+		input            map[string][]string
+		expected         map[string][]string
+		expectedAppended []string
 	}{
 		{
 			name: "no write permissions leaves map untouched",
@@ -104,6 +106,7 @@ func TestAppendOperationStatusesReadPermissions(t *testing.T) {
 			expected: map[string][]string{
 				scopeA: {"Microsoft.ContainerRegistry/registries/read"},
 			},
+			expectedAppended: nil,
 		},
 		{
 			name: "appends polling permission for write permission",
@@ -117,6 +120,7 @@ func TestAppendOperationStatusesReadPermissions(t *testing.T) {
 					"Microsoft.ContainerRegistry/registries/operationStatuses/read",
 				},
 			},
+			expectedAppended: []string{"Microsoft.ContainerRegistry/registries/operationStatuses/read"},
 		},
 		{
 			name: "appends polling permissions across multiple scopes",
@@ -134,20 +138,79 @@ func TestAppendOperationStatusesReadPermissions(t *testing.T) {
 					"Microsoft.Resources/subscriptions/resourcegroups/operationStatuses/read",
 				},
 			},
+			expectedAppended: []string{
+				"Microsoft.ContainerRegistry/registries/operationStatuses/read",
+				"Microsoft.Resources/subscriptions/resourcegroups/operationStatuses/read",
+			},
 		},
 		{
-			name:     "empty map",
-			input:    map[string][]string{},
-			expected: map[string][]string{},
+			name: "polling permission already reported by the deployment is not appended",
+			input: map[string][]string{
+				scopeA: {
+					"Microsoft.ContainerRegistry/registries/write",
+					"Microsoft.ContainerRegistry/registries/operationStatuses/read",
+				},
+			},
+			expected: map[string][]string{
+				scopeA: {
+					"Microsoft.ContainerRegistry/registries/write",
+					"Microsoft.ContainerRegistry/registries/operationStatuses/read",
+				},
+			},
+			expectedAppended: nil,
+		},
+		{
+			name: "mixed case write action is mapped",
+			input: map[string][]string{
+				scopeA: {"Microsoft.ContainerRegistry/registries/Write"},
+			},
+			expected: map[string][]string{
+				scopeA: {
+					"Microsoft.ContainerRegistry/registries/Write",
+					"Microsoft.ContainerRegistry/registries/operationStatuses/read",
+				},
+			},
+			expectedAppended: []string{"Microsoft.ContainerRegistry/registries/operationStatuses/read"},
+		},
+		{
+			name:             "empty map",
+			input:            map[string][]string{},
+			expected:         map[string][]string{},
+			expectedAppended: nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := AppendOperationStatusesReadPermissions(tt.input)
+			got, appended := AppendOperationStatusesReadPermissions(tt.input)
 			if !reflect.DeepEqual(got, tt.expected) {
 				t.Fatalf("expected %v, got %v", tt.expected, got)
 			}
+			// Scope iteration order is not deterministic, so compare appended as a set.
+			sort.Strings(appended)
+			expectedAppended := append([]string(nil), tt.expectedAppended...)
+			sort.Strings(expectedAppended)
+			if len(appended) != len(expectedAppended) {
+				t.Fatalf("expected appended %v, got %v", expectedAppended, appended)
+			}
+			for i := range appended {
+				if appended[i] != expectedAppended[i] {
+					t.Fatalf("expected appended %v, got %v", expectedAppended, appended)
+				}
+			}
 		})
+	}
+}
+
+func TestAppendOperationStatusesReadPermissionsDoesNotMutateInput(t *testing.T) {
+	const scope = "/subscriptions/SSSSSSSS-SSSS-SSSS-SSSS-SSSSSSSSSSSS"
+	input := map[string][]string{
+		scope: {"Microsoft.ContainerRegistry/registries/write"},
+	}
+
+	_, _ = AppendOperationStatusesReadPermissions(input)
+
+	if len(input[scope]) != 1 {
+		t.Fatalf("input map was modified: %v", input[scope])
 	}
 }
