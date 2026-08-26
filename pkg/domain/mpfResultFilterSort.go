@@ -1,17 +1,17 @@
 //     MIT License
-// 
+//
 //     Copyright (c) Microsoft Corporation.
-// 
+//
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
 //     in the Software without restriction, including without limitation the rights
 //     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //     copies of the Software, and to permit persons to whom the Software is
 //     furnished to do so, subject to the following conditions:
-// 
+//
 //     The above copyright notice and this permission notice shall be included in all
 //     copies or substantial portions of the Software.
-// 
+//
 //     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,40 @@
 
 package domain
 
-import "sort"
+import (
+	"sort"
+	"strings"
+)
+
+// normalizeActionKey returns the comparison key for an Azure action name. Azure action
+// names are case-insensitive and may carry surrounding whitespace.
+func normalizeActionKey(action string) string {
+	return strings.ToLower(strings.TrimSpace(action))
+}
+
+// FilterOutPermissions removes the supplied permissions from every scope of the
+// scope/permission map. Comparison is case-insensitive because Azure action names
+// are case-insensitive. A new map is always returned and the supplied map is not
+// modified, so callers can never alias the input through the result.
+func FilterOutPermissions(scpPerms map[string][]string, permissionsToRemove []string) map[string][]string {
+	removeSet := make(map[string]bool, len(permissionsToRemove))
+	for _, perm := range permissionsToRemove {
+		removeSet[normalizeActionKey(perm)] = true
+	}
+
+	filtered := make(map[string][]string, len(scpPerms))
+	for scope, perms := range scpPerms {
+		kept := make([]string, 0, len(perms))
+		for _, perm := range perms {
+			if removeSet[normalizeActionKey(perm)] {
+				continue
+			}
+			kept = append(kept, perm)
+		}
+		filtered[scope] = kept
+	}
+	return filtered
+}
 
 func getMapWithUniqueValues(m map[string][]string) map[string][]string {
 	sm := make(map[string][]string)

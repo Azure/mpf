@@ -37,11 +37,12 @@ import (
 )
 
 var (
-	flgTFPath                         string
-	flgWorkingDir                     string
-	flgVarFilePath                    string
-	flgImportExistingResourcesToState bool
-	flgTargetModule                   string
+	flgTFPath                                 string
+	flgWorkingDir                             string
+	flgVarFilePath                            string
+	flgImportExistingResourcesToState         bool
+	flgTargetModule                           string
+	flgAutoAddOperationStatusesReadPermission bool
 )
 
 const FoundPermissionsFromFailedRunFilename = ".permissionsFromFailedRun.json"
@@ -79,6 +80,8 @@ func NewTerraformCommand() *cobra.Command {
 
 	terraformCmd.Flags().StringVarP(&flgTargetModule, "targetModule", "", "", "The Terraform module to Target Module to run MPF on")
 
+	terraformCmd.Flags().BoolVarP(&flgAutoAddOperationStatusesReadPermission, "autoAddOperationStatusesReadPermission", "", true, "Add RESOURCE_TYPE/operationStatuses/read for every discovered RESOURCE_TYPE/write permission. azurerm resources created via a long running operation (LRO) require this permission to poll the operation result.")
+
 	return terraformCmd
 }
 
@@ -90,6 +93,7 @@ func getMPFTerraform(cmd *cobra.Command, args []string) {
 	log.Infof("WorkingDir: %s\n", flgWorkingDir)
 	log.Infof("VarFilePath: %s\n", flgVarFilePath)
 	log.Infof("ImportExistingResourcesToState: %t\n", flgImportExistingResourcesToState)
+	log.Infof("AutoAddOperationStatusesReadPermission: %t\n", flgAutoAddOperationStatusesReadPermission)
 
 	// validate if working directory exists
 	if _, err := os.Stat(flgWorkingDir); os.IsNotExist(err) {
@@ -157,7 +161,8 @@ func getMPFTerraform(cmd *cobra.Command, args []string) {
 	}
 
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(flgWorkingDir, flgTFPath, flgVarFilePath, flgImportExistingResourcesToState, flgTargetModule)
-	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
+	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false,
+		usecase.WithAutoAddOperationStatusesReadForWrite(flgAutoAddOperationStatusesReadPermission))
 
 	displayOptions := getDislayOptions(flgShowDetailedOutput, flgJSONOutput, mpfConfig.SubscriptionID)
 
