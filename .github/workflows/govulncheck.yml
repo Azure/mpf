@@ -31,17 +31,17 @@ jobs:
       issues: write
     steps:
       - name: ⤵️ Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: 🚧 Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
 
       - name: 🚧 Setup Task
-        uses: go-task/setup-task@01a4adf9db2d14c1de7a560f09170b6e0df736aa # v2.1.0
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
         with:
           repo-token: ${{ github.token }}
 
@@ -61,7 +61,13 @@ jobs:
             exit "$status"
           fi
 
-          if jq -e 'select(.finding != null)' govulncheck.json > /dev/null 2>&1; then
+          # Only alert on vulnerabilities that actually affect our code, i.e.
+          # findings whose call stack reaches a vulnerable symbol (trace[0]
+          # has a function). Module-level findings for dependencies we require
+          # but never call (for example the unmaintained
+          # golang.org/x/crypto/openpgp package, which has no fixed version)
+          # are not actionable and should not open an issue.
+          if jq -e 'select(.finding.trace[0].function != null)' govulncheck.json > /dev/null 2>&1; then
             echo "found=true" >> "$GITHUB_OUTPUT"
           elif jq empty govulncheck.json 2>/dev/null; then
             echo "found=false" >> "$GITHUB_OUTPUT"
