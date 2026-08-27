@@ -71,35 +71,35 @@ EOF
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    -y | --yes)
-      YES=true
-      shift
-      ;;
-    --add-to-github)
-      ADD_TO_GITHUB=true
-      shift
-      ;;
-    -t | --target)
-      if [[ $# -lt 2 ]]; then
-        print_error "$1 requires a target"
+      -y | --yes)
+        YES=true
+        shift
+        ;;
+      --add-to-github)
+        ADD_TO_GITHUB=true
+        shift
+        ;;
+      -t | --target)
+        if [[ $# -lt 2 ]]; then
+          print_error "$1 requires a target"
+          exit 2
+        fi
+        SELECTED_TARGETS+=("$2")
+        shift 2
+        ;;
+      -o | --output-file)
+        OUTPUT_FILE="$2"
+        shift 2
+        ;;
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      *)
+        print_error "Unknown argument: $1"
+        usage
         exit 2
-      fi
-      SELECTED_TARGETS+=("$2")
-      shift 2
-      ;;
-    -o | --output-file)
-      OUTPUT_FILE="$2"
-      shift 2
-      ;;
-    -h | --help)
-      usage
-      exit 0
-      ;;
-    *)
-      print_error "Unknown argument: $1"
-      usage
-      exit 2
-      ;;
+        ;;
     esac
   done
 
