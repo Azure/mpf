@@ -7,12 +7,21 @@
 
 set -euo pipefail
 
-ECOSYSTEMS=("terraform" "arm" "bicep")
-OSES=("linux" "windows")
+TARGETS=(
+  "terraform_linux"
+  "terraform_windows"
+  "arm_linux"
+  "arm_windows"
+  "bicep_linux"
+  "bicep_windows"
+  "terraform_linux_alt"
+)
+SELECTED_TARGETS=()
+ACTIVE_TARGETS=()
 
-declare -A CLIENT_ID
-declare -A CLIENT_SECRET
-declare -A OBJECT_ID
+declare -a CLIENT_ID
+declare -a CLIENT_SECRET
+declare -a OBJECT_ID
 
 YES=false
 ADD_TO_GITHUB=""
@@ -51,6 +60,9 @@ Creates (or reuses) Entra ID app/service principals for MPF E2E tests and option
 Options:
   -y, --yes                Skip prompts (non-interactive). Defaults to NOT adding secrets to GitHub unless --add-to-github is set.
       --add-to-github      Automatically add secrets to GitHub repository.
+  -t, --target TARGET      Create only TARGET. May be repeated. Valid targets:
+                           terraform_linux, terraform_windows, arm_linux, arm_windows,
+                           bicep_linux, bicep_windows, terraform_linux_alt.
   -o, --output-file PATH   Output JSON file path (default: e2e-service-principals.json)
   -h, --help               Show this help.
 EOF
@@ -59,27 +71,35 @@ EOF
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -y | --yes)
-        YES=true
-        shift
-        ;;
-      --add-to-github)
-        ADD_TO_GITHUB=true
-        shift
-        ;;
-      -o | --output-file)
-        OUTPUT_FILE="$2"
-        shift 2
-        ;;
-      -h | --help)
-        usage
-        exit 0
-        ;;
-      *)
-        print_error "Unknown argument: $1"
-        usage
+    -y | --yes)
+      YES=true
+      shift
+      ;;
+    --add-to-github)
+      ADD_TO_GITHUB=true
+      shift
+      ;;
+    -t | --target)
+      if [[ $# -lt 2 ]]; then
+        print_error "$1 requires a target"
         exit 2
-        ;;
+      fi
+      SELECTED_TARGETS+=("$2")
+      shift 2
+      ;;
+    -o | --output-file)
+      OUTPUT_FILE="$2"
+      shift 2
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      print_error "Unknown argument: $1"
+      usage
+      exit 2
+      ;;
     esac
   done
 
@@ -89,6 +109,36 @@ parse_args() {
 
   if [[ -z "${ADD_TO_GITHUB}" ]]; then
     ADD_TO_GITHUB=""
+  fi
+
+  if [[ ${#SELECTED_TARGETS[@]} -eq 0 ]]; then
+    ACTIVE_TARGETS=("${TARGETS[@]}")
+    return
+  fi
+
+  local selected
+  local valid
+  for selected in "${SELECTED_TARGETS[@]}"; do
+    valid=false
+    local target
+    for target in "${TARGETS[@]}"; do
+      if [[ "${selected}" == "${target}" ]]; then
+        valid=true
+        break
+      fi
+    done
+    if [[ "${valid}" != true ]]; then
+      print_error "Unknown target: ${selected}"
+      usage
+      exit 2
+    fi
+    ACTIVE_TARGETS+=("${selected}")
+  done
+
+  if [[ -e "${OUTPUT_FILE}" ]]; then
+    print_error "Targeted provisioning will not overwrite existing output file: ${OUTPUT_FILE}"
+    print_error "Choose a new path with --output-file."
+    exit 2
   fi
 }
 
@@ -146,13 +196,17 @@ check_prerequisites() {
 }
 
 create_service_principal() {
-  local ecosystem="$1"
-  local os="$2"
+  local index="$1"
+  local key="$2"
+  local ecosystem
+  local os
+  local variant
+  IFS="_" read -r ecosystem os variant <<<"${key}"
 
   local sp_name
-  sp_name="mpf-${ecosystem}-${os}-e2e-sp"
+  sp_name="mpf-${ecosystem}-${os}${variant:+-${variant}}-e2e-sp"
   local display_name
-  display_name="MPF $(title_case "${ecosystem}") $(title_case "${os}") E2E"
+  display_name="MPF $(title_case "${ecosystem}") $(title_case "${os}")${variant:+ $(title_case "${variant}")} E2E"
 
   print_status "Creating service principal: ${display_name}"
 
@@ -202,11 +256,9 @@ create_service_principal() {
     exit 1
   fi
 
-  local key
-  key="${ecosystem}_${os}"
-  CLIENT_ID["${key}"]="${app_id}"
-  CLIENT_SECRET["${key}"]="${password}"
-  OBJECT_ID["${key}"]="${object_id}"
+  CLIENT_ID["${index}"]="${app_id}"
+  CLIENT_SECRET["${index}"]="${password}"
+  OBJECT_ID["${index}"]="${object_id}"
 
   print_success "Created service principal: ${display_name}"
   print_status "  App ID: ${app_id}"
@@ -226,18 +278,16 @@ add_github_secrets() {
   # Additionally, we export GH_REPO so any subsequent gh commands inherit the context.
   export GH_REPO="${repo_name}"
 
-  for ecosystem in "${ECOSYSTEMS[@]}"; do
-    for os in "${OSES[@]}"; do
-      local key
-      key="${ecosystem}_${os}"
-      local prefix
-      prefix="MPF_${ecosystem^^}_${os^^}"
+  local index
+  for ((index = 0; index < ${#ACTIVE_TARGETS[@]}; index++)); do
+    local key="${ACTIVE_TARGETS[$index]}"
+    local prefix
+    prefix="MPF_$(echo "${key}" | tr '[:lower:]' '[:upper:]')"
 
-      print_status "Setting secrets for ${ecosystem} ${os}..."
-      echo "${CLIENT_ID[$key]}" | gh secret set "${prefix}_SPCLIENTID" -R "${repo_name}"
-      echo "${CLIENT_SECRET[$key]}" | gh secret set "${prefix}_SPCLIENTSECRET" -R "${repo_name}"
-      echo "${OBJECT_ID[$key]}" | gh secret set "${prefix}_SPOBJECTID" -R "${repo_name}"
-    done
+    print_status "Setting secrets for ${key//_/ }..."
+    echo "${CLIENT_ID[$index]}" | gh secret set "${prefix}_SPCLIENTID" -R "${repo_name}"
+    echo "${CLIENT_SECRET[$index]}" | gh secret set "${prefix}_SPCLIENTSECRET" -R "${repo_name}"
+    echo "${OBJECT_ID[$index]}" | gh secret set "${prefix}_SPOBJECTID" -R "${repo_name}"
   done
 
   print_status "Setting shared secrets (tenant/subscription)..."
@@ -254,27 +304,25 @@ display_github_secrets() {
   echo "Add the following secrets to your GitHub repository:"
   echo ""
 
-  for ecosystem in "${ECOSYSTEMS[@]}"; do
-    for os in "${OSES[@]}"; do
-      local key
-      key="${ecosystem}_${os}"
-      local prefix
-      prefix="MPF_${ecosystem^^}_${os^^}"
+  local index
+  for ((index = 0; index < ${#ACTIVE_TARGETS[@]}; index++)); do
+    local key="${ACTIVE_TARGETS[$index]}"
+    local prefix
+    prefix="MPF_$(echo "${key}" | tr '[:lower:]' '[:upper:]')"
 
-      # Mask client secret to avoid leaking it via logs
-      local client_secret="${CLIENT_SECRET[$key]}"
-      local client_secret_display
-      if [[ ${#client_secret} -gt 8 ]]; then
-        client_secret_display="${client_secret:0:4}...${client_secret: -4}"
-      else
-        client_secret_display="<redacted>"
-      fi
+    # Mask client secret to avoid leaking it via logs
+    local client_secret="${CLIENT_SECRET[$index]}"
+    local client_secret_display
+    if [[ ${#client_secret} -gt 8 ]]; then
+      client_secret_display="${client_secret:0:4}...${client_secret: -4}"
+    else
+      client_secret_display="<redacted>"
+    fi
 
-      echo "${prefix}_SPCLIENTID = ${CLIENT_ID[$key]}"
-      echo "${prefix}_SPCLIENTSECRET = ${client_secret_display} (full value stored securely in ${OUTPUT_FILE})"
-      echo "${prefix}_SPOBJECTID = ${OBJECT_ID[$key]}"
-      echo ""
-    done
+    echo "${prefix}_SPCLIENTID = ${CLIENT_ID[$index]}"
+    echo "${prefix}_SPCLIENTSECRET = ${client_secret_display} (full value stored securely in ${OUTPUT_FILE})"
+    echo "${prefix}_SPOBJECTID = ${OBJECT_ID[$index]}"
+    echo ""
   done
 
   echo ""
@@ -287,16 +335,14 @@ save_credentials() {
   print_status "Saving credentials to ${OUTPUT_FILE}"
 
   {
-    for ecosystem in "${ECOSYSTEMS[@]}"; do
-      for os in "${OSES[@]}"; do
-        local key
-        key="${ecosystem}_${os}"
-        printf "%s\t%s\t%s\t%s\n" \
-          "${key}" \
-          "${CLIENT_ID[$key]}" \
-          "${CLIENT_SECRET[$key]}" \
-          "${OBJECT_ID[$key]}"
-      done
+    local index
+    for ((index = 0; index < ${#ACTIVE_TARGETS[@]}; index++)); do
+      local key="${ACTIVE_TARGETS[$index]}"
+      printf "%s\t%s\t%s\t%s\n" \
+        "${key}" \
+        "${CLIENT_ID[$index]}" \
+        "${CLIENT_SECRET[$index]}" \
+        "${OBJECT_ID[$index]}"
     done
   } | jq -Rn --arg tenant "${TENANT_ID}" --arg sub "${SUBSCRIPTION_ID}" '
     reduce inputs as $line ({};
@@ -370,14 +416,13 @@ main() {
   fi
 
   # Create service principals
-  print_status "Creating service principals for E2E tests (${#ECOSYSTEMS[@]} ecosystems × ${#OSES[@]} OSes)..."
+  print_status "Creating service principals for E2E tests (${#ACTIVE_TARGETS[@]} targets)..."
   echo ""
 
-  for ecosystem in "${ECOSYSTEMS[@]}"; do
-    for os in "${OSES[@]}"; do
-      create_service_principal "${ecosystem}" "${os}"
-      echo ""
-    done
+  local index
+  for ((index = 0; index < ${#ACTIVE_TARGETS[@]}; index++)); do
+    create_service_principal "${index}" "${ACTIVE_TARGETS[$index]}"
+    echo ""
   done
 
   # Display results

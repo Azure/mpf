@@ -43,7 +43,7 @@ import (
 // cannot auto-discover. MPF should fail with a clear guidance error instead of
 // silently looping or producing a misleading parse error.
 func TestTerraformAuthorizationRequestDenied(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
