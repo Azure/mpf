@@ -11,6 +11,16 @@ Uses a small in-script matrix (ecosystem × OS) to create/reuse principals dynam
 param(
     [switch] $Yes,
     [switch] $AddToGitHub,
+    [ValidateSet(
+        'terraform_linux',
+        'terraform_windows',
+        'arm_linux',
+        'arm_windows',
+        'bicep_linux',
+        'bicep_windows',
+        'terraform_linux_alt'
+    )]
+    [string[]] $Target,
     [string] $OutputFile = 'e2e-service-principals.json'
 )
 
@@ -26,16 +36,22 @@ function To-TitleCase([string]$s) {
     return (Get-Culture).TextInfo.ToTitleCase($s)
 }
 
-function Get-SpName([string]$ecosystem, [string]$os) {
-    return "mpf-$ecosystem-$os-e2e-sp"
+function Get-SpName([string]$ecosystem, [string]$os, [string]$variant) {
+    $variantSuffix = if ($variant) { "-$variant" } else { '' }
+    return "mpf-$ecosystem-$os$variantSuffix-e2e-sp"
 }
 
-function Get-Label([string]$ecosystem, [string]$os) {
-    return "MPF $(To-TitleCase $ecosystem) $(To-TitleCase $os) E2E"
+function Get-Label([string]$ecosystem, [string]$os, [string]$variant) {
+    $variantLabel = if ($variant) { " $(To-TitleCase $variant)" } else { '' }
+    return "MPF $(To-TitleCase $ecosystem) $(To-TitleCase $os)$variantLabel E2E"
 }
 
-function Get-SecretPrefix([string]$ecosystem, [string]$os) {
-    return "MPF_$($ecosystem.ToUpperInvariant())_$($os.ToUpperInvariant())"
+function Get-SecretPrefix([string]$key) {
+    return "MPF_$($key.ToUpperInvariant())"
+}
+
+if ($Target -and (Test-Path -LiteralPath $OutputFile)) {
+    throw "Targeted provisioning will not overwrite existing output file: $OutputFile. Choose a new path with -OutputFile."
 }
 
 if (-not (Get-Command az -ErrorAction SilentlyContinue)) { throw 'az not found. Install Azure CLI: https://learn.microsoft.com/cli/azure/install-azure-cli' }
@@ -179,8 +195,23 @@ $ecosystems = @('terraform', 'arm', 'bicep')
 $oses = @('linux', 'windows')
 $matrix = foreach ($ecosystem in $ecosystems) {
     foreach ($os in $oses) {
-        [pscustomobject]@{ ecosystem = $ecosystem; os = $os }
+        [pscustomobject]@{
+            key       = "${ecosystem}_${os}"
+            ecosystem = $ecosystem
+            os        = $os
+            variant   = ''
+        }
     }
+}
+$matrix += [pscustomobject]@{
+    key       = 'terraform_linux_alt'
+    ecosystem = 'terraform'
+    os        = 'linux'
+    variant   = 'alt'
+}
+
+if ($Target) {
+    $matrix = @($matrix | Where-Object { $_.key -in $Target })
 }
 
 Info "Creating service principals for E2E tests ($($matrix.Count) total)..."
@@ -188,9 +219,9 @@ Write-Host ""
 
 $servicePrincipals = @{}
 foreach ($m in $matrix) {
-    $spName = Get-SpName -ecosystem $m.ecosystem -os $m.os
-    $label = Get-Label -ecosystem $m.ecosystem -os $m.os
-    $key = "$($m.ecosystem)_$($m.os)"
+    $spName = Get-SpName -ecosystem $m.ecosystem -os $m.os -variant $m.variant
+    $label = Get-Label -ecosystem $m.ecosystem -os $m.os -variant $m.variant
+    $key = $m.key
     $servicePrincipals[$key] = New-Sp $spName $label
     Write-Host ""
 }
@@ -201,7 +232,7 @@ Write-Host ""
 Info "Saving credentials to $($OutputFile)"
 $payload = [ordered]@{}
 foreach ($m in $matrix) {
-    $key = "$($m.ecosystem)_$($m.os)"
+    $key = $m.key
     $sp = $servicePrincipals[$key]
     $payload[$key] = [ordered]@{ client_id = $sp.ClientId; client_secret = $sp.ClientSecret; object_id = $sp.ObjectId }
 }
@@ -225,8 +256,8 @@ if ($shouldAddToGitHub) {
     $env:GH_REPO = $repoName
 
     foreach ($m in $matrix) {
-        $key = "$($m.ecosystem)_$($m.os)"
-        $prefix = Get-SecretPrefix -ecosystem $m.ecosystem -os $m.os
+        $key = $m.key
+        $prefix = Get-SecretPrefix -key $key
         Set-GitHubSecrets -RepoName $repoName -Prefix $prefix -Sp $servicePrincipals[$key]
     }
 
@@ -243,8 +274,8 @@ else {
     Write-Host ''
 
     foreach ($m in $matrix) {
-        $key = "$($m.ecosystem)_$($m.os)"
-        $prefix = Get-SecretPrefix -ecosystem $m.ecosystem -os $m.os
+        $key = $m.key
+        $prefix = Get-SecretPrefix -key $key
         $sp = $servicePrincipals[$key]
 
         # Do not print the full client secret to avoid leaking it via logs.

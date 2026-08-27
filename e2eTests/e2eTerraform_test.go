@@ -66,7 +66,7 @@ func cleanTerraformWorkingDir(t *testing.T, workingDir string) {
 }
 
 func TestTerraformACI(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -119,7 +119,7 @@ func TestTerraformACI(t *testing.T) {
 }
 
 func TestTerraformACINoTfvarsFile(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -169,7 +169,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 }
 
 func TestTerraformModuleTest(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -301,7 +301,7 @@ func TestTerraformModuleTest(t *testing.T) {
 // This validates the --initialPermissions flag feature (issue #91) which reduces execution time
 // by seeding known permissions.
 func TestTerraformACIWithInitialPermissions(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
