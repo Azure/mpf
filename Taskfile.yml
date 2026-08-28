@@ -233,7 +233,7 @@ tasks:
     cmds:
       # yamllint disable-line rule:quoted-strings
       - 'gotestsum --format-hivis --format {{.FORMAT}} --jsonfile "testresults.json" ./pkg/domain ./pkg/infrastructure/ARMTemplateShared ./pkg/infrastructure/mpfSharedUtils ./pkg/infrastructure/authorizationCheckers/terraform -p {{numCPU}} -timeout 5m -ldflags="{{.LDFLAGS}}" -coverprofile="coverage.out" -covermode atomic'
-      - go test ./e2eTests -run TestE2EIdentitySelector -count=1
+      - go test ./e2eTests -run 'TestE2E(IdentitySelector|TerraformBootstrapPermissions)' -count=1
       - task: _test:getcover
     vars:
       TEST_NAME: "{{if gt (len (splitArgs .CLI_ARGS)) 0}}{{index (splitArgs .CLI_ARGS) 0}}{{end}}"
