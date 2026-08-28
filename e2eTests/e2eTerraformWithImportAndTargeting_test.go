@@ -73,8 +73,7 @@ func TestTerraformWithImport(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -84,7 +83,7 @@ func TestTerraformWithImport(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 17, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 18, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
@@ -124,8 +123,7 @@ func TestTerraformWithTargetting(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "module.law")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -135,5 +133,5 @@ func TestTerraformWithTargetting(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }

@@ -75,8 +75,7 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -86,5 +85,5 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 11, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 12, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
