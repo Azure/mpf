@@ -8,7 +8,7 @@ For example, to download the latest version for Linux/amd64:
 
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/Azure/mpf/releases/download/v0.17.0/azmpf_linux_amd64.tar.gz
+curl -LO https://github.com/Azure/mpf/releases/download/v0.18.0/azmpf_linux_amd64.tar.gz
 tar -xzf azmpf_linux_amd64.tar.gz
 chmod +x ./azmpf
 ```
@@ -17,7 +17,7 @@ For Mac Arm64:
 
 ```shell
 # Please change the version in the URL to the latest version
-curl -LO https://github.com/Azure/mpf/releases/download/v0.17.0/azmpf_darwin_arm64.tar.gz
+curl -LO https://github.com/Azure/mpf/releases/download/v0.18.0/azmpf_darwin_arm64.tar.gz
 tar -xzf azmpf_darwin_arm64.tar.gz
 chmod +x ./azmpf
 ```
@@ -26,7 +26,7 @@ And for Windows:
 
 ```powershell
 # Please change the version in the URL to the latest version
-Invoke-WebRequest -Uri "https://github.com/Azure/mpf/releases/download/v0.17.0/azmpf_windows_amd64.zip" -OutFile "azmpf_windows_amd64.zip"
+Invoke-WebRequest -Uri "https://github.com/Azure/mpf/releases/download/v0.18.0/azmpf_windows_amd64.zip" -OutFile "azmpf_windows_amd64.zip"
 Expand-Archive -Path "azmpf_windows_amd64.zip" -DestinationPath "."
 ```
 
