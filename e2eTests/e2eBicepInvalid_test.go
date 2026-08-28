@@ -25,7 +25,6 @@ package e2etests
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
@@ -53,7 +52,7 @@ import (
 // 		t.Skip("required environment variables not set, skipping end to end test")
 // 	}
 
-// 	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+// 	bicepExecPath := mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH")
 // 	bicepFilePath := "../samples/bicep/aks-private-subnet.bicep"
 // 	parametersFilePath := "../samples/bicep/aks-invalid-params.json"
 
@@ -114,7 +113,7 @@ func TestBicepInvalidResourceFile(t *testing.T) {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
 
-	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+	bicepExecPath := mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH")
 	bicepFilePath := "../samples/bicep/invalid-bicep.bicep"
 
 	bicepFilePath, err = getAbsolutePath(bicepFilePath)
@@ -146,7 +145,7 @@ func TestBicepInvalidParamsFullDeployment(t *testing.T) {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
 
-	bicepExecPath := os.Getenv("MPF_BICEPEXECPATH")
+	bicepExecPath := mpfEnv("MPF_BICEPEXECPATH", "MPF_BICEP_EXEC_PATH")
 	bicepFilePath := "../samples/bicep/aks-private-subnet.bicep"
 	parametersFilePath := "../samples/bicep/aks-invalid-params.json"
 

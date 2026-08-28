@@ -28,11 +28,12 @@ When asked to analyze Azure IaC for minimum permissions, follow this process:
 ### Environment Variables (Required)
 
 ```bash
-export MPF_SUBSCRIPTIONID="<your-subscription-id>"
-export MPF_TENANTID="<your-tenant-id>"
-export MPF_SPCLIENTID="<service-principal-client-id>"
-export MPF_SPCLIENTSECRET="<service-principal-secret>"
-export MPF_SPOBJECTID="<service-principal-object-id>"
+# Preferred snake_case form (legacy concatenated names like MPF_SUBSCRIPTIONID still work)
+export MPF_SUBSCRIPTION_ID="<your-subscription-id>"
+export MPF_TENANT_ID="<your-tenant-id>"
+export MPF_SP_CLIENT_ID="<service-principal-client-id>"
+export MPF_SP_CLIENT_SECRET="<service-principal-secret>"
+export MPF_SP_OBJECT_ID="<service-principal-object-id>"
 ```
 
 ### Service Principal Setup
@@ -41,11 +42,11 @@ Create a dedicated Service Principal for MPF analysis (it should have NO roles a
 
 ```bash
 MPF_SP=$(az ad sp create-for-rbac --name "MPF-Analyzer-SP" --skip-assignment)
-export MPF_SPCLIENTID=$(echo $MPF_SP | jq -r .appId)
-export MPF_SPCLIENTSECRET=$(echo $MPF_SP | jq -r .password)
-export MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
-export MPF_TENANTID=$(az account show --query tenantId -o tsv)
-export MPF_SUBSCRIPTIONID=$(az account show --query id -o tsv)
+export MPF_SP_CLIENT_ID=$(echo $MPF_SP | jq -r .appId)
+export MPF_SP_CLIENT_SECRET=$(echo $MPF_SP | jq -r .password)
+export MPF_SP_OBJECT_ID=$(az ad sp show --id $MPF_SP_CLIENT_ID --query id -o tsv)
+export MPF_TENANT_ID=$(az account show --query tenantId -o tsv)
+export MPF_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 ```
 
 ---
@@ -90,7 +91,7 @@ azmpf arm \
 ### Bicep Analysis
 
 ```bash
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 azmpf bicep \
   --bicepFilePath ./path/to/main.bicep \
@@ -102,7 +103,7 @@ azmpf bicep \
 ### Terraform Analysis
 
 ```bash
-export MPF_TFPATH=$(which terraform)
+export MPF_TF_PATH=$(which terraform)
 
 # Ensure terraform is initialized
 cd ./terraform-module-dir
@@ -177,7 +178,7 @@ For least-privilege access, generate a custom role:
 After analysis, delete the Service Principal:
 
 ```bash
-az ad sp delete --id "$MPF_SPCLIENTID"
+az ad sp delete --id "$MPF_SP_CLIENT_ID"
 ```
 
 ---

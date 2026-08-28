@@ -94,7 +94,7 @@ source dev.env.export.sh
 **Terraform validation** — initialize a sample Terraform module, then run azmpf and verify the full apply/destroy cycle completes:
 
 ```bash
-cd ./samples/terraform/aci && $MPF_TFPATH init && cd -
+cd ./samples/terraform/aci && $MPF_TF_PATH init && cd -
 
 ./azmpf terraform \
   --workingDir $(pwd)/samples/terraform/aci \

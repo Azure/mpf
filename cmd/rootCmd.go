@@ -33,7 +33,6 @@ import (
 	"github.com/Azure/mpf/pkg/infrastructure/mpfSharedUtils"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	log "github.com/sirupsen/logrus"
@@ -142,31 +141,11 @@ func initializeConfig(cmd *cobra.Command) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
+	// Bind flags to both legacy concatenated env names (e.g. MPF_SUBSCRIPTIONID)
+	// and snake_case names (e.g. MPF_SUBSCRIPTION_ID). See envbinding.go.
 	bindFlags(cmd, v)
 
 	return nil
-}
-
-// Bind each cobra flag to its associated viper configuration (config file and environment variable)
-func bindFlags(cmd *cobra.Command, v *viper.Viper) {
-	cmd.Flags().VisitAll(func(f *pflag.Flag) {
-		// Determine the naming convention of the flags when represented in the config file
-		configName := f.Name
-		// If using camelCase in the config file, replace hyphens with a camelCased string.
-		// Since viper does case-insensitive comparisons, we don't need to bother fixing the case, and only need to remove the hyphens.
-		if replaceHyphenWithCamelCase {
-			configName = strings.ReplaceAll(f.Name, "-", "")
-		}
-
-		// Apply the viper config value to the flag when the flag is not set and viper has a value
-		if !f.Changed && v.IsSet(configName) {
-			val := v.Get(configName)
-			err := cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
-			if err != nil {
-				log.Errorf("Error setting flag %s: %v\n", f.Name, err)
-			}
-		}
-	})
 }
 
 func setLogLevel() {

@@ -40,9 +40,9 @@ Here is an example of how to create a service principal using the Azure CLI on L
 # az login
 
 MPF_SP=$(az ad sp create-for-rbac --name "MPF_SP" --skip-assignment)
-MPF_SPCLIENTID=$(echo $MPF_SP | jq -r .appId)
-MPF_SPCLIENTSECRET=$(echo $MPF_SP | jq -r .password)
-MPF_SPOBJECTID=$(az ad sp show --id $MPF_SPCLIENTID --query id -o tsv)
+MPF_SP_CLIENT_ID=$(echo $MPF_SP | jq -r .appId)
+MPF_SP_CLIENT_SECRET=$(echo $MPF_SP | jq -r .password)
+MPF_SP_OBJECT_ID=$(az ad sp show --id $MPF_SP_CLIENT_ID --query id -o tsv)
 ```
 
 And here is the equivalent example using Azure CLI on Windows PowerShell:
@@ -51,12 +51,14 @@ And here is the equivalent example using Azure CLI on Windows PowerShell:
 # az login
 
 $MPF_SP = az ad sp create-for-rbac --name "MPF_SP" --skip-assignment | ConvertFrom-Json
-$env:MPF_SPCLIENTID = $MPF_SP.appId
-$env:MPF_SPCLIENTSECRET = $MPF_SP.password
-$env:MPF_SPOBJECTID = (az ad sp show --id $MPF_SP.appId --query id -o tsv)
+$env:MPF_SP_CLIENT_ID = $MPF_SP.appId
+$env:MPF_SP_CLIENT_SECRET = $MPF_SP.password
+$env:MPF_SP_OBJECT_ID = (az ad sp show --id $MPF_SP.appId --query id -o tsv)
 ```
 
 ## Quickstart / Usage
+
+**Note**: Environment variables use snake_case (e.g. `MPF_SUBSCRIPTION_ID`). The older concatenated names (`MPF_SUBSCRIPTIONID`) still work for backward compatibility. See [command line flags and environment variables](commandline-flags-and-env-variables.md) for both forms of every flag.
 
 **Important**: ARM and Bicep deployments now use **Full Deployment mode** exclusively with Incremental deployment mode, which creates and deploys resources (then cleans them up automatically) to determine the required permissions. This provides the most accurate permission detection but takes longer than the previous what-if mode - expect execution times of several minutes to longer depending on template complexity and the resources being deployed. The previous what-if analysis mode (which completed in ~90 seconds) has been deprecated due to incomplete permission detection in some scenarios.
 
@@ -65,11 +67,11 @@ $env:MPF_SPOBJECTID = (az ad sp show --id $MPF_SP.appId --query id -o tsv)
 ### ARM
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --verbose
 ```
@@ -77,11 +79,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --verbose
 ```
@@ -137,11 +139,11 @@ Microsoft.Resources/deployments/write
 To get the output in JSON format (which includes per-resource permission details by default), use the `--jsonOutput` flag:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json --jsonOutput --verbose
 ```
@@ -149,11 +151,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json --jsonOutput --verbose
 ```
@@ -198,11 +200,11 @@ The `--initialPermissions` flag allows you to seed known permissions before MPF 
 ##### Comma-separated format
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
   --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" \
@@ -212,11 +214,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
   --initialPermissions "Microsoft.Network/virtualNetworks/read,Microsoft.Network/virtualNetworks/write,Microsoft.Network/virtualNetworks/subnets/read,Microsoft.Network/virtualNetworks/subnets/write" `
@@ -244,11 +246,11 @@ For many permissions, a JSON file is cleaner. Create a file (e.g., `arm-initial-
 Then reference it with the `@` prefix:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
 
 $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --parametersFilePath ./samples/templates/aks-private-subnet-parameters.json \
   --initialPermissions @arm-initial-permissions.json \
@@ -258,11 +260,11 @@ $ ./azmpf arm --templateFilePath ./samples/templates/aks-private-subnet.json --p
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
 
 .\azmpf.exe arm --templateFilePath .\samples\templates\aks-private-subnet.json --parametersFilePath .\samples\templates\aks-private-subnet-parameters.json `
   --initialPermissions "@arm-initial-permissions.json" `
@@ -274,12 +276,12 @@ For full details on the `--initialPermissions` flag, see [Initial Permissions](c
 ### Bicep
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH="/usr/local/bin/bicep" # Path to the Bicep executable
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH="/usr/local/bin/bicep" # Path to the Bicep executable
 
 $ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --parametersFilePath ./samples/bicep/aks-private-subnet-params.json --verbose
 ```
@@ -287,12 +289,12 @@ $ ./azmpf bicep --bicepFilePath ./samples/bicep/aks-private-subnet.bicep --param
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH = "C:\Program Files\Azure Bicep CLI\bicep.exe" # Path to the Bicep executable
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEP_EXEC_PATH = "C:\Program Files\Azure Bicep CLI\bicep.exe" # Path to the Bicep executable
 
 .\azmpf.exe bicep --bicepFilePath .\samples\bicep\aks-private-subnet.bicep --parametersFilePath .\samples\bicep\aks-private-subnet-params.json --verbose
 ```
@@ -348,12 +350,12 @@ Microsoft.Resources/deployments/write
 You can also get JSON output from Bicep deployments, which is useful for programmatic processing and automation:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 ./azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.json --jsonOutput --verbose
 ```
@@ -361,12 +363,12 @@ export MPF_BICEPEXECPATH=$(which bicep)
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH = (Get-Command bicep).Source # Dynamically resolves to the Bicep executable path, works across different installation locations
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEP_EXEC_PATH = (Get-Command bicep).Source # Dynamically resolves to the Bicep executable path, works across different installation locations
 
 .\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.json --jsonOutput --verbose
 ```
@@ -384,12 +386,12 @@ param storageAccountName = 'myazdemostg'
 To use a `.bicepparam` file, simply pass it as the `--parametersFilePath`:
 
 ```bash
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_BICEPEXECPATH=$(which bicep)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_BICEP_EXEC_PATH=$(which bicep)
 
 ./azmpf bicep --bicepFilePath ./samples/bicep/storage-account-simple.bicep --parametersFilePath ./samples/bicep/storage-account-simple-params.bicepparam --jsonOutput --verbose
 ```
@@ -397,12 +399,12 @@ export MPF_BICEPEXECPATH=$(which bicep)
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_BICEPEXECPATH = (Get-Command bicep).Source
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_BICEP_EXEC_PATH = (Get-Command bicep).Source
 
 .\azmpf.exe bicep --bicepFilePath .\samples\bicep\storage-account-simple.bicep --parametersFilePath .\samples\bicep\storage-account-simple-params.bicepparam --jsonOutput --verbose
 ```
@@ -410,16 +412,16 @@ $env:MPF_BICEPEXECPATH = (Get-Command bicep).Source
 ### Terraform
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH="TERRAFORM_EXECUTABLE_PATH"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH="TERRAFORM_EXECUTABLE_PATH"
 
 # pushd .
 # cd ./samples/terraform/aci/
-# $MPF_TFPATH init
+# $MPF_TF_PATH init
 # popd
 
 $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars --debug
@@ -428,16 +430,16 @@ $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe" # Path to the Terraform executable
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH = "C:\Program Files\Terraform\terraform.exe" # Path to the Terraform executable
 
 # Push-Location
 # Set-Location .\samples\terraform\aci\
-# & $env:MPF_TFPATH init
+# & $env:MPF_TF_PATH init
 # Pop-Location
 
 .\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" --debug
@@ -469,12 +471,12 @@ Microsoft.Resources/subscriptions/resourcegroups/write
 To get the output in JSON format, use the `--jsonOutput` flag:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH="TERRAFORM_EXECUTABLE_PATH"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH="TERRAFORM_EXECUTABLE_PATH"
 
 $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars --jsonOutput --verbose
 ```
@@ -482,12 +484,12 @@ $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH = "C:\Program Files\Terraform\terraform.exe"
 
 .\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" --jsonOutput --verbose
 ```
@@ -518,15 +520,15 @@ When working with Terraform configurations that contain multiple modules, you ca
 The following example targets only the `module.law` module within the `module-test-with-targetting` sample:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH="TERRAFORM_EXECUTABLE_PATH"
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH="TERRAFORM_EXECUTABLE_PATH"
 
 # Ensure terraform is initialized first
-# pushd ./samples/terraform/module-test-with-targetting && $MPF_TFPATH init && popd
+# pushd ./samples/terraform/module-test-with-targetting && $MPF_TF_PATH init && popd
 
 $ ./azmpf terraform --workingDir `pwd`/samples/terraform/module-test-with-targetting --varFilePath `pwd`/samples/terraform/module-test-with-targetting/terraform.tfvars --targetModule "module.law" --verbose
 ```
@@ -534,15 +536,15 @@ $ ./azmpf terraform --workingDir `pwd`/samples/terraform/module-test-with-target
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH = "C:\Program Files\Terraform\terraform.exe"
 
 # Ensure terraform is initialized first
-# Push-Location .\samples\terraform\module-test-with-targetting\; & $env:MPF_TFPATH init; Pop-Location
+# Push-Location .\samples\terraform\module-test-with-targetting\; & $env:MPF_TF_PATH init; Pop-Location
 
 .\azmpf.exe terraform --workingDir "$PWD\samples\terraform\module-test-with-targetting" --varFilePath "$PWD\samples\terraform\module-test-with-targetting\terraform.tfvars" --targetModule "module.law" --verbose
 ```
@@ -574,12 +576,12 @@ Use the sample provided at `samples/terraform/backend-permissions.json` (shown b
 Then reference it with the `@` prefix:
 
 ```shell
-export MPF_SUBSCRIPTIONID="YOUR_SUBSCRIPTION_ID"
-export MPF_TENANTID="YOUR_TENANT_ID"
-export MPF_SPCLIENTID="YOUR_SP_CLIENT_ID"
-export MPF_SPCLIENTSECRET="YOUR_SP_CLIENT_SECRET"
-export MPF_SPOBJECTID="YOUR_SP_OBJECT_ID"
-export MPF_TFPATH=$(which terraform)
+export MPF_SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"
+export MPF_TENANT_ID="YOUR_TENANT_ID"
+export MPF_SP_CLIENT_ID="YOUR_SP_CLIENT_ID"
+export MPF_SP_CLIENT_SECRET="YOUR_SP_CLIENT_SECRET"
+export MPF_SP_OBJECT_ID="YOUR_SP_OBJECT_ID"
+export MPF_TF_PATH=$(which terraform)
 
 $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`/samples/terraform/aci/dev.vars.tfvars \
   --initialPermissions @./samples/terraform/backend-permissions.json \
@@ -589,12 +591,12 @@ $ ./azmpf terraform --workingDir `pwd`/samples/terraform/aci --varFilePath `pwd`
 Or using PowerShell on Windows:
 
 ```powershell
-$env:MPF_SUBSCRIPTIONID = "YOUR_SUBSCRIPTION_ID"
-$env:MPF_TENANTID = "YOUR_TENANT_ID"
-$env:MPF_SPCLIENTID = "YOUR_SP_CLIENT_ID"
-$env:MPF_SPCLIENTSECRET = "YOUR_SP_CLIENT_SECRET"
-$env:MPF_SPOBJECTID = "YOUR_SP_OBJECT_ID"
-$env:MPF_TFPATH = "C:\Program Files\Terraform\terraform.exe"
+$env:MPF_SUBSCRIPTION_ID = "YOUR_SUBSCRIPTION_ID"
+$env:MPF_TENANT_ID = "YOUR_TENANT_ID"
+$env:MPF_SP_CLIENT_ID = "YOUR_SP_CLIENT_ID"
+$env:MPF_SP_CLIENT_SECRET = "YOUR_SP_CLIENT_SECRET"
+$env:MPF_SP_OBJECT_ID = "YOUR_SP_OBJECT_ID"
+$env:MPF_TF_PATH = "C:\Program Files\Terraform\terraform.exe"
 
 .\azmpf.exe terraform --workingDir "$PWD\samples\terraform\aci" --varFilePath "$PWD\samples\terraform\aci\dev.vars.tfvars" `
   --initialPermissions "@./samples/terraform/backend-permissions.json" `
