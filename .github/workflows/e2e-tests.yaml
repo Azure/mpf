@@ -51,7 +51,7 @@ jobs:
           cache: true
 
       - name: 🚧 Setup Task
-        uses: go-task/setup-task@01a4adf9db2d14c1de7a560f09170b6e0df736aa # v2.1.0
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
 
       - name: 🔀 Download Go dependencies
         run: task deps:download
@@ -99,6 +99,33 @@ jobs:
           tenant-id: ${{ secrets.MPF_TENANTID }}
           subscription-id: ${{ secrets.MPF_SUBSCRIPTIONID }}
 
+      - name: 🔎 Check Terraform credentials
+        if: runner.os == 'Linux' && matrix.type == 'terraform'
+        env:
+          MPF_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_LINUX_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_LINUX_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_LINUX_SPOBJECTID }}
+          MPF_TERRAFORM_ALT_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_LINUX_ALT_SPCLIENTID }}
+          MPF_TERRAFORM_ALT_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_LINUX_ALT_SPCLIENTSECRET }}
+          MPF_TERRAFORM_ALT_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_LINUX_ALT_SPOBJECTID }}
+        run: |
+          test -n "${MPF_SPCLIENTID}" || { echo "::error::Missing MPF_TERRAFORM_LINUX_SPCLIENTID"; exit 1; }
+          test -n "${MPF_SPCLIENTSECRET}" || { echo "::error::Missing MPF_TERRAFORM_LINUX_SPCLIENTSECRET"; exit 1; }
+          test -n "${MPF_SPOBJECTID}" || { echo "::error::Missing MPF_TERRAFORM_LINUX_SPOBJECTID"; exit 1; }
+          test -n "${MPF_TERRAFORM_ALT_SPCLIENTID}" || { echo "::error::Missing MPF_TERRAFORM_LINUX_ALT_SPCLIENTID"; exit 1; }
+          test -n "${MPF_TERRAFORM_ALT_SPCLIENTSECRET}" || { echo "::error::Missing MPF_TERRAFORM_LINUX_ALT_SPCLIENTSECRET"; exit 1; }
+          test -n "${MPF_TERRAFORM_ALT_SPOBJECTID}" || { echo "::error::Missing MPF_TERRAFORM_LINUX_ALT_SPOBJECTID"; exit 1; }
+
+      - name: 🧪 Run terraform CLI Tests
+        if: runner.os == 'Linux' && matrix.type == 'terraform'
+        run: task testcli:terraform
+        env:
+          MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}
+          MPF_TENANTID: ${{ secrets.MPF_TENANTID }}
+          MPF_SPCLIENTID: ${{ secrets.MPF_TERRAFORM_LINUX_SPCLIENTID }}
+          MPF_SPCLIENTSECRET: ${{ secrets.MPF_TERRAFORM_LINUX_SPCLIENTSECRET }}
+          MPF_SPOBJECTID: ${{ secrets.MPF_TERRAFORM_LINUX_SPOBJECTID }}
+
       - name: 🧪 Run ${{ matrix.type }} E2E Tests
         if: runner.os == 'Linux'
         run: task teste2e:${{ matrix.type }}
@@ -108,8 +135,12 @@ jobs:
           MPF_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
           MPF_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPCLIENTSECRET', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
           MPF_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets[format('MPF_TERRAFORM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || matrix.type == 'arm' && secrets[format('MPF_ARM_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] || secrets[format('MPF_BICEP_{0}_SPOBJECTID', runner.os == 'Windows' && 'WINDOWS' || 'LINUX')] }}
+          MPF_TERRAFORM_ALT_SPCLIENTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_LINUX_ALT_SPCLIENTID || '' }}
+          MPF_TERRAFORM_ALT_SPCLIENTSECRET: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_LINUX_ALT_SPCLIENTSECRET || '' }}
+          MPF_TERRAFORM_ALT_SPOBJECTID: ${{ matrix.type == 'terraform' && secrets.MPF_TERRAFORM_LINUX_ALT_SPOBJECTID || '' }}
 
       - name: 🧪 Run ${{ matrix.type }} CLI Tests
+        if: runner.os != 'Linux' || matrix.type != 'terraform'
         run: task testcli:${{ matrix.type }}
         env:
           MPF_SUBSCRIPTIONID: ${{ secrets.MPF_SUBSCRIPTIONID }}

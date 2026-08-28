@@ -38,7 +38,7 @@ import (
 func TestTerraformWithImport(t *testing.T) {
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -71,8 +71,7 @@ func TestTerraformWithImport(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -82,13 +81,13 @@ func TestTerraformWithImport(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 17, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 18, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
 	// import errors can occur for some resources, when identity does not have all required permissions,
 	// as described in https://github.com/hashicorp/terraform-provider-azurerm/issues/27961#issuecomment-2467392936
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -121,8 +120,7 @@ func TestTerraformWithTargetting(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "module.law")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -132,5 +130,5 @@ func TestTerraformWithTargetting(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }

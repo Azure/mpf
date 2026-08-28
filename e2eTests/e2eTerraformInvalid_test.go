@@ -36,7 +36,7 @@ import (
 )
 
 func TestTerraformACIInvalidVarFile(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -73,8 +73,7 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, varsFile, true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -83,7 +82,7 @@ func TestTerraformACIInvalidVarFile(t *testing.T) {
 }
 
 func TestTerraformACIInvalidTfFile(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -117,8 +116,7 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -127,7 +125,7 @@ func TestTerraformACIInvalidTfFile(t *testing.T) {
 }
 
 func TestTerraformACIInvalidTfExec(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -158,8 +156,7 @@ func TestTerraformACIInvalidTfExec(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 

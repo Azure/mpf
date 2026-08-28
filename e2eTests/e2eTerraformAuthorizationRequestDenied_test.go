@@ -42,7 +42,7 @@ import (
 // cannot auto-discover. MPF should fail with a clear guidance error instead of
 // silently looping or producing a misleading parse error.
 func TestTerraformAuthorizationRequestDenied(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -70,8 +70,7 @@ func TestTerraformAuthorizationRequestDenied(t *testing.T) {
 	var rgManager usecase.ResourceGroupManager = rgm.NewResourceGroupManager(mpfArgs.SubscriptionID)
 	var spRoleAssignmentManager usecase.ServicePrincipalRolemAssignmentManager = spram.NewSPRoleAssignmentManager(mpfArgs.SubscriptionID)
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner := terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService := usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 

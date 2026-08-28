@@ -66,7 +66,7 @@ func cleanTerraformWorkingDir(t *testing.T, workingDir string) {
 }
 
 func TestTerraformACI(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -103,8 +103,7 @@ func TestTerraformACI(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, varsFile, true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -114,11 +113,11 @@ func TestTerraformACI(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformACINoTfvarsFile(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -152,8 +151,7 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -163,11 +161,11 @@ func TestTerraformACINoTfvarsFile(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 5, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 6, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformModuleTest(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -201,8 +199,7 @@ func TestTerraformModuleTest(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	initialPermissionsToAdd := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
-	permissionsToAddToResult := []string{"Microsoft.Resources/deployments/read", "Microsoft.Resources/deployments/write"}
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions()
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, "", true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
 
@@ -216,6 +213,7 @@ func TestTerraformModuleTest(t *testing.T) {
 	// Microsoft.OperationalInsights/workspaces/write
 	// Microsoft.Resources/deployments/read
 	// Microsoft.Resources/deployments/write
+	// Microsoft.Resources/subscriptions/providers/read
 	// Microsoft.Resources/subscriptions/resourcegroups/delete
 	// Microsoft.Resources/subscriptions/resourcegroups/read
 	// Microsoft.Resources/subscriptions/resourcegroups/write
@@ -223,7 +221,7 @@ func TestTerraformModuleTest(t *testing.T) {
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
 	perms := mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]
 	log.Infof("Found %d permissions: %v", len(perms), perms)
-	assert.Equal(t, 8, len(perms))
+	assert.Equal(t, 9, len(perms))
 }
 
 //
@@ -298,7 +296,7 @@ func TestTerraformModuleTest(t *testing.T) {
 // This validates the --initialPermissions flag feature (issue #91) which reduces execution time
 // by seeding known permissions.
 func TestTerraformACIWithInitialPermissions(t *testing.T) {
-	mpfArgs, err := getTestingMPFArgs()
+	mpfArgs, err := getTestingTerraformMPFArgs(t)
 	if err != nil {
 		t.Skip("required environment variables not set, skipping end to end test")
 	}
@@ -334,11 +332,9 @@ func TestTerraformACIWithInitialPermissions(t *testing.T) {
 	var deploymentAuthorizationCheckerCleaner usecase.DeploymentAuthorizationCheckerCleaner
 	var mpfService *usecase.MPFService
 
-	// Provide ALL expected permissions upfront - this should result in 0 iterations
-	// These are the 8 permissions required for the ACI sample (from TestTerraformACI)
-	initialPermissionsToAdd := []string{
-		"Microsoft.Resources/deployments/read",
-		"Microsoft.Resources/deployments/write",
+	// Provide ALL expected permissions upfront - this should result in 0 iterations.
+	// These are the 9 permissions required for the ACI sample (from TestTerraformACI).
+	initialPermissionsToAdd, permissionsToAddToResult := getTerraformE2EBootstrapPermissions(
 		// ACI permissions
 		"Microsoft.ContainerInstance/containerGroups/read",
 		"Microsoft.ContainerInstance/containerGroups/write",
@@ -347,8 +343,7 @@ func TestTerraformACIWithInitialPermissions(t *testing.T) {
 		"Microsoft.Resources/subscriptions/resourcegroups/read",
 		"Microsoft.Resources/subscriptions/resourcegroups/write",
 		"Microsoft.Resources/subscriptions/resourcegroups/delete",
-	}
-	permissionsToAddToResult := initialPermissionsToAdd
+	)
 
 	deploymentAuthorizationCheckerCleaner = terraform.NewTerraformAuthorizationChecker(wrkDir, tfpath, varsFile, true, "")
 	mpfService = usecase.NewMPFService(ctx, rgManager, spRoleAssignmentManager, deploymentAuthorizationCheckerCleaner, mpfConfig, initialPermissionsToAdd, permissionsToAddToResult, false, true, false)
@@ -365,6 +360,6 @@ func TestTerraformACIWithInitialPermissions(t *testing.T) {
 	// in 0 iterations (no permission discovery needed)
 	assert.Equal(t, 0, mpfResult.IterationCount, "Expected 0 iterations when all permissions are provided upfront")
 
-	// Verify we have all 8 expected permissions
-	assert.Equal(t, 8, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	// Verify we have all 9 expected permissions
+	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
