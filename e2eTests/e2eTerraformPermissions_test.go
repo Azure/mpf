@@ -24,6 +24,7 @@ package e2etests
 
 import (
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -39,6 +40,45 @@ func getTerraformE2EBootstrapPermissions(additionalPermissions ...string) ([]str
 	}, additionalPermissions...)
 
 	return initialPermissions, slices.Clone(initialPermissions)
+}
+
+func getCaseInsensitivePermissionCount(permissions []string) int {
+	uniquePermissions := make(map[string]struct{}, len(permissions))
+	for _, permission := range permissions {
+		uniquePermissions[strings.ToLower(permission)] = struct{}{}
+	}
+
+	return len(uniquePermissions)
+}
+
+func getCaseInsensitivePermissionSetDiff(expected, actual []string) ([]string, []string) {
+	expectedPermissions := make(map[string]string, len(expected))
+	actualPermissions := make(map[string]string, len(actual))
+
+	for _, permission := range expected {
+		expectedPermissions[strings.ToLower(permission)] = permission
+	}
+	for _, permission := range actual {
+		actualPermissions[strings.ToLower(permission)] = permission
+	}
+
+	var missingPermissions []string
+	for normalizedPermission, permission := range expectedPermissions {
+		if _, found := actualPermissions[normalizedPermission]; !found {
+			missingPermissions = append(missingPermissions, permission)
+		}
+	}
+
+	var unexpectedPermissions []string
+	for normalizedPermission, permission := range actualPermissions {
+		if _, found := expectedPermissions[normalizedPermission]; !found {
+			unexpectedPermissions = append(unexpectedPermissions, permission)
+		}
+	}
+
+	slices.Sort(missingPermissions)
+	slices.Sort(unexpectedPermissions)
+	return missingPermissions, unexpectedPermissions
 }
 
 func TestE2ETerraformBootstrapPermissions(t *testing.T) {
@@ -66,4 +106,36 @@ func TestE2ETerraformBootstrapPermissions(t *testing.T) {
 	if !slices.Equal(nextInitialPermissions, expected) {
 		t.Fatalf("helper result was mutated across calls: %v", nextInitialPermissions)
 	}
+
+	t.Run("counts casing variants once", func(t *testing.T) {
+		permissions := []string{
+			"Microsoft.Resources/subscriptions/resourceGroups/read",
+			"Microsoft.Resources/subscriptions/resourcegroups/read",
+			"Microsoft.Resources/subscriptions/resourceGroups/write",
+		}
+
+		if count := getCaseInsensitivePermissionCount(permissions); count != 2 {
+			t.Fatalf("expected 2 case-insensitive permissions, got %d", count)
+		}
+	})
+
+	t.Run("compares permission sets case insensitively", func(t *testing.T) {
+		expectedPermissions := []string{
+			"Microsoft.Resources/subscriptions/resourceGroups/read",
+			"Microsoft.Resources/subscriptions/resourceGroups/write",
+		}
+		actualPermissions := []string{
+			"Microsoft.Resources/subscriptions/resourcegroups/read",
+			"Microsoft.Resources/subscriptions/RESOURCEGROUPS/READ",
+			"Microsoft.Resources/subscriptions/resourcegroups/delete",
+		}
+
+		missingPermissions, unexpectedPermissions := getCaseInsensitivePermissionSetDiff(expectedPermissions, actualPermissions)
+		if !slices.Equal(missingPermissions, []string{"Microsoft.Resources/subscriptions/resourceGroups/write"}) {
+			t.Fatalf("unexpected missing permissions: %v", missingPermissions)
+		}
+		if !slices.Equal(unexpectedPermissions, []string{"Microsoft.Resources/subscriptions/resourcegroups/delete"}) {
+			t.Fatalf("unexpected additional permissions: %v", unexpectedPermissions)
+		}
+	})
 }
