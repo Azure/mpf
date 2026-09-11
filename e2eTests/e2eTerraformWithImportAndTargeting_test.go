@@ -81,7 +81,7 @@ func TestTerraformWithImport(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 18, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 18, getCaseInsensitivePermissionCount(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
 
 func TestTerraformWithTargetting(t *testing.T) {
@@ -130,5 +130,5 @@ func TestTerraformWithTargetting(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 9, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 9, getCaseInsensitivePermissionCount(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }

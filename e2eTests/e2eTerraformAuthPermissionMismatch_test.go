@@ -83,5 +83,5 @@ func TestTerraformAuthorizationPermissionMismatch(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, mpfResult.RequiredPermissions)
-	assert.Equal(t, 12, len(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
+	assert.Equal(t, 12, getCaseInsensitivePermissionCount(mpfResult.RequiredPermissions[mpfConfig.SubscriptionID]))
 }
