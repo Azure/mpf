@@ -104,7 +104,25 @@ chmod +x "${INSTALL_SCRIPT}"
 
 # Execute downloaded script
 log "Executing installation script"
-if ! /bin/bash "${INSTALL_SCRIPT}" --version "${VERSION}" --install-folder "${INSTALL_DIR}" --symlink-folder "${INSTALL_DIR}"; then
+installerArgs=(
+  --version "${VERSION}"
+  --install-folder "${INSTALL_DIR}"
+  --symlink-folder "${INSTALL_DIR}"
+)
+
+if [[ "${VERSION}" != "latest" ]]; then
+  releaseVersion="${VERSION#v}"
+  releaseBaseUrl="https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_${releaseVersion}"
+  log "Using GitHub Release asset for pinned version ${releaseVersion}"
+  installerArgs=(
+    --base-url "${releaseBaseUrl}"
+    --version ""
+    --install-folder "${INSTALL_DIR}"
+    --symlink-folder "${INSTALL_DIR}"
+  )
+fi
+
+if ! /bin/bash "${INSTALL_SCRIPT}" "${installerArgs[@]}"; then
   die "Installation failed. Check version or network connection."
 fi
 
