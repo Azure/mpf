@@ -102,9 +102,43 @@ if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
 fi
 chmod +x "${INSTALL_SCRIPT}"
 
+installerArgs=(
+  --version "${VERSION}"
+  --install-folder "${INSTALL_DIR}"
+  --symlink-folder "${INSTALL_DIR}"
+)
+
+# Released versions are no longer published to the installer's default base URL,
+# so stage the matching GitHub release asset locally and point the installer at
+# it. Rolling channels (latest, daily, stable) keep using the default base URL.
+if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+  releaseVersion="${VERSION#v}"
+  assetDir="${tempDir}/asset"
+  mkdir -p "${assetDir}" || die "Cannot create asset directory ${assetDir}"
+
+  # Ask the pinned installer which asset it expects for this platform.
+  assetUrl="$(/bin/bash "${INSTALL_SCRIPT}" --version "${VERSION}" --dry-run | grep -oE 'https?://[^[:space:]]+' | tail -n 1 || true)"
+  assetName="$(basename "${assetUrl:-}")"
+  [[ "${assetName}" == azd-* ]] || die "Could not determine ${TOOL_NAME} asset name (got '${assetName}')"
+
+  releaseUrl="https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_${releaseVersion}/${assetName}"
+  log "Staging GitHub release asset ${assetName} for ${releaseVersion}"
+  # GitHub redirects release downloads, which the installer's curl call does not follow.
+  if ! curl -fsSL "${releaseUrl}" -o "${assetDir}/${assetName}"; then
+    die "Failed to download ${assetName} for ${TOOL_NAME} ${releaseVersion}. Check version or network connection."
+  fi
+
+  installerArgs=(
+    --base-url "file://${assetDir}"
+    --version ""
+    --install-folder "${INSTALL_DIR}"
+    --symlink-folder "${INSTALL_DIR}"
+  )
+fi
+
 # Execute downloaded script
 log "Executing installation script"
-if ! /bin/bash "${INSTALL_SCRIPT}" --version "${VERSION}" --install-folder "${INSTALL_DIR}" --symlink-folder "${INSTALL_DIR}"; then
+if ! /bin/bash "${INSTALL_SCRIPT}" "${installerArgs[@]}"; then
   die "Installation failed. Check version or network connection."
 fi
 
