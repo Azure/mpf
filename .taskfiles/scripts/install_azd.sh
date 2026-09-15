@@ -93,46 +93,53 @@ fi
 
 log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
+# Download installation script to temp file (avoid piping curl to shell)
 tempDir="$(mktemp -d)" || die "Failed to create temp directory"
+INSTALL_SCRIPT="${tempDir}/install-azd.sh"
+log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+  die "Failed to download installation script. Check network connection."
+fi
+chmod +x "${INSTALL_SCRIPT}"
 
+installerArgs=(
+  --version "${VERSION}"
+  --install-folder "${INSTALL_DIR}"
+  --symlink-folder "${INSTALL_DIR}"
+)
+
+# Released versions are no longer published to the installer's default base URL,
+# so stage the matching GitHub release asset locally and point the installer at
+# it. Rolling channels (latest, daily, stable) keep using the default base URL.
 if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
   releaseVersion="${VERSION#v}"
-  case "$(uname -m)" in
-    x86_64 | amd64) architecture="amd64" ;;
-    aarch64 | arm64) architecture="arm64" ;;
-    *) die "Unsupported architecture: $(uname -m)" ;;
-  esac
+  assetDir="${tempDir}/asset"
+  mkdir -p "${assetDir}" || die "Cannot create asset directory ${assetDir}"
 
-  archiveName="azd-linux-${architecture}.tar.gz"
-  archivePath="${tempDir}/${archiveName}"
-  releaseUrl="https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_${releaseVersion}/${archiveName}"
-  log "Using GitHub Release asset for pinned version ${releaseVersion}"
-  if ! curl -fsSL "${releaseUrl}" -o "${archivePath}"; then
-    die "Failed to download ${TOOL_NAME} ${releaseVersion}. Check version or network connection."
-  fi
+  # Ask the pinned installer which asset it expects for this platform.
+  assetUrl="$(/bin/bash "${INSTALL_SCRIPT}" --version "${VERSION}" --dry-run | grep -oE 'https?://[^[:space:]]+' | tail -n 1 || true)"
+  assetName="$(basename "${assetUrl:-}")"
+  [[ "${assetName}" == azd-* ]] || die "Could not determine ${TOOL_NAME} asset name (got '${assetName}')"
 
-  if ! tar -xzf "${archivePath}" -C "${tempDir}"; then
-    die "Failed to extract ${archiveName}"
+  releaseUrl="https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_${releaseVersion}/${assetName}"
+  log "Staging GitHub release asset ${assetName} for ${releaseVersion}"
+  # GitHub redirects release downloads, which the installer's curl call does not follow.
+  if ! curl -fsSL "${releaseUrl}" -o "${assetDir}/${assetName}"; then
+    die "Failed to download ${assetName} for ${TOOL_NAME} ${releaseVersion}. Check version or network connection."
   fi
 
-  binaryPath="${tempDir}/azd-linux-${architecture}"
-  [[ -f "${binaryPath}" ]] || die "Archive did not contain azd-linux-${architecture}"
-  install -m 0755 "${binaryPath}" "${INSTALL_DIR}/${TOOL_NAME}" || die "Failed to install ${TOOL_NAME}"
-  if [[ -f "${tempDir}/NOTICE.txt" ]]; then
-    install -m 0644 "${tempDir}/NOTICE.txt" "${INSTALL_DIR}/NOTICE.txt" || die "Failed to install NOTICE.txt"
-  fi
-else
-  INSTALL_SCRIPT="${tempDir}/install-azd.sh"
-  log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
-  if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
-    die "Failed to download installation script. Check network connection."
-  fi
-  chmod +x "${INSTALL_SCRIPT}"
+  installerArgs=(
+    --base-url "file://${assetDir}"
+    --version ""
+    --install-folder "${INSTALL_DIR}"
+    --symlink-folder "${INSTALL_DIR}"
+  )
+fi
 
-  log "Executing installation script"
-  if ! /bin/bash "${INSTALL_SCRIPT}" --version "${VERSION}" --install-folder "${INSTALL_DIR}" --symlink-folder "${INSTALL_DIR}"; then
-    die "Installation failed. Check version or network connection."
-  fi
+# Execute downloaded script
+log "Executing installation script"
+if ! /bin/bash "${INSTALL_SCRIPT}" "${installerArgs[@]}"; then
+  die "Installation failed. Check version or network connection."
 fi
 
 log "✓ Successfully installed ${TOOL_NAME} to ${INSTALL_DIR}/${TOOL_NAME}"
