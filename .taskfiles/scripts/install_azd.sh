@@ -93,37 +93,46 @@ fi
 
 log "Installing ${TOOL_NAME} (${VERSION}) to ${INSTALL_DIR}"
 
-# Download installation script to temp file (avoid piping curl to shell)
 tempDir="$(mktemp -d)" || die "Failed to create temp directory"
-INSTALL_SCRIPT="${tempDir}/install-azd.sh"
-log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
-if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
-  die "Failed to download installation script. Check network connection."
-fi
-chmod +x "${INSTALL_SCRIPT}"
 
-# Execute downloaded script
-log "Executing installation script"
-installerArgs=(
-  --version "${VERSION}"
-  --install-folder "${INSTALL_DIR}"
-  --symlink-folder "${INSTALL_DIR}"
-)
-
-if [[ "${VERSION}" != "latest" ]]; then
+if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
   releaseVersion="${VERSION#v}"
-  releaseBaseUrl="https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_${releaseVersion}"
-  log "Using GitHub Release asset for pinned version ${releaseVersion}"
-  installerArgs=(
-    --base-url "${releaseBaseUrl}"
-    --version ""
-    --install-folder "${INSTALL_DIR}"
-    --symlink-folder "${INSTALL_DIR}"
-  )
-fi
+  case "$(uname -m)" in
+    x86_64 | amd64) architecture="amd64" ;;
+    aarch64 | arm64) architecture="arm64" ;;
+    *) die "Unsupported architecture: $(uname -m)" ;;
+  esac
 
-if ! /bin/bash "${INSTALL_SCRIPT}" "${installerArgs[@]}"; then
-  die "Installation failed. Check version or network connection."
+  archiveName="azd-linux-${architecture}.tar.gz"
+  archivePath="${tempDir}/${archiveName}"
+  releaseUrl="https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_${releaseVersion}/${archiveName}"
+  log "Using GitHub Release asset for pinned version ${releaseVersion}"
+  if ! curl -fsSL "${releaseUrl}" -o "${archivePath}"; then
+    die "Failed to download ${TOOL_NAME} ${releaseVersion}. Check version or network connection."
+  fi
+
+  if ! tar -xzf "${archivePath}" -C "${tempDir}"; then
+    die "Failed to extract ${archiveName}"
+  fi
+
+  binaryPath="${tempDir}/azd-linux-${architecture}"
+  [[ -f "${binaryPath}" ]] || die "Archive did not contain azd-linux-${architecture}"
+  install -m 0755 "${binaryPath}" "${INSTALL_DIR}/${TOOL_NAME}" || die "Failed to install ${TOOL_NAME}"
+  if [[ -f "${tempDir}/NOTICE.txt" ]]; then
+    install -m 0644 "${tempDir}/NOTICE.txt" "${INSTALL_DIR}/NOTICE.txt" || die "Failed to install NOTICE.txt"
+  fi
+else
+  INSTALL_SCRIPT="${tempDir}/install-azd.sh"
+  log "Downloading official installation script (pinned to ${INSTALL_SCRIPT_SHA})"
+  if ! curl -fsSL "${INSTALL_SCRIPT_URL}" -o "${INSTALL_SCRIPT}"; then
+    die "Failed to download installation script. Check network connection."
+  fi
+  chmod +x "${INSTALL_SCRIPT}"
+
+  log "Executing installation script"
+  if ! /bin/bash "${INSTALL_SCRIPT}" --version "${VERSION}" --install-folder "${INSTALL_DIR}" --symlink-folder "${INSTALL_DIR}"; then
+    die "Installation failed. Check version or network connection."
+  fi
 fi
 
 log "✓ Successfully installed ${TOOL_NAME} to ${INSTALL_DIR}/${TOOL_NAME}"
