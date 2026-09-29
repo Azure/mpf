@@ -40,7 +40,7 @@ resource "azurerm_storage_account" "st" {
   name                          = "saapermmismatch${random_string.rand.result}"
   resource_group_name           = azurerm_resource_group.rg.name
   location                      = azurerm_resource_group.rg.location
-  account_kind                  = "Storage"
+  account_kind                  = "StorageV2"
   account_tier                  = "Standard"
   account_replication_type      = "LRS"
   public_network_access_enabled = false
