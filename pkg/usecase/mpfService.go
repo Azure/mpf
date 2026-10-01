@@ -24,6 +24,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -33,6 +34,8 @@ import (
 
 // RetryDeploymentResponseErrorMessage is the error message returned by a deployment authorization checker when it wants the deployment to be retried
 const RetryDeploymentResponseErrorMessage = "RetryGetDeploymentAuthorizationErrors"
+
+const maxConsecutiveRetryResponses = 5
 
 type MPFService struct {
 	ctx                                 context.Context
@@ -47,6 +50,8 @@ type MPFService struct {
 	autoAddDeletePermissionForEachWrite bool
 	autoCreateResourceGroup             bool
 	iterationCount                      int
+	consecutiveRetryResponses           int
+	sleep                               func(time.Duration)
 }
 
 func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnMgr ServicePrincipalRolemAssignmentManager, deploymentAuthChkCln DeploymentAuthorizationCheckerCleaner, mpfConfig domain.MPFConfig, initialPermissionsToAdd []string, permissionsToAddToResult []string, autoAddReadPermissionForEachWrite bool, autoAddDeletePermissionForEachWrite bool, autoCreateResourceGroup bool) *MPFService {
@@ -62,6 +67,7 @@ func NewMPFService(ctx context.Context, rgMgr ResourceGroupManager, spRoleAssgnM
 		autoAddReadPermissionForEachWrite:   autoAddReadPermissionForEachWrite,
 		autoAddDeletePermissionForEachWrite: autoAddDeletePermissionForEachWrite,
 		autoCreateResourceGroup:             autoCreateResourceGroup,
+		sleep:                               time.Sleep,
 	}
 }
 
@@ -80,6 +86,7 @@ func (s *MPFService) returnMPFResult(err error) (domain.MPFResult, error) {
 }
 
 func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
+	s.consecutiveRetryResponses = 0
 
 	if s.autoCreateResourceGroup {
 		// Create Resource Group
@@ -109,7 +116,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	// Wait for Azure RBAC propagation after deleting role assignments
 	// This gives previously granted permissions time to be revoked before discovery starts.
 	log.Infoln("Waiting for Azure RBAC propagation after deleting role assignments...")
-	time.Sleep(1 * time.Second)
+	s.sleep(1 * time.Second)
 
 	// Initialize new custom role
 	log.Infoln("Initializing Custom Role")
@@ -138,7 +145,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 	// Wait for Azure RBAC propagation after initial role assignment
 	// Azure role assignments can take a few seconds to propagate across all authorization endpoints
 	log.Infoln("Waiting for Azure RBAC propagation after initial role assignment...")
-	time.Sleep(5 * time.Second)
+	s.sleep(5 * time.Second)
 
 	// Add initial permissions to requiredPermissions map
 	log.Infoln("Adding initial permissions to requiredPermissions map")
@@ -159,8 +166,16 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 
 		if err == nil && strings.Contains(authErrMesg, RetryDeploymentResponseErrorMessage) {
 			log.Warnf("received retry request from authorization checker, retrying deployment.... \n")
+			s.consecutiveRetryResponses++
+			if s.consecutiveRetryResponses >= maxConsecutiveRetryResponses {
+				retryErr := fmt.Errorf("deployment authorization checker requested retry %d consecutive times; stopping to prevent an unbounded retry loop", s.consecutiveRetryResponses)
+				log.Warn(retryErr)
+				return s.returnMPFResult(retryErr)
+			}
 			continue
 		}
+
+		s.consecutiveRetryResponses = 0
 
 		if err != nil {
 			log.Warnf("Non Authorization error received: %v \n", err)
@@ -220,7 +235,7 @@ func (s *MPFService) GetMinimumPermissionsRequired() (domain.MPFResult, error) {
 		// Wait for Azure RBAC propagation before retrying deployment
 		// Azure role definition updates can take a few seconds to propagate across all authorization endpoints
 		log.Infoln("Waiting for Azure RBAC propagation...")
-		time.Sleep(5 * time.Second)
+		s.sleep(5 * time.Second)
 
 		s.iterationCount++
 		if s.iterationCount == maxIterations {
