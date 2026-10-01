@@ -64,7 +64,7 @@ func (noOpRoleManager) AssignRoleToSP(string, string, domain.Role) error {
 	return nil
 }
 
-func (noOpRoleManager) CreateUpdateCustomRole(string, domain.Role, []string) (error, []string) {
+func (noOpRoleManager) CreateUpdateCustomRole(string, domain.Role, []string) (error, []string) { //nolint:staticcheck
 	return nil, nil
 }
 

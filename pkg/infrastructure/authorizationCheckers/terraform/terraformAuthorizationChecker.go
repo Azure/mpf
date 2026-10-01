@@ -278,19 +278,32 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 		return a.terraformApply(mpfConfig, tf)
 	}
 
-	if isTransientStorageNotFoundError(errorMsg) {
-		log.Warnln("terraform apply: transient Storage ResourceNotFound error occurred, requesting bounded retry")
-		return a.retryOrReturnError(err)
-	}
+	return a.handleTerraformApplyError(err)
+}
 
+func (a *terraformDeploymentConfig) handleTerraformApplyError(err error) (string, error) {
+	errorMsg := err.Error()
 	if strings.Contains(errorMsg, "Authorization") || strings.Contains(errorMsg, "LinkedAccessCheckFailed") {
+		if hasParseableAuthorizationError(errorMsg) {
+			a.resetRetryCountAfterProgress()
+			log.Debug("terraform apply: parseable authorization error occurred")
+			return errorMsg, nil
+		}
 		if strings.Contains(errorMsg, WaitingForDataplaneError) {
 			log.Warnln("terraform apply: waiting for dataplane error occurred, requesting bounded retry")
 			return a.retryOrReturnError(err)
 		}
-		a.resetRetryCountForAuthorizationError(errorMsg)
+		if isTransientStorageNotFoundError(errorMsg) {
+			log.Warnln("terraform apply: transient Storage ResourceNotFound occurred with unparseable authorization diagnostics, requesting bounded retry")
+			return a.retryOrReturnError(err)
+		}
 		log.Debug("terraform apply: authorization error occured")
 		return errorMsg, nil
+	}
+
+	if isTransientStorageNotFoundError(errorMsg) {
+		log.Warnln("terraform apply: transient Storage ResourceNotFound error occurred, requesting bounded retry")
+		return a.retryOrReturnError(err)
 	}
 
 	log.Warnf("terraform apply: non authorizaton error occured: %s", errorMsg)
@@ -328,9 +341,14 @@ func (a *terraformDeploymentConfig) retryOrReturnError(err error) (string, error
 }
 
 func (a *terraformDeploymentConfig) resetRetryCountForAuthorizationError(errorMsg string) {
-	if _, err := domain.GetScopePermissionsFromAuthError(errorMsg); err == nil {
+	if hasParseableAuthorizationError(errorMsg) {
 		a.resetRetryCountAfterProgress()
 	}
+}
+
+func hasParseableAuthorizationError(errorMsg string) bool {
+	_, err := domain.GetScopePermissionsFromAuthError(errorMsg)
+	return err == nil
 }
 
 func (a *terraformDeploymentConfig) resetRetryCountAfterProgress() {

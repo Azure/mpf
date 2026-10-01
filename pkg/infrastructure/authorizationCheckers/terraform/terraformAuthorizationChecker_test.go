@@ -178,3 +178,76 @@ func TestRetryCountResetsAfterParseableAuthorizationError(t *testing.T) {
 		t.Fatalf("retry count after unparseable authorization error = %d, want 2", checker.consecutiveRetryCount)
 	}
 }
+
+func TestParseableAuthorizationErrorTakesPriorityOverStorageNotFound(t *testing.T) {
+	errorMsg := `retrieving share properties for Storage Account: 404 ResourceNotFound
+{"error":{"code":"AuthorizationFailed","message":"The client 'client' with object id 'object' does not have authorization to perform action 'Microsoft.Resources/deployments/write' over scope '/subscriptions/sub/resourcegroups/rg/providers/Microsoft.Resources/deployments/deployment' or the scope is invalid."}}`
+	applyErr := errors.New(errorMsg)
+	slept := false
+	checker := &terraformDeploymentConfig{
+		consecutiveRetryCount: 2,
+		sleep: func(time.Duration) {
+			slept = true
+		},
+	}
+
+	message, err := checker.handleTerraformApplyError(applyErr)
+	if err != nil {
+		t.Fatalf("handleTerraformApplyError() error = %v, want nil authorization result", err)
+	}
+	if message != errorMsg {
+		t.Fatalf("handleTerraformApplyError() message = %q, want aggregated authorization error", message)
+	}
+	if checker.consecutiveRetryCount != 0 {
+		t.Fatalf("retry count = %d, want reset after authorization progress", checker.consecutiveRetryCount)
+	}
+	if slept {
+		t.Fatal("parseable authorization error must not trigger retry backoff")
+	}
+}
+
+func TestTerraformApplyErrorRetryClassification(t *testing.T) {
+	tests := []struct {
+		name     string
+		errorMsg string
+	}{
+		{
+			name:     "plain transient Storage not found",
+			errorMsg: "retrieving share properties for Storage Account: 404 ResourceNotFound",
+		},
+		{
+			name:     "unparseable dataplane readiness authorization error",
+			errorMsg: "waiting for the Data Plane for Storage Account: AuthorizationPermissionMismatch",
+		},
+		{
+			name: "transient Storage not found with unparseable authorization diagnostic",
+			errorMsg: `retrieving share properties for Storage Account: 404 ResourceNotFound
+AuthorizationPermissionMismatch: incomplete provider diagnostic`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var delays []time.Duration
+			checker := &terraformDeploymentConfig{
+				sleep: func(delay time.Duration) {
+					delays = append(delays, delay)
+				},
+			}
+
+			message, err := checker.handleTerraformApplyError(errors.New(tt.errorMsg))
+			if err != nil {
+				t.Fatalf("handleTerraformApplyError() error = %v, want nil retry response", err)
+			}
+			if message != RetryDeploymentResponseErrorMessage {
+				t.Fatalf("handleTerraformApplyError() message = %q, want retry sentinel", message)
+			}
+			if checker.consecutiveRetryCount != 1 {
+				t.Fatalf("retry count = %d, want 1", checker.consecutiveRetryCount)
+			}
+			if len(delays) != 1 || delays[0] != terraformRetryDelays[0] {
+				t.Fatalf("delays = %v, want [%s]", delays, terraformRetryDelays[0])
+			}
+		})
+	}
+}
