@@ -27,6 +27,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Azure/mpf/pkg/domain"
 	"github.com/hashicorp/terraform-exec/tfexec"
@@ -40,6 +41,8 @@ type terraformDeploymentConfig struct {
 	varFilePath                    string
 	importExistingResourcesToState bool
 	targetModule                   string
+	consecutiveRetryCount          int
+	sleep                          func(time.Duration)
 }
 
 var inDestroyPhase bool
@@ -57,6 +60,28 @@ const (
 	WaitingForDataplaneError    = "waiting for the Data Plane"
 )
 
+var terraformRetryDelays = [...]time.Duration{
+	10 * time.Second,
+	20 * time.Second,
+	30 * time.Second,
+	30 * time.Second,
+}
+
+// These narrow contexts match the Storage reads observed with AzureRM 4.80.0.
+var transientStorageNotFoundContexts = []string{
+	"retrieving storage account",
+	"retrieving share properties for storage account",
+	"retrieving file properties for storage account",
+	"retrieving queue properties for storage account",
+	"retrieving blob properties for storage account",
+	"retrieving static website properties for storage account",
+	"waiting for the data plane for storage account",
+	"waiting for the blob service to become available",
+	"waiting for the file service to become available",
+	"waiting for the queue service to become available",
+	"waiting for the static website to become available",
+}
+
 func NewTerraformAuthorizationChecker(workDir string, execPath string, varFilePath string, importExistingResources bool, targetModule string) *terraformDeploymentConfig {
 	err := deleteEnteredDestroyPhaseStateFile(workDir, TFDestroyStateEnteredFileName)
 	if err != nil {
@@ -70,6 +95,7 @@ func NewTerraformAuthorizationChecker(workDir string, execPath string, varFilePa
 		varFilePath:                    varFilePath,
 		importExistingResourcesToState: importExistingResources,
 		targetModule:                   targetModule,
+		sleep:                          time.Sleep,
 	}
 }
 
@@ -224,6 +250,7 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 	}
 
 	if err == nil {
+		a.resetRetryCountAfterProgress()
 		return "", nil
 	}
 
@@ -231,9 +258,9 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 	log.Debugln("terraform apply error: ", errorMsg)
 
 	// Temporary fix to workaround issue https://github.com/hashicorp/terraform-provider-azurerm/issues/27961
-	// It is observed only once, so retrying works
+	// The checker bounds this retry as well, in case the provider error persists.
 	if strings.Contains(errorMsg, BillingFeaturesPayloadError) {
-		return RetryDeploymentResponseErrorMessage, nil
+		return a.retryOrReturnError(err)
 	}
 
 	// import errors can occur for some resources, when identity does not have all required permissions,
@@ -243,6 +270,7 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 		msg, err := a.terraformImport(tf, errorMsg)
 		if err != nil || msg != "" {
 			if strings.Contains(msg, "Authorization") {
+				a.resetRetryCountForAuthorizationError(msg)
 				return msg, nil
 			}
 			return msg, err
@@ -250,17 +278,81 @@ func (a *terraformDeploymentConfig) terraformApply(mpfConfig domain.MPFConfig, t
 		return a.terraformApply(mpfConfig, tf)
 	}
 
+	return a.handleTerraformApplyError(err)
+}
+
+func (a *terraformDeploymentConfig) handleTerraformApplyError(err error) (string, error) {
+	errorMsg := err.Error()
 	if strings.Contains(errorMsg, "Authorization") || strings.Contains(errorMsg, "LinkedAccessCheckFailed") {
+		if hasParseableAuthorizationError(errorMsg) {
+			a.resetRetryCountAfterProgress()
+			log.Debug("terraform apply: parseable authorization error occurred")
+			return errorMsg, nil
+		}
 		if strings.Contains(errorMsg, WaitingForDataplaneError) {
-			log.Warnln("terraform apply: waiting for dataplane error occured, requesting retry")
-			return RetryDeploymentResponseErrorMessage, nil
+			log.Warnln("terraform apply: waiting for dataplane error occurred, requesting bounded retry")
+			return a.retryOrReturnError(err)
+		}
+		if isTransientStorageNotFoundError(errorMsg) {
+			log.Warnln("terraform apply: transient Storage ResourceNotFound occurred with unparseable authorization diagnostics, requesting bounded retry")
+			return a.retryOrReturnError(err)
 		}
 		log.Debug("terraform apply: authorization error occured")
 		return errorMsg, nil
 	}
 
+	if isTransientStorageNotFoundError(errorMsg) {
+		log.Warnln("terraform apply: transient Storage ResourceNotFound error occurred, requesting bounded retry")
+		return a.retryOrReturnError(err)
+	}
+
 	log.Warnf("terraform apply: non authorizaton error occured: %s", errorMsg)
 	return errorMsg, err
+}
+
+func isTransientStorageNotFoundError(errorMsg string) bool {
+	lowerErrorMsg := strings.ToLower(errorMsg)
+	if !strings.Contains(lowerErrorMsg, "404") || !strings.Contains(lowerErrorMsg, "resourcenotfound") {
+		return false
+	}
+
+	for _, context := range transientStorageNotFoundContexts {
+		if strings.Contains(lowerErrorMsg, context) {
+			return true
+		}
+	}
+	return false
+}
+
+func (a *terraformDeploymentConfig) retryOrReturnError(err error) (string, error) {
+	if a.consecutiveRetryCount >= len(terraformRetryDelays) {
+		a.consecutiveRetryCount = 0
+		return err.Error(), err
+	}
+
+	delay := terraformRetryDelays[a.consecutiveRetryCount]
+	a.consecutiveRetryCount++
+	sleep := a.sleep
+	if sleep == nil {
+		sleep = time.Sleep
+	}
+	sleep(delay)
+	return RetryDeploymentResponseErrorMessage, nil
+}
+
+func (a *terraformDeploymentConfig) resetRetryCountForAuthorizationError(errorMsg string) {
+	if hasParseableAuthorizationError(errorMsg) {
+		a.resetRetryCountAfterProgress()
+	}
+}
+
+func hasParseableAuthorizationError(errorMsg string) bool {
+	_, err := domain.GetScopePermissionsFromAuthError(errorMsg)
+	return err == nil
+}
+
+func (a *terraformDeploymentConfig) resetRetryCountAfterProgress() {
+	a.consecutiveRetryCount = 0
 }
 
 func (a *terraformDeploymentConfig) terraformImport(tf *tfexec.Terraform, existingResErrMesg string) (string, error) {
