@@ -9,9 +9,9 @@ vars:
       dlv: v1.27.2
       gopls: v0.23.0
       deadcode: v0.50.0
-      golangciLint: 2.13.2
+      golangciLint: 2.14.0
       gotestsum: v1.13.0
-      govulncheck: v1.8.0
+      govulncheck: v1.9.0
       goimports: v0.50.0
       gofumpt: v0.12.0
       goTestCoverage: v2.19.0
@@ -19,7 +19,7 @@ vars:
       goreleaser: 2.18.1
   GO_INSTALLER_SHA:
     map:
-      golangciLint: 27774aaf853a4fd21f1dd5e69439459dc1b26e68 # 2026-05-01 golangci/golangci-lint install.sh
+      golangciLint: 114493f9b3e7257d29e4130f2b4a4aadefbb6845 # 2026-09-24 golangci/golangci-lint install.sh
 
 tasks:
   # * Install GoReleaser
